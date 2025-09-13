@@ -5,18 +5,70 @@
          http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
+    <display-name>Ghost Net Fishing - Java EE 7</display-name>
+    <description>Java EE 7 Application with JSF 2.2, JPA 2.1, CDI</description>
+
+    <!-- JSF 2.2 Servlet -->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <!-- JSF Mapping für XHTML -->
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
 
+    <!-- JSF Development Stage -->
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+
+    <!-- JSF State Management -->
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+
+    <!-- JSF Charset -->
+    <context-param>
+        <param-name>javax.faces.DEFAULT_CHARSET</param-name>
+        <param-value>UTF-8</param-value>
+    </context-param>
+
+    <!-- JSF Facelets Development Mode -->
+    <context-param>
+        <param-name>javax.faces.FACELETS_DEVELOPMENT</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <!-- JSF Facelets Refresh Period -->
+    <context-param>
+        <param-name>javax.faces.FACELETS_REFRESH_PERIOD</param-name>
+        <param-value>2</param-value>
+    </context-param>
+
+    <!-- JPA DataSource Resource Reference -->
+    <resource-ref>
+        <description>H2 Database for GhostNetPU</description>
+        <res-ref-name>jdbc/GhostNetDS</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+    </resource-ref>
+
+    <!-- CDI Bean Discovery (Java EE 7) -->
+    <context-param>
+        <param-name>openejb.jee.version</param-name>
+        <param-value>7</param-value>
+    </context-param>
+
+    <!-- Welcome File für JSF -->
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
+
 </web-app>

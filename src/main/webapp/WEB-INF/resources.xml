@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
-    <!-- H2 Database DataSource for GhostNetPU -->
-    <Resource id="GhostNetDS"
-              type="DataSource">
+<tomee>
+    <!-- H2 In-Memory DataSource für Java EE 7 -->
+    <Resource id="jdbc/GhostNetDS"
+              type="javax.sql.DataSource">
         JdbcDriver org.h2.Driver
-        JdbcUrl jdbc:h2:~/ghostnet;AUTO_SERVER=TRUE
+        JdbcUrl jdbc:h2:mem:ghostnet;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
         UserName sa
-        Password ""
+        Password
         JtaManaged true
         DefaultAutoCommit false
-        MaxSize 20
-        MinSize 5
-        ValidationQuery SQL SELECT 1
+
+        <!-- Connection Pool Einstellungen -->
+        MaxActive 20
+        MaxIdle 10
+        MinIdle 2
+        RemoveAbandonedOnBorrow true
+        RemoveAbandonedTimeout 60
+        LogAbandoned true
+        ValidationQuery SELECT 1
+        TestWhileIdle true
+        TestOnBorrow true
+        TimeBetweenEvictionRunsMillis 30000
+        MinEvictableIdleTimeMillis 60000
     </Resource>
-</resources>
+</tomee>

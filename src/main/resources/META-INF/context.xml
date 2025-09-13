@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <!-- Java EE 7 DataSource für TomEE -->
+    <Resource name="jdbc/GhostNetDS"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="org.h2.Driver"
+              url="jdbc:h2:mem:ghostnet;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+              username="sa"
+              password=""
+
+    <!-- Connection Pool für Java EE -->
+    maxTotal="20"
+    maxIdle="10"
+    minIdle="2"
+    maxWaitMillis="10000"
+
+    <!-- Validation -->
+    validationQuery="SELECT 1"
+    testWhileIdle="true"
+    testOnBorrow="true"
+    timeBetweenEvictionRunsMillis="30000"
+    minEvictableIdleTimeMillis="60000"
+
+    <!-- JTA Support -->
+    defaultAutoCommit="false"/>
+</Context>
