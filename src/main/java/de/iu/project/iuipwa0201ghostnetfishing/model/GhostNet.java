@@ -23,9 +23,24 @@ public class GhostNet implements Serializable {
 
     public GhostNet(String name) { this.name = name; }
 
+    /**
+     * Returns the ID.
+     */
     public Long getId() { return id; }
+    /**
+     * Returns the name.
+     */
     public String getName() { return name; }
+    /**
+     * Sets the name of the object.
+     */
     public void setName(String name) { this.name = name; }
+    /**
+     * Returns the creation date.
+     */
     public Date getCreatedAt() { return createdAt; }
+    /**
+     * Sets the creation date.
+     */
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 }
