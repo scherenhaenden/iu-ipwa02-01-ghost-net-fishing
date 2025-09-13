@@ -17,6 +17,9 @@ public class GhostNetBean {
 
     private String name;
 
+    /**
+     * Creates a new entry with the provided name if it is not null or empty.
+     */
     public String create() {
         if (name != null && !name.trim().isEmpty()) {
             service.create(name.trim());
@@ -26,11 +29,20 @@ public class GhostNetBean {
         return null;
     }
 
+    /**
+     * Retrieves a list of all GhostNet entities.
+     */
     public List<GhostNet> getAll() {
         return service.findAll();
     }
 
+    /**
+     * Returns the name.
+     */
     public String getName() { return name; }
+    /**
+     * Sets the name of the object.
+     */
     public void setName(String name) { this.name = name; }
 }
 
