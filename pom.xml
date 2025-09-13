@@ -50,6 +50,7 @@
 
 
     <build>
+        <finalName>iu-ipwa02-01-ghost-net-fishing</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,4 +59,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
