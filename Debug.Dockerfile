@@ -23,10 +23,35 @@ COPY --from=build /app/target/iu-ipwa02-01-ghost-net-fishing.war \
   /usr/local/tomee/webapps/ROOT.war
 
 # Configure JPDA for remote debugging (bind to all interfaces)
-ENV JPDA_ADDRESS="0.0.0.0:5005" JPDA_TRANSPORT="dt_socket" JPDA_SUSPEND="n"
+ENV JPDA_ADDRESS="0.0.0.0:5005" \
+    JPDA_TRANSPORT="dt_socket" \
+    JPDA_SUSPEND="n"
+
+# Debug: Ausgabe der Umgebungsvariablen und Dateistruktur
+RUN echo "=== DEBUG: ENV-Variablen vor Start ===" && \
+    echo "JPDA_ADDRESS: $JPDA_ADDRESS" && \
+    echo "JPDA_TRANSPORT: $JPDA_TRANSPORT" && \
+    echo "JPDA_SUSPEND: $JPDA_SUSPEND" && \
+    echo "CATALINA_HOME: $CATALINA_HOME" && \
+    echo "=== DEBUG: Webapps-Verzeichnis ===" && \
+    ls -la /usr/local/tomee/webapps/ && \
+    echo "=== DEBUG: Netzwerk-Interfaces (vor Start) ===" && \
+    ip addr show || true && \
+    echo "=== DEBUG: Port-Check (netstat falls verfügbar) ===" && \
+    (netstat -tlnp || ss -tlnp || echo "netstat/ss nicht verfügbar") || true && \
+    echo "=== DEBUG: Host-Auflösung testen ===" && \
+    nslookup 0.0.0.0 || echo "nslookup nicht verfügbar" && \
+    getent hosts 0.0.0.0 || echo "getent nicht verfügbar" && \
+    echo "=== DEBUG: TomEE-Konfig-Dateien ===" && \
+    find /usr/local/tomee -name "*.sh" -o -name "catalina*" | head -10 && \
+    echo "=== DEBUG: Build abgeschlossen ==="
 
 # Expose application port and debug port
 EXPOSE 8080 5005
 
+# Debug: Zusätzliche Ausgabe beim CMD-Start (wird beim Container-Start ausgeführt)
+RUN echo "=== DEBUG: CMD wird ausgeführt: catalina.sh run ===" > /tmp/start-debug.log && \
+    echo "Überprüfe /tmp/start-debug.log nach dem Start für weitere Infos."
+
 # Default command (overridden by docker-compose for debug)
-CMD ["catalina.sh", "jpda", "run"]
+CMD ["sh", "-c", "echo '=== DEBUG: Container startet mit catalina.sh run ==='; echo 'Aktuelle ENV: JPDA_ADDRESS=$JPDA_ADDRESS'; ls -la /usr/local/tomee/webapps/; catalina.sh run 2>&1 | tee /tmp/catalina-debug.log"]

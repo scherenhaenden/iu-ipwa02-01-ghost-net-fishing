@@ -1,8 +1,13 @@
+version: "3.8"
 services:
   app:
     build:
+      context: .
       dockerfile: Debug.Dockerfile
-    ports: ["8080:8080", "5005:5005"]
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    command: ["catalina.sh", "jpda", "run"]
     environment:
       - JPDA_ADDRESS=0.0.0.0:5005
       - JPDA_TRANSPORT=dt_socket

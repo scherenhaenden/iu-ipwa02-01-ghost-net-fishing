@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <!-- H2 Database DataSource for GhostNetPU -->
+    <Resource id="GhostNetDS"
+              type="DataSource">
+        JdbcDriver org.h2.Driver
+        JdbcUrl jdbc:h2:~/ghostnet;AUTO_SERVER=TRUE
+        UserName sa
+        Password ""
+        JtaManaged true
+        DefaultAutoCommit false
+        MaxSize 20
+        MinSize 5
+        ValidationQuery SQL SELECT 1
+    </Resource>
+</resources>
