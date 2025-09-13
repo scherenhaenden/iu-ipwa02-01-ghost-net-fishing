@@ -3,10 +3,10 @@ package de.iu.ipwa02.ghostnet.service;
 import de.iu.ipwa02.ghostnet.model.GhostNet;
 import de.iu.ipwa02.ghostnet.model.NetStatus;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 /**

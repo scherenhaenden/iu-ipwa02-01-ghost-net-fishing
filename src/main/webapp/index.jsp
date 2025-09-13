@@ -32,7 +32,7 @@
         </main>
         
         <footer>
-            <p>&copy; 2024 Ghost Net Fishing Management System - Java EE 7 Application</p>
+            <p>&copy; 2024 Ghost Net Fishing Management System - Jakarta EE Application</p>
         </footer>
     </div>
 </body>
