@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+              http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
+              version="2.2">
+
+    <!-- Java EE 7 / JSF 2.2 - Minimal Configuration -->
+    <application>
+
+
+        <!-- Message Bundles für Internationalisierung (JSF 2.2) -->
+        <resource-bundle>
+            <base-name>messages</base-name>
+            <var>msg</var>
+        </resource-bundle>
+    </application>
+
+    <!-- Navigation Rules (JSF 2.2 Standard) -->
+    <navigation-rule>
+        <from-view-id>/index.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>welcome</from-outcome>
+            <to-view-id>/welcome.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <!-- Managed Beans (falls CDI nicht verwendet wird) -->
+    <!--
+    <managed-bean>
+        <managed-bean-name>userBean</managed-bean-name>
+        <managed-bean-class>com.example.UserBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    -->
+
+    <!-- Optional: Exception Handling (JSF 2.2) -->
+    <!--
+    <factory>
+        <exception-handler-factory>com.sun.faces.exceptionhandler.ExceptionHandlerFactory</exception-handler-factory>
+    </factory>
+    -->
+
+</faces-config>
