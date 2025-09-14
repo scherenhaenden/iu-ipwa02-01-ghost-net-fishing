@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tomee>
-    <!-- H2 In-Memory DataSource für Java EE 7 -->
-    <Resource id="jdbc/GhostNetDS"
-              type="javax.sql.DataSource">
-        JdbcDriver org.h2.Driver
-        JdbcUrl jdbc:h2:mem:ghostnet;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-        UserName sa
+    <!-- MySQL DataSource für ghostnetdb -->
+    <Resource id="jdbc/GhostNetDS" type="javax.sql.DataSource">
+        JdbcDriver com.mysql.jdbc.Driver
+        JdbcUrl jdbc:mysql://localhost:3306/ghostnetdb?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        UserName root
         Password
         JtaManaged true
-        DefaultAutoCommit false
-
-        <!-- Connection Pool Einstellungen -->
-        MaxActive 20
-        MaxIdle 10
+        MaxActive 30
         MinIdle 2
-        RemoveAbandonedOnBorrow true
+        MaxIdle 10
+        TestOnBorrow true
+        ValidationQuery SELECT 1
+        ValidationInterval 30000
         RemoveAbandonedTimeout 60
         LogAbandoned true
-        ValidationQuery SELECT 1
-        TestWhileIdle true
-        TestOnBorrow true
-        TimeBetweenEvictionRunsMillis 30000
-        MinEvictableIdleTimeMillis 60000
     </Resource>
 </tomee>
