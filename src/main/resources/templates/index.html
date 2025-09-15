@@ -1,0 +1,26 @@
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+    &lt;title&gt;Ghost Net Fishing&lt;/title&gt;
+    &lt;meta charset="UTF-8"/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Willkommen zur Ghost Net Fishing App&lt;/h1&gt;
+
+    &lt;h2&gt;Technologie Stack&lt;/h2&gt;
+    &lt;table border="1" style="width: 400px;"&gt;
+        &lt;tr&gt;&lt;th&gt;Technologie&lt;/th&gt;&lt;/tr&gt;
+        &lt;tr th:each="tech : ${techStack}"&gt;
+            &lt;td th:text="${tech}"&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+
+    &lt;br/&gt;
+    &lt;button onclick="alert('Test!');"&gt;Test Button&lt;/button&gt;
+    &lt;br/&gt;&lt;br/&gt;
+    &lt;a th:href="@{/welcome}"&gt;Zu Welcome gehen&lt;/a&gt;
+
+    &lt;hr/&gt;
+    &lt;p&gt;&lt;em&gt;Spring Boot 3.3 App&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;

@@ -1,18 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="2.1"
-             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
-    <persistence-unit name="GhostNetPU" transaction-type="JTA">
-        <!-- OpenJPA (Standard in TomEE) automatisch -->
-        <jta-data-source>java:comp/env/jdbc/GhostNetDS</jta-data-source>
-        <class>de.iu.project.iuipwa0201ghostnetfishing.model.GhostNet</class>
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
-            <!-- Schema automatisch erzeugen (nur Entwicklung) -->
-            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-            <property name="openjpa.Log" value="SQL=TRACE"/>
-            <property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
-        </properties>
-    </persistence-unit>
-</persistence>
+<!-- Persistence handled by Spring Boot Data JPA. File no longer needed. -->
