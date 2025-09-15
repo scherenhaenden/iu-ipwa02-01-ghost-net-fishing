@@ -72,6 +72,18 @@ public class AbandonedNet implements Serializable {
         this.createdAt = new Date();
     }
 
+    /* Convenience constructor with LocalDateTime
+       Accepts a LocalDateTime for createdAt and converts it to java.util.Date for JPA compatibility.
+       This constructor is convenient for services that use java.time types.
+    */
+    public AbandonedNet(String location, Double size, NetStatus status, java.time.LocalDateTime createdAt, Person person) {
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
+        this.createdAt = java.util.Date.from(createdAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
+    }
+
     /* Getters and setters */
     public Long getId() {
         return id;
