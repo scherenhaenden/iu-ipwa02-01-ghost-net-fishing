@@ -3,9 +3,9 @@
     <!-- MySQL DataSource für ghostnetdb -->
     <Resource id="jdbc/GhostNetDS" type="javax.sql.DataSource">
         JdbcDriver com.mysql.jdbc.Driver
-        JdbcUrl jdbc:mysql://localhost:3306/ghostnetdb?useSSL=false&useUnicode=true&characterEncoding=UTF-8
-        UserName root
-        Password
+        JdbcUrl jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ghostnetdb}?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        UserName ${DB_USER:root}
+        Password ${DB_PASSWORD:}
         JtaManaged true
         MaxActive 30
         MinIdle 2
