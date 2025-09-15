@@ -1,36 +1,28 @@
 package de.iu.project.iuipwa0201ghostnetfishing.web;
 
-import de.iu.project.iuipwa0201ghostnetfishing.model.GhostNet;
 import de.iu.project.iuipwa0201ghostnetfishing.service.GhostNetService;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.List;
-
-@Named
-@RequestScoped
+/* indo docs: GhostNetBean class
+   Plain JavaBean (POJO) for web layer data binding or utility purposes.
+   No Spring annotations; can be used in JSF, Thymeleaf forms, or as a data holder.
+   Currently holds a reference to GhostNetService but is not a managed Spring bean.
+*/
 public class GhostNetBean {
 
-    @Inject
-    private GhostNetService service;
+    /* indo docs: Service reference
+       Optional reference to GhostNetService; not injected, must be set manually if needed.
+    */
+    private final GhostNetService service;
 
-    private String name;
-
-    public String create() {
-        if (name != null && !name.trim().isEmpty()) {
-            service.create(name.trim());
-            name = ""; // Reset
-        }
-        // Bleibe auf derselben Seite
-        return null;
+    /* indo docs: Constructor
+       Initializes the bean with a GhostNetService instance (manual wiring).
+    */
+    public GhostNetBean(GhostNetService service) {
+        this.service = service;
     }
 
-    public List<GhostNet> getAll() {
-        return service.findAll();
-    }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    /* indo docs: Note on usage
+       This class is a simple POJO wrapper without Spring-specific annotations to avoid compilation issues in non-Spring environments.
+       Extend as needed for form backing objects or view models.
+    */
 }
-
