@@ -90,6 +90,14 @@
             <version>6.2</version>
         </dependency>
         -->
+
+        <!-- MySQL Connector/J (JDBC Driver für MySQL - Runtime) -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.49</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
