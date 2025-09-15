@@ -2,9 +2,11 @@ package de.iu.project.iuipwa0201ghostnetfishing.service;
 
 import de.iu.project.iuipwa0201ghostnetfishing.model.GhostNet;
 import de.iu.project.iuipwa0201ghostnetfishing.repository.GhostNetRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class GhostNetService {
 
     private final GhostNetRepository repository;
