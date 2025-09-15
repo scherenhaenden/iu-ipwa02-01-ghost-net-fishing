@@ -2,16 +2,16 @@ package de.iu.project.iuipwa0201ghostnetfishing.service;
 
 import de.iu.project.iuipwa0201ghostnetfishing.model.GhostNet;
 import de.iu.project.iuipwa0201ghostnetfishing.repository.GhostNetRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class GhostNetService {
 
-    @Autowired
-    private GhostNetRepository repository;
+    private final GhostNetRepository repository;
+
+    public GhostNetService(GhostNetRepository repository) {
+        this.repository = repository;
+    }
 
     /**
      * Creates and persists a new GhostNet instance with the given name.
