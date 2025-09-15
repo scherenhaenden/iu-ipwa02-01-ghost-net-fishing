@@ -1,33 +1,32 @@
 package de.iu.project.iuipwa0201ghostnetfishing.service;
 
 import de.iu.project.iuipwa0201ghostnetfishing.model.GhostNet;
+import de.iu.project.iuipwa0201ghostnetfishing.repository.GhostNetRepository;
+import org.springframework.stereotype.Service;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
-@Stateless
+@Service
 public class GhostNetService {
 
-    @PersistenceContext(unitName = "GhostNetPU")
-    private EntityManager em;
+    private final GhostNetRepository repository;
+
+    public GhostNetService(GhostNetRepository repository) {
+        this.repository = repository;
+    }
 
     /**
      * Creates and persists a new GhostNet instance with the given name.
      */
     public GhostNet create(String name) {
         GhostNet g = new GhostNet(name);
-        em.persist(g);
-        return g;
+        return repository.save(g);
     }
 
     /**
      * Retrieves a list of all GhostNet entities ordered by creation date in descending order.
      */
     public List<GhostNet> findAll() {
-        return em.createQuery("SELECT g FROM GhostNet g ORDER BY g.createdAt DESC", GhostNet.class)
-                .getResultList();
+        return repository.findAllByOrderByCreatedAtDesc();
     }
 }
-
