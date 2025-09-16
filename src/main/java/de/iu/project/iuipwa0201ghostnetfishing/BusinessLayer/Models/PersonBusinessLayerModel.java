@@ -3,30 +3,30 @@ package de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models;
 /**
  * PersonBusinessLayerModel
  * ------------------------
- * Business-Layer-Repräsentation einer Person, die ein Geisternetz meldet oder
- * bei der Bergung hilft. Entspricht 1-zu-1 der Entity
+ * Business-layer representation of a person who reports or recovers a ghost net.
+ * Maps 1:1 to the entity
  * {@link de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.PersonDataLayerModel},
- * enthält aber (wie üblich) keinerlei JPA-Annotationen.
+ * but (as usual) contains no JPA annotations.
  */
 public class PersonBusinessLayerModel {
 
     // --- Attributes ---------------------------------------------------------
 
-    /** Surrogat-Schlüssel der Person (wird in der Data-Layer-Entity generiert). */
+    /** Surrogate key of the person (generated in the data-layer entity). */
     private Long id;
 
-    /** Vollständiger Name (Pflichtfeld). */
+    /** Full name (required). */
     private String name;
 
-    /** Optionale Telefonnummer für Rückfragen. */
+    /** Optional phone number for follow-up. */
     private String phoneNumber;
 
     // --- Constructors -------------------------------------------------------
 
-    /** No-args-Konstruktor (wichtig für Mapper & Serialisierung). */
+    /** No-args constructor (important for mappers & serialization). */
     public PersonBusinessLayerModel() { }
 
-    /** All-args-Konstruktor – nützlich in Tests oder beim manuellen Erzeugen. */
+    /** All-args constructor – useful in tests or when creating instances manually. */
     public PersonBusinessLayerModel(Long id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
@@ -35,7 +35,7 @@ public class PersonBusinessLayerModel {
 
     // --- Simple Business Logic ---------------------------------------------
 
-    /** @return {@code true} wenn keine Telefonnummer hinterlegt ist. */
+    /** @return {@code true} when no phone number is present. */
     public boolean isAnonymous() {
         return phoneNumber == null || phoneNumber.isBlank();
     }
@@ -58,7 +58,7 @@ public class PersonBusinessLayerModel {
         return "PersonBusinessLayerModel{id=" + id + ", name='" + name + "'}";
     }
 
-    /** Zwei Business-Modelle gelten als gleich, wenn ihre IDs übereinstimmen. */
+    /** Two business models are considered equal when their IDs match. */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
