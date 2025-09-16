@@ -1,6 +1,7 @@
-package de.iu.project.iuipwa0201ghostnetfishing.model;
+package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
 */
 @Entity
 @Table(name = "ABANDONED_NET")
-public class AbandonedNet implements Serializable {
+public class AbandonedNetDataLayerModel implements Serializable {
 
     /* Primary key
        Auto-generated surrogate id for the AbandonedNet entity.
@@ -43,19 +44,19 @@ public class AbandonedNet implements Serializable {
     */
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
-    private NetStatus status;
+    private NetStatusDataLayerEnum status;
 
     /* Reporting/Recovery person
        Optional many-to-one relation to the Person who reported or recovered the net.
     */
     @ManyToOne
     @JoinColumn(name = "PERSON_ID")
-    private Person person;
+    private PersonDataLayerModel person;
 
     /* Protected no-args constructor
        Required by JPA to instantiate the entity via reflection.
     */
-    protected AbandonedNet() {
+    protected AbandonedNetDataLayerModel() {
         // JPA
     }
 
@@ -63,7 +64,7 @@ public class AbandonedNet implements Serializable {
        Useful for programmatic creation and tests. Includes optional person reference.
        createdAt is optional and set automatically when not provided.
     */
-    public AbandonedNet(Long id, String location, Double size, NetStatus status, Person person) {
+    public AbandonedNetDataLayerModel(Long id, String location, Double size, NetStatusDataLayerEnum status, PersonDataLayerModel person) {
         this.id = id;
         this.location = location;
         this.size = size;
@@ -76,12 +77,12 @@ public class AbandonedNet implements Serializable {
        Accepts a LocalDateTime for createdAt and converts it to java.util.Date for JPA compatibility.
        This constructor is convenient for services that use java.time types.
     */
-    public AbandonedNet(String location, Double size, NetStatus status, java.time.LocalDateTime createdAt, Person person) {
+    public AbandonedNetDataLayerModel(String location, Double size, NetStatusDataLayerEnum status, java.time.LocalDateTime createdAt, PersonDataLayerModel person) {
         this.location = location;
         this.size = size;
         this.status = status;
         this.person = person;
-        this.createdAt = java.util.Date.from(createdAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
+        this.createdAt = Date.from(createdAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
     }
 
     /* Getters and setters */
@@ -117,19 +118,19 @@ public class AbandonedNet implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public NetStatus getStatus() {
+    public NetStatusDataLayerEnum getStatus() {
         return status;
     }
 
-    public void setStatus(NetStatus status) {
+    public void setStatus(NetStatusDataLayerEnum status) {
         this.status = status;
     }
 
-    public Person getPerson() {
+    public PersonDataLayerModel getPerson() {
         return person;
     }
 
-    public void setPerson(Person person) {
+    public void setPerson(PersonDataLayerModel person) {
         this.person = person;
     }
 

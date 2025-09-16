@@ -1,6 +1,7 @@
-package de.iu.project.iuipwa0201ghostnetfishing.model;
+package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 
 /* Person entity
@@ -8,7 +9,7 @@ import java.io.Serializable;
 */
 @Entity
 @Table(name = "PERSON")
-public class Person implements Serializable {
+public class PersonDataLayerModel implements Serializable {
 
     /* Primary key
        Auto-generated surrogate id for the Person entity.
@@ -32,7 +33,7 @@ public class Person implements Serializable {
     /* Protected no-args constructor
        Required by JPA to instantiate the entity via reflection.
     */
-    protected Person() {
+    protected PersonDataLayerModel() {
         // JPA
     }
 
@@ -40,7 +41,7 @@ public class Person implements Serializable {
        Convenient constructor for tests and programmatic creation.
     */
     @SuppressWarnings("unused")
-    public Person(Long id, String name, String phoneNumber) {
+    public PersonDataLayerModel(Long id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;

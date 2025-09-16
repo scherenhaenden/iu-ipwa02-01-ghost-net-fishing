@@ -1,6 +1,7 @@
-package de.iu.project.iuipwa0201ghostnetfishing.model;
+package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
 */
 @Entity
 @Table(name = "GHOST_NET")
-public class GhostNet implements Serializable {
+public class GhostNetDataLayerModel implements Serializable {
 
     /* Primary key
        Auto-generated surrogate id for the GhostNet entity.
@@ -36,12 +37,12 @@ public class GhostNet implements Serializable {
        Required by JPA to instantiate entities via reflection.
        Kept public to preserve existing usage in the codebase.
     */
-    public GhostNet() {}
+    public GhostNetDataLayerModel() {}
 
     /* Convenience constructor
        Create a GhostNet with a name; createdAt is set to now.
     */
-    public GhostNet(String name) {
+    public GhostNetDataLayerModel(String name) {
         this.name = name;
         this.createdAt = new Date();
     }

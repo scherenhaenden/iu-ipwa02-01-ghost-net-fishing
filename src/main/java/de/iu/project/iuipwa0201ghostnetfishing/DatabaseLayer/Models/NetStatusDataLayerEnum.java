@@ -1,11 +1,11 @@
-package de.iu.project.iuipwa0201ghostnetfishing.model;
+package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 /* NetStatus enum
    Represents the lifecycle states of an abandoned (ghost) net within the system.
    Stored as STRING in the database when used with @Enumerated(EnumType.STRING).
    Public English enum used across the domain model.
 */
-public enum NetStatus {
+public enum NetStatusDataLayerEnum {
 
     /* REPORTED
        The net has been reported by a person or automated system but not yet processed.

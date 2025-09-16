@@ -1,7 +1,5 @@
 package de.iu.project.iuipwa0201ghostnetfishing.web;
 
-import de.iu.project.iuipwa0201ghostnetfishing.service.GhostNetService;
-
 /* indo docs: GhostNetBean class
    Plain JavaBean (POJO) for web layer data binding or utility purposes.
    No Spring annotations; can be used in JSF, Thymeleaf forms, or as a data holder.
