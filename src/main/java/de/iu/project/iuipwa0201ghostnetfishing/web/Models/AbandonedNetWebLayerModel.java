@@ -3,7 +3,7 @@ package de.iu.project.iuipwa0201ghostnetfishing.web.Models;
 import java.time.Instant;
 
 /**
- * Read-only-DTO eines AbandonedNet für den Web-Layer.
+ * Read-only DTO of an AbandonedNet for the web layer.
  */
 public record AbandonedNetWebLayerModel(
         Long   id,
@@ -11,5 +11,5 @@ public record AbandonedNetWebLayerModel(
         Double size,
         String status,
         Instant createdAt,
-        String personName           // meldende/bergende Person (Name)
+        String personName           // Reporting/recovering person (name)
 ) { }

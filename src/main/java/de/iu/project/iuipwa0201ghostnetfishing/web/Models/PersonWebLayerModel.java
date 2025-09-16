@@ -1,7 +1,7 @@
 package de.iu.project.iuipwa0201ghostnetfishing.web.Models;
 
 /**
- * Read-only-Darstellung einer Person für den Web-Layer.
+ * Read-only representation of a person for the web layer.
  */
 public record PersonWebLayerModel(
         Long   id,

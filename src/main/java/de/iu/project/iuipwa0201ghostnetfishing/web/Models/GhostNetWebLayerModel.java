@@ -3,15 +3,15 @@ package de.iu.project.iuipwa0201ghostnetfishing.web.Models;
 import java.time.Instant;
 
 /**
- * Read-only-DTO eines GhostNets für Listen, Detailseiten oder REST.
- * recoveringPersonName genügt den meisten UI-Fällen; wenn du die
- * komplette Person brauchst, ersetze den Typ durch PersonWebLayerModel.
+ * Read-only DTO of a GhostNet for lists, detail pages, or REST.
+ * recoveringPersonName suffices for most UI cases; if you need the complete person,
+ * replace the type with PersonWebLayerModel.
  */
 public record GhostNetWebLayerModel(
         Long   id,
         String location,
         Double size,
-        String status,              // Enum als String
+        String status,              // Enum as string
         Instant createdAt,
-        String recoveringPersonName // nur der Name der Person
+        String recoveringPersonName // Only the person's name
 ) { }

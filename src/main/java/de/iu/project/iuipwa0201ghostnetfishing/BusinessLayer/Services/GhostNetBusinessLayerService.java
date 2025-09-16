@@ -13,13 +13,13 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
 
     private final GhostNetDataLayerModelRepository repository;
 
-    // Inyección de dependencias por constructor (mejor práctica)
+    // Dependency injection via constructor (best practice)
     public GhostNetBusinessLayerService(GhostNetDataLayerModelRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    @Transactional(readOnly = true) // Transacción de solo lectura es más eficiente
+    @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<GhostNetBusinessLayerModel> findAll() {
         List<GhostNetDataLayerModel> entities = repository.findAll();
         return BusinessLayerMapper.toBusinessModelList(entities);
@@ -37,7 +37,8 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Transactional(readOnly = true)
     public List<GhostNetBusinessLayerModel> findByStatus(NetStatusBusinessLayerEnum status) {
         NetStatusBusinessLayerEnum dataLayerStatus = NetStatusBusinessLayerEnum.valueOf(status.name());
-        List<GhostNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus); // Asumiendo que este método existe en el repo
+        // Assuming this method exists in the repo
+        List<GhostNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
         return BusinessLayerMapper.toBusinessModelList(entities);
     }
 

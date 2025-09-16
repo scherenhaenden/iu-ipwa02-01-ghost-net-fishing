@@ -13,7 +13,7 @@ public final class AbandonedNetWebLayerMapper {
 
     private AbandonedNetWebLayerMapper() { throw new IllegalStateException("Utility class"); }
 
-    /* Einzel-Objekt ------------------------------------------------------ */
+    /* Single object ------------------------------------------------------ */
     public static AbandonedNetWebLayerModel toWebModel(AbandonedNetBusinessLayerModel b) {
         if (b == null) return null;
         return new AbandonedNetWebLayerModel(
@@ -26,7 +26,7 @@ public final class AbandonedNetWebLayerMapper {
         );
     }
 
-    /* Liste -------------------------------------------------------------- */
+    /* List -------------------------------------------------------------- */
     public static List<AbandonedNetWebLayerModel> toWebModelList(List<AbandonedNetBusinessLayerModel> list) {
         return list == null ? List.of()
                 : list.stream()

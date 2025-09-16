@@ -12,19 +12,19 @@ import java.util.stream.Collectors;
 /**
  * AbandonedNetBusinessLayerMapper
  * --------------------------------
- * Utility-Klasse zum Konvertieren zwischen
- * {@link AbandonedNetDataLayerModel} (JPA-Entity) und
- * {@link AbandonedNetBusinessLayerModel} (Business-POJO).
+ * Utility class to convert between
+ * {@link AbandonedNetDataLayerModel} (JPA entity) and
+ * {@link AbandonedNetBusinessLayerModel} (business POJO).
  */
 public final class AbandonedNetBusinessLayerMapper {
 
-    /** Utility-Klasse → keine Instanziierung erlaubt. */
+    /** Utility class — instantiation not allowed. */
     private AbandonedNetBusinessLayerMapper() {
         throw new IllegalStateException("Utility class – do not instantiate");
     }
 
     // ---------------------------------------------------------------------
-    // Entity → Business-Model
+    // Entity -> Business-Model
     // ---------------------------------------------------------------------
 
     public static AbandonedNetBusinessLayerModel toBusinessModel(AbandonedNetDataLayerModel entity) {
@@ -52,7 +52,7 @@ public final class AbandonedNetBusinessLayerMapper {
     }
 
     // ---------------------------------------------------------------------
-    // Business-Model → Entity
+    // Business-Model -> Entity
     // ---------------------------------------------------------------------
 
     public static AbandonedNetDataLayerModel toEntity(AbandonedNetBusinessLayerModel model) {
@@ -68,7 +68,7 @@ public final class AbandonedNetBusinessLayerMapper {
                 PersonBusinessLayerMapper.toEntity(model.getPerson())
         );
 
-        // Ursprünglichen Zeitstempel übernehmen, falls vorhanden
+        // Preserve original timestamp if present
         if (model.getCreatedAt() != null) {
             entity.setCreatedAt(Date.from(model.getCreatedAt()));
         }

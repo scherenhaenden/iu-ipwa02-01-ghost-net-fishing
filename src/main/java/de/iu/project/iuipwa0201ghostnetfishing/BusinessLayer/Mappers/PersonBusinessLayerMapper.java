@@ -9,18 +9,18 @@ import java.util.stream.Collectors;
 /**
  * PersonBusinessLayerMapper
  * -------------------------
- * Reine Utility-Klasse zum Konvertieren zwischen
- * PersonDataLayerModel (JPA-Entity) und PersonBusinessLayerModel (Business-POJO).
+ * Pure utility class to convert between
+ * PersonDataLayerModel (JPA entity) and PersonBusinessLayerModel (business POJO).
  */
 public final class PersonBusinessLayerMapper {
 
-    /** Utility-Klasse darf nicht instanziiert werden. */
+    /** Utility class cannot be instantiated. */
     private PersonBusinessLayerMapper() {
         throw new IllegalStateException("Utility class – do not instantiate");
     }
 
     // ---------------------------------------------------------------------
-    // Entity  -> Business-Model
+    // Entity -> Business-Model
     // ---------------------------------------------------------------------
 
     public static PersonBusinessLayerModel toBusinessModel(PersonDataLayerModel entity) {

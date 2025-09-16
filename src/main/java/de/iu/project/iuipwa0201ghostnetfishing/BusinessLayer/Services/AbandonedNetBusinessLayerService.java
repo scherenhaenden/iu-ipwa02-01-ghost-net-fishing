@@ -13,39 +13,39 @@ import java.util.List;
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
     private final AbandonedNetDataLayerModelRepository repository;
 
-    // Inyección de dependencias por constructor (mejor práctica)
+    // Dependency injection via constructor (best practice)
     public AbandonedNetBusinessLayerService(AbandonedNetDataLayerModelRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    @Transactional(readOnly = true) // Transacción de solo lectura es más eficiente
+    @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<AbandonedNetBusinessLayerModel> getAllNetsNewestFirst() {
-        // 1. Obtener entidades de la capa de datos
+        // 1. Retrieve entities from the data layer
         List<AbandonedNetDataLayerModel> entities = repository.findAllByOrderByCreatedAtDesc();
-        // 2. Mapear a modelos de negocio y devolver
+        // 2. Map to business models and return
         return BusinessLayerMapper.toBusinessModelList(entities);
     }
 
     @Override
     @Transactional
     public AbandonedNetBusinessLayerModel save(AbandonedNetBusinessLayerModel netBusinessModel) {
-        // 1. Mapear el modelo de negocio a una entidad de la capa de datos
+        // 1. Map the business model to a data layer entity
         AbandonedNetDataLayerModel entityToSave = BusinessLayerMapper.toEntity(netBusinessModel);
-        // 2. Guardar la entidad usando el repositorio
+        // 2. Save the entity using the repository
         AbandonedNetDataLayerModel savedEntity = repository.save(entityToSave);
-        // 3. Mapear la entidad guardada de vuelta a un modelo de negocio y devolverla
+        // 3. Map the saved entity back to a business model and return it
         return BusinessLayerMapper.toBusinessModel(savedEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AbandonedNetBusinessLayerModel> findByStatus(NetStatusBusinessLayerEnum status) {
-        // 1. Convertir el enum de negocio al enum de la capa de datos
+        // 1. Convert the business enum to the data layer enum
         NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
-        // 2. Obtener las entidades
+        // 2. Retrieve the entities
         List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
-        // 3. Mapear a modelos de negocio
+        // 3. Map to business models
         return BusinessLayerMapper.toBusinessModelList(entities);
     }
 
