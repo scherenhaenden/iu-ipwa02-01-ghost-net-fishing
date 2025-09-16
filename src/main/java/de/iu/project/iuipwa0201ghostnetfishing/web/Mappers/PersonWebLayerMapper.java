@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Konvertiert PersonBusinessLayerModel → PersonWebLayerModel.
+ * Converts PersonBusinessLayerModel → PersonWebLayerModel.
  */
 public final class PersonWebLayerMapper {
 
     private PersonWebLayerMapper() { throw new IllegalStateException("Utility class"); }
 
-    /* Einzel-Objekt ------------------------------------------------------ */
+    /* Single object ------------------------------------------------------ */
     public static PersonWebLayerModel toWebModel(PersonBusinessLayerModel b) {
         if (b == null) return null;
         return new PersonWebLayerModel(b.getId(), b.getName(), b.getPhoneNumber());
     }
 
-    /* Liste -------------------------------------------------------------- */
+    /* List -------------------------------------------------------------- */
     public static List<PersonWebLayerModel> toWebModelList(List<PersonBusinessLayerModel> list) {
         return list == null ? List.of()
                 : list.stream()

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Konvertiert GhostNetBusinessLayerModel → GhostNetWebLayerModel.
+ * Converts GhostNetBusinessLayerModel → GhostNetWebLayerModel.
  */
 public final class GhostNetWebLayerMapper {
 
     private GhostNetWebLayerMapper() { throw new IllegalStateException("Utility class"); }
 
-    /* Einzel-Objekt ------------------------------------------------------ */
+    /* Single object ------------------------------------------------------ */
     public static GhostNetWebLayerModel toWebModel(GhostNetBusinessLayerModel b) {
         if (b == null) return null;
         return new GhostNetWebLayerModel(
@@ -26,7 +26,7 @@ public final class GhostNetWebLayerMapper {
         );
     }
 
-    /* Liste -------------------------------------------------------------- */
+    /* List -------------------------------------------------------------- */
     public static List<GhostNetWebLayerModel> toWebModelList(List<GhostNetBusinessLayerModel> list) {
         return list == null ? List.of()
                 : list.stream()

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * REST-API für GhostNet-Ressourcen.
+ * REST API for GhostNet resources.
  */
 @RestController
 @RequestMapping("/api/ghostnets")
@@ -27,7 +27,7 @@ public class GhostNetRestController {
 
     /* ---- READ ---------------------------------------------------------- */
 
-    /** Alle GhostNets (ungesortiert). */
+    /** All GhostNets (unsorted). */
     @GetMapping
     public List<GhostNetWebLayerModel> findAll() {
         return service.findAll()
@@ -36,7 +36,7 @@ public class GhostNetRestController {
                 .collect(Collectors.toList());
     }
 
-    /** GhostNets gefiltert nach Status (z. B. REPORTED). */
+    /** GhostNets filtered by status (e.g. REPORTED). */
     @GetMapping("/status/{status}")
     public List<GhostNetWebLayerModel> findByStatus(@PathVariable String status) {
         NetStatusBusinessLayerEnum enumStatus =
