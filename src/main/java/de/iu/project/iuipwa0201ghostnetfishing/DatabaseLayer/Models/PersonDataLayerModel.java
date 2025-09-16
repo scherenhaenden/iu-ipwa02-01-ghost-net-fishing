@@ -33,7 +33,7 @@ public class PersonDataLayerModel implements Serializable {
     /* Protected no-args constructor
        Required by JPA to instantiate the entity via reflection.
     */
-    protected PersonDataLayerModel() {
+    public PersonDataLayerModel() {
         // JPA
     }
 

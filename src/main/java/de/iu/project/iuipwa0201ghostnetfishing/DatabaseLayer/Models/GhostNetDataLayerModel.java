@@ -3,6 +3,8 @@ package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /* GhostNet entity
@@ -20,11 +22,17 @@ public class GhostNetDataLayerModel implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /* Human-friendly name
-       Short descriptive name for the net or report. Not nullable; limited length.
+    /* GPS location
+       Stores a textual GPS coordinate or location description. Not null.
     */
-    @Column(length = 120, nullable = false)
-    private String name;
+    @Column(name = "LOCATION", nullable = false)
+    private String location;
+
+    /* Area size
+       Size of the net in square meters. Not null.
+    */
+    @Column(name = "SIZE", nullable = false)
+    private Double size;
 
     /* Creation timestamp
        Stores when the record was created in the system. Not nullable.
@@ -33,18 +41,54 @@ public class GhostNetDataLayerModel implements Serializable {
     @Column(name = "CREATED_AT", nullable = false)
     private Date createdAt = new Date();
 
+    /* Current status
+       Enum stored as string; reflects lifecycle stage of the net.
+    */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false)
+    private NetStatusDataLayerEnum status;
+
+    /* Reporting/Recovery person
+       Optional many-to-one relation to the Person who reported or recovered the net.
+    */
+    @ManyToOne
+    @JoinColumn(name = "PERSON_ID")
+    private PersonDataLayerModel person;
+
     /* No-args constructor
        Required by JPA to instantiate entities via reflection.
        Kept public to preserve existing usage in the codebase.
     */
-    public GhostNetDataLayerModel() {}
+    protected GhostNetDataLayerModel() {
+        // JPA
+    }
 
-    /* Convenience constructor
-       Create a GhostNet with a name; createdAt is set to now.
+    /* Convenience constructors
+       Create a GhostNet with location, size, status, and person; createdAt is set to now.
     */
-    public GhostNetDataLayerModel(String name) {
-        this.name = name;
+    public GhostNetDataLayerModel(String location, Double size, NetStatusDataLayerEnum status, PersonDataLayerModel person) {
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
         this.createdAt = new Date();
+    }
+
+    public GhostNetDataLayerModel(Long id, String location, Double size, NetStatusDataLayerEnum status, PersonDataLayerModel person) {
+        this.id = id;
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
+        this.createdAt = new Date();
+    }
+
+    public GhostNetDataLayerModel(String location, Double size, NetStatusDataLayerEnum status, LocalDateTime createdAt, PersonDataLayerModel person) {
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
+        this.createdAt = Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /* Getters and setters */
@@ -52,21 +96,43 @@ public class GhostNetDataLayerModel implements Serializable {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    /** Returns the human-friendly name. */
-    public String getName() { return name; }
-    /** Sets the human-friendly name. */
-    public void setName(String name) { this.name = name; }
+    /** Returns the GPS location. */
+    public String getLocation() { return location; }
+    /** Sets the GPS location. */
+    public void setLocation(String location) { this.location = location; }
+
+    /** Returns the area size. */
+    public Double getSize() { return size; }
+    /** Sets the area size. */
+    public void setSize(Double size) { this.size = size; }
 
     /** Returns the creation date/time. */
     public Date getCreatedAt() { return createdAt; }
     /** Sets the creation date/time. */
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 
+    /** Returns the current status. */
+    public NetStatusDataLayerEnum getStatus() { return status; }
+    /** Sets the current status. */
+    public void setStatus(NetStatusDataLayerEnum status) { this.status = status; }
+
+    /** Returns the reporting/recovery person. */
+    public PersonDataLayerModel getPerson() { return person; }
+    /** Sets the reporting/recovery person. */
+    public void setPerson(PersonDataLayerModel person) { this.person = person; }
+
     /* toString
        Concise, non-recursive representation useful for logging and debugging.
     */
     @Override
     public String toString() {
-        return "GhostNet{id=" + id + ", name='" + name + "', createdAt=" + createdAt + "}";
+        return "GhostNetDataLayerModel{" +
+                "id=" + id +
+                ", location='" + location + '\'' +
+                ", size=" + size +
+                ", createdAt=" + createdAt +
+                ", status=" + status +
+                ", person=" + (person != null ? person.getId() : null) +
+                '}';
     }
 }
