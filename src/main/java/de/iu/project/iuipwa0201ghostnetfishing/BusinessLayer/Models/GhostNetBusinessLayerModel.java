@@ -9,16 +9,16 @@ public class GhostNetBusinessLayerModel {
     private String location;
     private Double size;
     private NetStatusBusinessLayerEnum status;
-    private PersonBusinessLayerModel recoveringPerson; // Usa el modelo de negocio de Person
-    private Instant createdAt; // Usamos java.time.Instant para tipos de fecha modernos
+    private PersonBusinessLayerModel recoveringPerson; // Uses the Person business model
+    private Instant createdAt; // Uses java.time.Instant for modern date/time types
 
     // --- Business Logic ---
-    // Aquí es donde viven las reglas de tu aplicación.
+    // This is where your application's rules live.
 
     /**
-     * Verifica si a esta red se le puede asignar una persona para su recuperación.
-     * Regla de negocio: Solo se puede asignar si el estado es REPORTED.
-     * @return true si se puede asignar, de lo contrario false.
+     * Checks whether a person can be assigned to recover this net.
+     * Business rule: assignment is only allowed when status is REPORTED.
+     * @return true if assignable, otherwise false.
      */
     public boolean canBeAssigned() {
         return this.status == NetStatusBusinessLayerEnum.REPORTED;
@@ -41,8 +41,8 @@ public class GhostNetBusinessLayerModel {
     }
 
     /**
-     * Marca la red como recuperada.
-     * Regla de negocio: Solo se puede marcar como recuperada si está en RECOVERY_PENDING.
+     * Marks the net as recovered.
+     * Business rule: can only be marked as recovered if in RECOVERY_PENDING.
      */
     public void markAsRecovered() {
         if (this.status != NetStatusBusinessLayerEnum.RECOVERY_PENDING) {
@@ -55,13 +55,13 @@ public class GhostNetBusinessLayerModel {
     // --- Constructors ---
 
     /**
-     * Constructor sin argumentos.
+     * No-args constructor.
      */
     public GhostNetBusinessLayerModel() {
     }
 
     /**
-     * Constructor con todos los argumentos para facilitar la creación.
+     * All-args constructor to ease creation in tests and code.
      */
     public GhostNetBusinessLayerModel(Long id, String location, Double size, NetStatusBusinessLayerEnum status, PersonBusinessLayerModel recoveringPerson, Instant createdAt) {
         this.id = id;
