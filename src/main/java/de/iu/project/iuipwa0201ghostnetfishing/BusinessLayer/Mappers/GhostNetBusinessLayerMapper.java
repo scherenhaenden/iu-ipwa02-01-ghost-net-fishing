@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 /**
  * GhostNetBusinessLayerMapper
  * ---------------------------
- * Konvertiert zwischen GhostNetDataLayerModel (JPA-Entity)
- * und GhostNetBusinessLayerModel (Business-POJO).
+ * Converts between GhostNetDataLayerModel (JPA entity)
+ * and GhostNetBusinessLayerModel (business POJO).
  */
 public final class GhostNetBusinessLayerMapper {
 
-    /** Utility-Klasse – keine Instanziierung erlaubt. */
+    /** Utility class — instantiation not allowed. */
     private GhostNetBusinessLayerMapper() {
-        throw new IllegalStateException("Utility class – do not instantiate");
+        throw new IllegalStateException("Utility class — do not instantiate");
     }
 
     // ---------------------------------------------------------------------

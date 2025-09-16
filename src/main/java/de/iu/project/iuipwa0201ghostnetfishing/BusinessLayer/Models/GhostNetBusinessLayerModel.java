@@ -25,9 +25,9 @@ public class GhostNetBusinessLayerModel {
     }
 
     /**
-     * Asigna una persona a esta red y actualiza su estado.
-     * @param person La persona a asignar.
-     * @throws IllegalStateException si la red no está en un estado asignable.
+     * Assigns a person to this net and updates its status.
+     * @param person the person to assign.
+     * @throws IllegalStateException if the net is not in an assignable state.
      */
     public void assignTo(PersonBusinessLayerModel person) {
         if (!canBeAssigned()) {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class BusinessLayerMapper {
 
-    // --- Mapeo de Entidad de DB -> Modelo de Negocio ---
+    // --- DB Entity -> Business Model ---
     public static AbandonedNetBusinessLayerModel toBusinessModel(AbandonedNetDataLayerModel entity) {
         if (entity == null) {
             return null;
@@ -23,7 +23,7 @@ public class BusinessLayerMapper {
         businessModel.setSize(entity.getSize());
         businessModel.setStatus(NetStatusBusinessLayerEnum.valueOf(entity.getStatus().name()));
         businessModel.setCreatedAt(entity.getCreatedAt().toInstant());
-        // Aquí mapearíamos la persona si fuera necesario
+        // Here we would map the person if needed
         return businessModel;
     }
 
@@ -33,23 +33,23 @@ public class BusinessLayerMapper {
                 .collect(Collectors.toList());
     }
 
-    // --- Mapeo de Modelo de Negocio -> Entidad de DB ---
+    // --- Business Model -> DB Entity ---
     public static AbandonedNetDataLayerModel toEntity(AbandonedNetBusinessLayerModel businessModel) {
         if (businessModel == null) {
             return null;
         }
-        // Nota: Este constructor es un ejemplo. Necesitarías uno adecuado en tu entidad.
+        // Note: This constructor is an example. You would need an appropriate one on your entity.
         AbandonedNetDataLayerModel entity = new AbandonedNetDataLayerModel(
                 businessModel.getId(),
                 businessModel.getLocation(),
                 businessModel.getSize(),
                 NetStatusDataLayerEnum.valueOf(businessModel.getStatus().name()),
-                null // La persona se manejaría por separado
+                null // Person would be handled separately
         );
         return entity;
     }
 
-    // --- Mapeo de Entidad de DB -> Modelo de Negocio para GhostNet ---
+    // --- DB Entity -> Business Model for GhostNet ---
     public static GhostNetBusinessLayerModel toBusinessModel(GhostNetDataLayerModel entity) {
         if (entity == null) {
             return null;
@@ -60,7 +60,7 @@ public class BusinessLayerMapper {
         businessModel.setSize(entity.getSize());
         businessModel.setStatus(NetStatusBusinessLayerEnum.valueOf(entity.getStatus().name()));
         businessModel.setCreatedAt(entity.getCreatedAt().toInstant());
-        // Aquí mapearíamos la persona si fuera necesario
+        // Here we would map the person if needed
         return businessModel;
     }
 
@@ -70,18 +70,18 @@ public class BusinessLayerMapper {
                 .collect(Collectors.toList());
     }
 
-    // --- Mapeo de Modelo de Negocio -> Entidad de DB para GhostNet ---
+    // --- Business Model -> DB Entity for GhostNet ---
     public static GhostNetDataLayerModel toEntity(GhostNetBusinessLayerModel businessModel) {
         if (businessModel == null) {
             return null;
         }
-        // Nota: Este constructor es un ejemplo. Necesitarías uno adecuado en tu entidad.
+        // Note: This constructor is an example. You would need an appropriate one on your entity.
         GhostNetDataLayerModel entity = new GhostNetDataLayerModel(
                 businessModel.getId(),
                 businessModel.getLocation(),
                 businessModel.getSize(),
                 NetStatusDataLayerEnum.valueOf(businessModel.getStatus().name()),
-                null // La persona se manejaría por separado
+                null // Person would be handled separately
         );
         return entity;
     }

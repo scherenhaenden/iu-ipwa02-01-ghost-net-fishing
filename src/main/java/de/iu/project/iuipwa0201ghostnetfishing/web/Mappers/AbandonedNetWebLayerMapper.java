@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Konvertiert AbandonedNetBusinessLayerModel → AbandonedNetWebLayerModel.
+ * Converts AbandonedNetBusinessLayerModel → AbandonedNetWebLayerModel.
  */
 public final class AbandonedNetWebLayerMapper {
 
