@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public class GhostNetBusinessLayerService {
+public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
 
     private final GhostNetDataLayerModelRepository repository;
 
