@@ -7,9 +7,11 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.AbandonedNet
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.AbandonedNetDataLayerModelRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
     private final AbandonedNetDataLayerModelRepository repository;
 

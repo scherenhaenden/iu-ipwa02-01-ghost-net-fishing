@@ -7,9 +7,11 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetData
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.GhostNetDataLayerModelRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
 
     private final GhostNetDataLayerModelRepository repository;
