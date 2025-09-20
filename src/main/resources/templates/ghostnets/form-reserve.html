@@ -18,9 +18,9 @@
     <form method="post" action="#" novalidate>
         <div class="form-row">
             <label for="personName">Your name</label>
-            <input id="personName" name="personName" />
+            <input id="personName" name="personName" required pattern=".{2,}" aria-label="Your name" />
         </div>
-        <button type="submit" class="btn btn-primary" disabled title="API pendiente">Reservar</button>
+        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Reservar - API pendiente">Reservar</button>
     </form>
 </div>
 

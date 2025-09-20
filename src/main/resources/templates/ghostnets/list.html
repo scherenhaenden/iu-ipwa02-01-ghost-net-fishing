@@ -34,18 +34,28 @@
         </thead>
         <tbody>
         <tr th:if="${ghostNets == null or #lists.isEmpty(ghostNets)}">
-            <td colspan="7">No hay ghost nets.</td>
+            <td colspan="7">
+                <div class="empty-state">
+                    <div class="icon">🪝</div>
+                    <p>No hay ghost nets reportadas todavía.</p>
+                    <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Reportar net</a>
+                </div>
+            </td>
         </tr>
         <tr th:each="g : ${ghostNets}">
             <td th:text="${g.id}">1</td>
             <td th:text="${g.location}">Location</td>
             <td th:text="${g.size}">0.0</td>
             <td><span th:text="${g.status}" th:class="'badge ' + ${g.status}">STATUS</span></td>
-            <td th:text="${g.createdAt}">--</td>
+            <td th:text="${#temporals.format(g.createdAt, 'yyyy-MM-dd HH:mm')}">--</td>
             <td th:text="${g.recoveringPerson != null ? g.recoveringPerson.name : ''}"></td>
             <td>
-                <a th:href="@{|/ui/ghostnets/${g.id}/reserve|}" class="btn btn-ghost">Reserve</a>
-                <a th:href="@{|/ui/ghostnets/${g.id}/recover|}" class="btn btn-ghost">Recover</a>
+                <a th:href="@{|/ui/ghostnets/${g.id}/reserve|}"
+                   class="btn btn-ghost"
+                   th:attr="title=${'Reservar ghost net ' + g.id}, aria-label=${'Reservar ghost net ' + g.id}">Reserve</a>
+                <a th:href="@{|/ui/ghostnets/${g.id}/recover|}"
+                   class="btn btn-ghost"
+                   th:attr="title=${'Marcar recuperado net ' + g.id}, aria-label=${'Marcar recuperado net ' + g.id}">Recover</a>
             </td>
         </tr>
         </tbody>

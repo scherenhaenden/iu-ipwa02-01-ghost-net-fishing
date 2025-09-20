@@ -27,9 +27,9 @@ public class UiGhostNetController {
         if (status == null || status.isBlank()) {
             ghostNets = service.findAll();
         } else {
-            // convert to enum and call service
+            // convert to enum and call service (accept lower/upper case)
             try {
-                NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.trim());
+                NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.trim().toUpperCase());
                 ghostNets = service.findByStatus(enumStatus);
             } catch (IllegalArgumentException ex) {
                 // invalid status value -> empty list
