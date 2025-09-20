@@ -1,6 +1,7 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,7 +13,11 @@ import java.util.Date;
    Mapped to table GHOST_NET. Uses Jakarta Persistence annotations.
 */
 @Entity
-@Table(name = "GHOST_NET")
+@Table(name = "GHOST_NET", indexes = {
+        @Index(name = "idx_ghostnet_status", columnList = "STATUS"),
+        @Index(name = "idx_ghostnet_created_at", columnList = "CREATED_AT"),
+        @Index(name = "idx_ghostnet_location", columnList = "LOCATION")
+})
 public class GhostNetDataLayerModel implements Serializable {
 
     /* Primary key
@@ -25,7 +30,8 @@ public class GhostNetDataLayerModel implements Serializable {
     /* GPS location
        Stores a textual GPS coordinate or location description. Not null.
     */
-    @Column(name = "LOCATION", nullable = false)
+    @Size(max = 255)
+    @Column(name = "LOCATION", nullable = false, length = 255)
     private String location;
 
     /* Area size

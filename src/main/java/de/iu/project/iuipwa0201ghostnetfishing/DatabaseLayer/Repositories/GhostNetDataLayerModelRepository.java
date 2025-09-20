@@ -18,5 +18,15 @@ public interface GhostNetDataLayerModelRepository extends JpaRepository<GhostNet
        Automatically generates SQL: SELECT * FROM GHOST_NET ORDER BY CREATED_AT DESC
     */
     List<GhostNetDataLayerModel> findAllByOrderByCreatedAtDesc();
+
+    /* Derived query by status
+       Retrieves GhostNet entities filtered by a specific NetStatus value.
+       SQL generated: SELECT * FROM GHOST_NET WHERE STATUS = ?
+    */
     List<GhostNetDataLayerModel> findByStatus(NetStatusDataLayerEnum status);
+
+    /* Derived query by status ordered by createdAt desc
+       Convenience method returning results filtered by status and sorted newest-first.
+    */
+    List<GhostNetDataLayerModel> findByStatusOrderByCreatedAtDesc(NetStatusDataLayerEnum status);
 }

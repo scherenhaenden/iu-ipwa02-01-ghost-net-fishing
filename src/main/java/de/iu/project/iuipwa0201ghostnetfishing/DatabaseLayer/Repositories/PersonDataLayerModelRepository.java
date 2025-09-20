@@ -4,6 +4,7 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.PersonDataLa
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /* info docs: PersonRepository interface
@@ -17,4 +18,9 @@ public interface PersonDataLayerModelRepository extends JpaRepository<PersonData
        Optional helper to find a person by their phoneNumber property.
     */
     Optional<PersonDataLayerModel> findByPhoneNumber(String phoneNumber);
+
+    /* Derived query: find persons whose name contains the given text (case-insensitive)
+       Useful for simple search/autocomplete features.
+    */
+    List<PersonDataLayerModel> findByNameContainingIgnoreCase(String namePart);
 }
