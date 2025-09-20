@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ghost Net Fishing</title>
+    <link rel="stylesheet" th:href="@{/styles.css}" />
+</head>
+<body>
+<div th:fragment="layout(content, active)">
+    <header class="site-header">
+        <div class="container">
+            <h1 class="site-title">Ghost Net Fishing</h1>
+            <div th:replace="fragments/_nav :: nav(${active})"></div>
+        </div>
+    </header>
+
+    <main class="container" th:insert="${content}">
+        <!-- page content will be inserted here -->
+    </main>
+
+    <footer class="site-footer container">
+        <small>© Ghost Net Fishing</small>
+    </footer>
+</div>
+</body>
+</html>

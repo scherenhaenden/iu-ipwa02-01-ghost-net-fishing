@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'list')">
+
+<div th:fragment="pageContent">
+    <h2>Reservar Ghost Net</h2>
+
+    <div class="ghostnet-details" th:if="${ghostNet != null}">
+        <p><strong>ID:</strong> <span th:text="${ghostNet.id}"></span></p>
+        <p><strong>Location:</strong> <span th:text="${ghostNet.location}"></span></p>
+        <p><strong>Size:</strong> <span th:text="${ghostNet.size}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${ghostNet.status}"></span></p>
+    </div>
+    <div th:if="${ghostNet == null}">
+        <p>GhostNet no encontrado (solo vista).</p>
+    </div>
+
+    <form method="post" action="#" novalidate>
+        <div class="form-row">
+            <label for="personName">Your name</label>
+            <input id="personName" name="personName" />
+        </div>
+        <button type="submit" class="btn btn-primary" disabled title="API pendiente">Reservar</button>
+    </form>
+</div>
+
+</body>
+</html>
