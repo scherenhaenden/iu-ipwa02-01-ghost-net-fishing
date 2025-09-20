@@ -1,6 +1,7 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories;
 
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetDataLayerModel;
+import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,4 +18,5 @@ public interface GhostNetDataLayerModelRepository extends JpaRepository<GhostNet
        Automatically generates SQL: SELECT * FROM GHOST_NET ORDER BY CREATED_AT DESC
     */
     List<GhostNetDataLayerModel> findAllByOrderByCreatedAtDesc();
+    List<GhostNetDataLayerModel> findByStatus(NetStatusDataLayerEnum status);
 }

@@ -27,7 +27,8 @@ public class BusinessLayerMapper {
         return businessModel;
     }
 
-    public static List<AbandonedNetBusinessLayerModel> toBusinessModelList(List<AbandonedNetDataLayerModel> entities) {
+    // Rename list mapping methods to avoid type-erasure clash
+    public static List<AbandonedNetBusinessLayerModel> toAbandonedNetBusinessModelList(List<AbandonedNetDataLayerModel> entities) {
         return entities.stream()
                 .map(BusinessLayerMapper::toBusinessModel)
                 .collect(Collectors.toList());
@@ -38,15 +39,14 @@ public class BusinessLayerMapper {
         if (businessModel == null) {
             return null;
         }
-        // Note: This constructor is an example. You would need an appropriate one on your entity.
-        AbandonedNetDataLayerModel entity = new AbandonedNetDataLayerModel(
+        // Return the new entity directly to avoid a redundant local variable warning
+        return new AbandonedNetDataLayerModel(
                 businessModel.getId(),
                 businessModel.getLocation(),
                 businessModel.getSize(),
                 NetStatusDataLayerEnum.valueOf(businessModel.getStatus().name()),
                 null // Person would be handled separately
         );
-        return entity;
     }
 
     // --- DB Entity -> Business Model for GhostNet ---
@@ -64,7 +64,7 @@ public class BusinessLayerMapper {
         return businessModel;
     }
 
-    public static List<GhostNetBusinessLayerModel> toBusinessModelList(List<GhostNetDataLayerModel> entities) {
+    public static List<GhostNetBusinessLayerModel> toGhostNetBusinessModelList(List<GhostNetDataLayerModel> entities) {
         return entities.stream()
                 .map(BusinessLayerMapper::toBusinessModel)
                 .collect(Collectors.toList());
@@ -75,14 +75,13 @@ public class BusinessLayerMapper {
         if (businessModel == null) {
             return null;
         }
-        // Note: This constructor is an example. You would need an appropriate one on your entity.
-        GhostNetDataLayerModel entity = new GhostNetDataLayerModel(
+        // Return the new entity directly to avoid a redundant local variable warning
+        return new GhostNetDataLayerModel(
                 businessModel.getId(),
                 businessModel.getLocation(),
                 businessModel.getSize(),
                 NetStatusDataLayerEnum.valueOf(businessModel.getStatus().name()),
                 null // Person would be handled separately
         );
-        return entity;
     }
 }

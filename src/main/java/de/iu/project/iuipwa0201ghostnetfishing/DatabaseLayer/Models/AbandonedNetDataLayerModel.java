@@ -49,7 +49,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Reporting/Recovery person
        Optional many-to-one relation to the Person who reported or recovered the net.
     */
-    @ManyToOne
+    @ManyToOne(optional = true)
     @JoinColumn(name = "PERSON_ID")
     private PersonDataLayerModel person;
 
