@@ -1,6 +1,9 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
@@ -28,6 +31,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* GPS location
        Stores a textual GPS coordinate or location description. Not null.
     */
+    @NotBlank
     @Size(max = 255)
     @Column(name = "LOCATION", nullable = false, length = 255)
     private String location;
@@ -35,6 +39,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Area size
        Size of the net in square meters. Not null.
     */
+    @DecimalMin("0.0")
     @Column(name = "SIZE", nullable = false)
     private Double size;
 
@@ -48,6 +53,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Current status
        Enum stored as string; reflects lifecycle stage of the net.
     */
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
     private NetStatusDataLayerEnum status;
