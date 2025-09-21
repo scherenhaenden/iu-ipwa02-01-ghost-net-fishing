@@ -1,6 +1,7 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -62,8 +63,9 @@ public class GhostNetDataLayerModel implements Serializable {
 
     /* Reporting/Recovery person
        Optional many-to-one relation to the Person who reported or recovered the net.
+       Cascade PERSIST and MERGE so that saving a GhostNet with a transient Person will persist/merge the person.
     */
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "PERSON_ID")
     private PersonDataLayerModel person;
 
@@ -75,6 +77,15 @@ public class GhostNetDataLayerModel implements Serializable {
         // JPA
     }
 
+    /** New constructor that accepts an explicit createdAt (which may be null). */
+    public GhostNetDataLayerModel(Long id, String location, Double size, NetStatusDataLayerEnum status, Date createdAt, PersonDataLayerModel person) {
+        this.id = id;
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
+        this.createdAt = createdAt;
+    }
 
     /* Convenience constructors
        Create a GhostNet with location, size, status, and person; createdAt is set to now.

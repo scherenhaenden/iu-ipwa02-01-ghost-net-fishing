@@ -84,18 +84,21 @@ public class AbandonedNetBusinessLayerMapper {
             return null;
         }
 
+        // Map status safely (null-aware)
+        NetStatusDataLayerEnum dataStatus = (model.getStatus() != null) ? NetStatusDataLayerEnum.valueOf(model.getStatus().name()) : null;
+        // Map person
+        var personEntity = personMapper.toEntity(model.getPerson());
+        // Preserve createdAt if present, otherwise leave null
+        java.util.Date createdAt = (model.getCreatedAt() != null) ? java.util.Date.from(model.getCreatedAt()) : null;
+
         AbandonedNetDataLayerModel entity = new AbandonedNetDataLayerModel(
                 model.getId(),
                 model.getLocation(),
                 model.getSize(),
-                NetStatusDataLayerEnum.valueOf(model.getStatus().name()),
-                personMapper.toEntity(model.getPerson())
+                dataStatus,
+                createdAt,
+                personEntity
         );
-
-        // Preserve original timestamp if present
-        if (model.getCreatedAt() != null) {
-            entity.setCreatedAt(Date.from(model.getCreatedAt()));
-        }
 
         return entity;
     }

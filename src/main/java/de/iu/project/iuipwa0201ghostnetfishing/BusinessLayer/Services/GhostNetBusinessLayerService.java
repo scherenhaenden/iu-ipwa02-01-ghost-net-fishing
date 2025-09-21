@@ -6,6 +6,7 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBus
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetDataLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.GhostNetDataLayerModelRepository;
+import de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -52,5 +53,13 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Transactional
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GhostNetBusinessLayerModel findByIdOrThrow(Long id) {
+        GhostNetDataLayerModel entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("GhostNet with id " + id + " not found"));
+        return mapper.toBusinessModel(entity);
     }
 }

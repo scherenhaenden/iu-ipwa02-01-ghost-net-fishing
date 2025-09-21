@@ -84,17 +84,20 @@ public class GhostNetBusinessLayerMapper {
         if (model == null) {
             return null;
         }
+        // Map status safely (null-aware)
+        NetStatusDataLayerEnum dataStatus = (model.getStatus() != null) ? NetStatusDataLayerEnum.valueOf(model.getStatus().name()) : null;
+        // Map person
+        PersonDataLayerModel personEntity = personMapper.toEntity(model.getRecoveringPerson());
+        // Use constructor that preserves createdAt when null
+        Date createdAtDate = (model.getCreatedAt() != null) ? Date.from(model.getCreatedAt()) : null;
         GhostNetDataLayerModel entity = new GhostNetDataLayerModel(
                 model.getId(),
                 model.getLocation(),
                 model.getSize(),
-                NetStatusDataLayerEnum.valueOf(model.getStatus().name()),
-                personMapper.toEntity(model.getRecoveringPerson())
+                dataStatus,
+                createdAtDate,
+                personEntity
         );
-        // If the business model provides a createdAt, copy it to the entity (mirrors Abandoned mapper behavior)
-        if (model.getCreatedAt() != null) {
-            entity.setCreatedAt(Date.from(model.getCreatedAt()));
-        }
         return entity;
     }
 }

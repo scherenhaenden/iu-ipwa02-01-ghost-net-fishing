@@ -6,15 +6,16 @@ import de.iu.project.iuipwa0201ghostnetfishing.web.Models.AbandonedNetWebLayerMo
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Converts AbandonedNetBusinessLayerModel → AbandonedNetWebLayerModel.
  */
-public final class AbandonedNetWebLayerMapper {
-
-    private AbandonedNetWebLayerMapper() { throw new IllegalStateException("Utility class"); }
+@Component
+public class AbandonedNetWebLayerMapper {
 
     /* Single object ------------------------------------------------------ */
-    public static AbandonedNetWebLayerModel toWebModel(AbandonedNetBusinessLayerModel b) {
+    public AbandonedNetWebLayerModel toWebModel(AbandonedNetBusinessLayerModel b) {
         if (b == null) return null;
         return new AbandonedNetWebLayerModel(
                 b.getId(),
@@ -27,10 +28,10 @@ public final class AbandonedNetWebLayerMapper {
     }
 
     /* List -------------------------------------------------------------- */
-    public static List<AbandonedNetWebLayerModel> toWebModelList(List<AbandonedNetBusinessLayerModel> list) {
+    public List<AbandonedNetWebLayerModel> toWebModelList(List<AbandonedNetBusinessLayerModel> list) {
         return list == null ? List.of()
                 : list.stream()
-                .map(AbandonedNetWebLayerMapper::toWebModel)
+                .map(this::toWebModel)
                 .collect(Collectors.toList());
     }
 }
