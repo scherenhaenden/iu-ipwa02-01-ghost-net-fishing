@@ -47,26 +47,44 @@ public class Person implements Serializable {
     }
 
     /* indo docs: Getters and setters */
+    /**
+     * Returns the ID.
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the ID of the object.
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Returns the name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name of the object.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Returns the phone number.
+     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * Sets the phone number.
+     */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -75,6 +93,9 @@ public class Person implements Serializable {
        Concise representation excluding recursive relations.
     */
     @Override
+    /**
+     * Returns a string representation of the Person object.
+     */
     public String toString() {
         return "Person{id=" + id + ", name='" + name + "'}";
     }
