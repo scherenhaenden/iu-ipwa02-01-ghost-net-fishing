@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class GhostNetFishingApplication {
 
+    /**
+     * The entry point of the GhostNetFishingApplication.
+     */
     public static void main(String[] args) {
         SpringApplication.run(GhostNetFishingApplication.class, args);
     }
