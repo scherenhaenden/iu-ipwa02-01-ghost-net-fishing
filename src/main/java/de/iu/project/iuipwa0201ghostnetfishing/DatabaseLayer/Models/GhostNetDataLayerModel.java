@@ -75,6 +75,7 @@ public class GhostNetDataLayerModel implements Serializable {
         // JPA
     }
 
+
     /* Convenience constructors
        Create a GhostNet with location, size, status, and person; createdAt is set to now.
     */

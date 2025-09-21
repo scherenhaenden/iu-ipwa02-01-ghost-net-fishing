@@ -1,6 +1,6 @@
 package de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services;
 
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.BusinessLayerMapper;
+import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.GhostNetBusinessLayerMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetDataLayerModel;
@@ -15,25 +15,27 @@ import java.util.List;
 public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
 
     private final GhostNetDataLayerModelRepository repository;
+    private final GhostNetBusinessLayerMapper mapper;
 
     // Dependency injection via constructor (best practice)
-    public GhostNetBusinessLayerService(GhostNetDataLayerModelRepository repository) {
+    public GhostNetBusinessLayerService(GhostNetDataLayerModelRepository repository, GhostNetBusinessLayerMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<GhostNetBusinessLayerModel> findAll() {
         List<GhostNetDataLayerModel> entities = repository.findAll();
-        return BusinessLayerMapper.toGhostNetBusinessModelList(entities);
+        return mapper.toBusinessModelList(entities);
     }
 
     @Override
     @Transactional
     public GhostNetBusinessLayerModel save(GhostNetBusinessLayerModel netBusinessModel) {
-        GhostNetDataLayerModel entityToSave = BusinessLayerMapper.toEntity(netBusinessModel);
+        GhostNetDataLayerModel entityToSave = mapper.toEntity(netBusinessModel);
         GhostNetDataLayerModel savedEntity = repository.save(entityToSave);
-        return BusinessLayerMapper.toBusinessModel(savedEntity);
+        return mapper.toBusinessModel(savedEntity);
     }
 
     @Override
@@ -43,7 +45,7 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
         NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
         // Assuming this method exists in the repo
         List<GhostNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
-        return BusinessLayerMapper.toGhostNetBusinessModelList(entities);
+        return mapper.toBusinessModelList(entities);
     }
 
     @Override

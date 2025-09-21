@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * GhostNetBusinessLayerMapper
  * ---------------------------
  * Spring Bean for mapping:
- *   DataLayer &lt;-&gt; BusinessLayer (GhostNet).
+ *   DataLayer <-> BusinessLayer (GhostNet).
  * Designed for constructor injection where needed.
  */
 @Component
