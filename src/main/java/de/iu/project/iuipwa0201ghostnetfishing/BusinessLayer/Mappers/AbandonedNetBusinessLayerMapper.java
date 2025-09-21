@@ -9,25 +9,37 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * AbandonedNetBusinessLayerMapper
  * --------------------------------
- * Utility class to convert between
- * {@link AbandonedNetDataLayerModel} (JPA entity) and
- * {@link AbandonedNetBusinessLayerModel} (business POJO).
+ * Spring Bean for mapping:
+ *   DataLayer &lt;-&gt; BusinessLayer (AbandonedNet).
+ * Designed for constructor injection where needed.
  */
-public final class AbandonedNetBusinessLayerMapper {
+@Component
+public class AbandonedNetBusinessLayerMapper {
 
-    /** Utility class — instantiation not allowed. */
-    private AbandonedNetBusinessLayerMapper() {
-        throw new IllegalStateException("Utility class – do not instantiate");
+    private final PersonBusinessLayerMapper personMapper;
+
+    @Autowired
+    public AbandonedNetBusinessLayerMapper(PersonBusinessLayerMapper personMapper) {
+        this.personMapper = personMapper;
     }
 
     // ---------------------------------------------------------------------
     // Entity -> Business-Model
     // ---------------------------------------------------------------------
 
-    public static AbandonedNetBusinessLayerModel toBusinessModel(AbandonedNetDataLayerModel entity) {
+    /**
+     * Converts an AbandonedNetDataLayerModel entity to an AbandonedNetBusinessLayerModel.
+     *
+     * @param entity the AbandonedNetDataLayerModel to convert
+     * @return the corresponding AbandonedNetBusinessLayerModel, or null if input is null
+     */
+    public AbandonedNetBusinessLayerModel toBusinessModel(AbandonedNetDataLayerModel entity) {
         if (entity == null) {
             return null;
         }
@@ -38,16 +50,22 @@ public final class AbandonedNetBusinessLayerMapper {
         model.setStatus(NetStatusBusinessLayerEnum.valueOf(entity.getStatus().name()));
         model.setCreatedAt(entity.getCreatedAt().toInstant());
         model.setPerson(
-                PersonBusinessLayerMapper.toBusinessModel(entity.getPerson())
+                personMapper.toBusiness(entity.getPerson())
         );
         return model;
     }
 
-    public static List<AbandonedNetBusinessLayerModel> toBusinessModelList(
+    /**
+     * Converts a list of AbandonedNetDataLayerModel entities to a list of AbandonedNetBusinessLayerModel.
+     *
+     * @param entities the list of AbandonedNetDataLayerModel to convert
+     * @return the list of corresponding AbandonedNetBusinessLayerModel, or empty list if input is null
+     */
+    public List<AbandonedNetBusinessLayerModel> toBusinessModelList(
             List<AbandonedNetDataLayerModel> entities) {
         return entities == null ? List.of()
                 : entities.stream()
-                .map(AbandonedNetBusinessLayerMapper::toBusinessModel)
+                .map(this::toBusinessModel)
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +73,13 @@ public final class AbandonedNetBusinessLayerMapper {
     // Business-Model -> Entity
     // ---------------------------------------------------------------------
 
-    public static AbandonedNetDataLayerModel toEntity(AbandonedNetBusinessLayerModel model) {
+    /**
+     * Converts an AbandonedNetBusinessLayerModel to an AbandonedNetDataLayerModel entity.
+     *
+     * @param model the AbandonedNetBusinessLayerModel to convert
+     * @return the corresponding AbandonedNetDataLayerModel, or null if input is null
+     */
+    public AbandonedNetDataLayerModel toEntity(AbandonedNetBusinessLayerModel model) {
         if (model == null) {
             return null;
         }
@@ -65,7 +89,7 @@ public final class AbandonedNetBusinessLayerMapper {
                 model.getLocation(),
                 model.getSize(),
                 NetStatusDataLayerEnum.valueOf(model.getStatus().name()),
-                PersonBusinessLayerMapper.toEntity(model.getPerson())
+                personMapper.toEntity(model.getPerson())
         );
 
         // Preserve original timestamp if present
