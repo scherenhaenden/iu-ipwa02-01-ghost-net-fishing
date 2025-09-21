@@ -1,52 +1,53 @@
-package de.iu.project.iuipwa0201ghostnetfishing.model;
+package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 
-/* indo docs: Person entity
+/* Person entity
    Represents a person who reports or recovers a ghost net. Stored in PERSON table.
 */
 @Entity
 @Table(name = "PERSON")
-public class Person implements Serializable {
+public class PersonDataLayerModel implements Serializable {
 
-    /* indo docs: Primary key
+    /* Primary key
        Auto-generated surrogate id for the Person entity.
     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /* indo docs: Full name
+    /* Full name
        Name of the reporting/recovering person. Not null.
     */
     @Column(nullable = false)
     private String name;
 
-    /* indo docs: Contact phone number
+    /* Contact phone number
        Optional phone number; may be null for anonymous reports.
     */
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
-    /* indo docs: Protected no-args constructor
+    /* Protected no-args constructor
        Required by JPA to instantiate the entity via reflection.
     */
-    protected Person() {
+    public PersonDataLayerModel() {
         // JPA
     }
 
-    /* indo docs: All-args constructor
+    /* All-args constructor
        Convenient constructor for tests and programmatic creation.
     */
     @SuppressWarnings("unused")
-    public Person(Long id, String name, String phoneNumber) {
+    public PersonDataLayerModel(Long id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
 
-    /* indo docs: Getters and setters */
+    /* Getters and setters */
     public Long getId() {
         return id;
     }
@@ -71,7 +72,7 @@ public class Person implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    /* indo docs: toString
+    /* toString
        Concise representation excluding recursive relations.
     */
     @Override

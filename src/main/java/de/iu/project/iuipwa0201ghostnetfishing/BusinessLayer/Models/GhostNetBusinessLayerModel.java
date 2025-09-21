@@ -1,0 +1,124 @@
+package de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models;
+
+import java.time.Instant;
+
+public class GhostNetBusinessLayerModel {
+
+    // --- Properties ---
+    private Long id;
+    private String location;
+    private Double size;
+    private NetStatusBusinessLayerEnum status;
+    private PersonBusinessLayerModel recoveringPerson; // Uses the Person business model
+    private Instant createdAt; // Uses java.time.Instant for modern date/time types
+
+    // --- Business Logic ---
+    // This is where your application's rules live.
+
+    /**
+     * Checks whether a person can be assigned to recover this net.
+     * Business rule: assignment is only allowed when status is REPORTED.
+     * @return true if assignable, otherwise false.
+     */
+    public boolean canBeAssigned() {
+        return this.status == NetStatusBusinessLayerEnum.REPORTED;
+    }
+
+    /**
+     * Assigns a person to this net and updates its status.
+     * @param person the person to assign.
+     * @throws IllegalStateException if the net is not in an assignable state.
+     */
+    public void assignTo(PersonBusinessLayerModel person) {
+        if (!canBeAssigned()) {
+            throw new IllegalStateException("Net cannot be assigned in its current state: " + this.status);
+        }
+        if (person == null) {
+            throw new IllegalArgumentException("Person cannot be null.");
+        }
+        this.recoveringPerson = person;
+        this.status = NetStatusBusinessLayerEnum.RECOVERY_PENDING;
+    }
+
+    /**
+     * Marks the net as recovered.
+     * Business rule: can only be marked as recovered if in RECOVERY_PENDING.
+     */
+    public void markAsRecovered() {
+        if (this.status != NetStatusBusinessLayerEnum.RECOVERY_PENDING) {
+            throw new IllegalStateException("Only a pending recovery can be marked as recovered. Current state: " + this.status);
+        }
+        this.status = NetStatusBusinessLayerEnum.RECOVERED;
+    }
+
+
+    // --- Constructors ---
+
+    /**
+     * No-args constructor.
+     */
+    public GhostNetBusinessLayerModel() {
+    }
+
+    /**
+     * All-args constructor to ease creation in tests and code.
+     */
+    public GhostNetBusinessLayerModel(Long id, String location, Double size, NetStatusBusinessLayerEnum status, PersonBusinessLayerModel recoveringPerson, Instant createdAt) {
+        this.id = id;
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.recoveringPerson = recoveringPerson;
+        this.createdAt = createdAt;
+    }
+
+    // --- Getters and Setters ---
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Double getSize() {
+        return size;
+    }
+
+    public void setSize(Double size) {
+        this.size = size;
+    }
+
+    public NetStatusBusinessLayerEnum getStatus() {
+        return status;
+    }
+
+    public void setStatus(NetStatusBusinessLayerEnum status) {
+        this.status = status;
+    }
+
+    public PersonBusinessLayerModel getRecoveringPerson() {
+        return recoveringPerson;
+    }
+
+    public void setRecoveringPerson(PersonBusinessLayerModel recoveringPerson) {
+        this.recoveringPerson = recoveringPerson;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+}
