@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class HelloResource {
     @GetMapping("/hello-world")
+    /**
+     * Returns a greeting message.
+     */
     public String hello() {
         return "Hello, World!";
     }
