@@ -1,6 +1,6 @@
 package de.iu.project.iuipwa0201ghostnetfishing.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,12 +21,16 @@ public class GhostNet implements Serializable {
 
     public GhostNet() {}
 
-    public GhostNet(String name) { this.name = name; }
+    public GhostNet(String name) {
+        this.name = name;
+        this.createdAt = new Date();
+    }
 
     /**
      * Returns the ID.
      */
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     /**
      * Returns the name.
      */

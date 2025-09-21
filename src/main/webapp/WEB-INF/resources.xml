@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tomee>
-    <!-- MySQL DataSource für ghostnetdb -->
-    <Resource id="jdbc/GhostNetDS" type="javax.sql.DataSource">
-        JdbcDriver com.mysql.jdbc.Driver
-        JdbcUrl jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ghostnetdb}?useSSL=false&useUnicode=true&characterEncoding=UTF-8
-        UserName ${DB_USER:root}
-        Password ${DB_PASSWORD:}
-        JtaManaged true
-        MaxActive 30
-        MinIdle 2
-        MaxIdle 10
-        TestOnBorrow true
-        ValidationQuery SELECT 1
-        ValidationInterval 30000
-        RemoveAbandonedTimeout 60
-        LogAbandoned true
-    </Resource>
+    <!-- Datasource configured in application.properties. No longer needed for TomEE. -->
 </tomee>
