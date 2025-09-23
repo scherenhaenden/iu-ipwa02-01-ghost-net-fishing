@@ -6,15 +6,16 @@ import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetWebLayerModel;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Converts GhostNetBusinessLayerModel → GhostNetWebLayerModel.
  */
-public final class GhostNetWebLayerMapper {
-
-    private GhostNetWebLayerMapper() { throw new IllegalStateException("Utility class"); }
+@Component
+public class GhostNetWebLayerMapper {
 
     /* Single object ------------------------------------------------------ */
-    public static GhostNetWebLayerModel toWebModel(GhostNetBusinessLayerModel b) {
+    public GhostNetWebLayerModel toWebModel(GhostNetBusinessLayerModel b) {
         if (b == null) return null;
         return new GhostNetWebLayerModel(
                 b.getId(),
@@ -27,10 +28,10 @@ public final class GhostNetWebLayerMapper {
     }
 
     /* List -------------------------------------------------------------- */
-    public static List<GhostNetWebLayerModel> toWebModelList(List<GhostNetBusinessLayerModel> list) {
+    public List<GhostNetWebLayerModel> toWebModelList(List<GhostNetBusinessLayerModel> list) {
         return list == null ? List.of()
                 : list.stream()
-                .map(GhostNetWebLayerMapper::toWebModel)
+                .map(this::toWebModel)
                 .collect(Collectors.toList());
     }
 }

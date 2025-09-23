@@ -1,6 +1,6 @@
 package de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services;
 
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.BusinessLayerMapper;
+import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.AbandonedNetBusinessLayerMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.AbandonedNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.AbandonedNetDataLayerModel;
@@ -13,11 +13,14 @@ import java.util.List;
 
 @Service
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
+
     private final AbandonedNetDataLayerModelRepository repository;
+    private final AbandonedNetBusinessLayerMapper mapper;
 
     // Dependency injection via constructor (best practice)
-    public AbandonedNetBusinessLayerService(AbandonedNetDataLayerModelRepository repository) {
+    public AbandonedNetBusinessLayerService(AbandonedNetDataLayerModelRepository repository, AbandonedNetBusinessLayerMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -26,18 +29,18 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 1. Retrieve entities from the data layer
         List<AbandonedNetDataLayerModel> entities = repository.findAllByOrderByCreatedAtDesc();
         // 2. Map to business models and return
-        return BusinessLayerMapper.toAbandonedNetBusinessModelList(entities);
+        return mapper.toBusinessModelList(entities);
     }
 
     @Override
     @Transactional
     public AbandonedNetBusinessLayerModel save(AbandonedNetBusinessLayerModel netBusinessModel) {
         // 1. Map the business model to a data layer entity
-        AbandonedNetDataLayerModel entityToSave = BusinessLayerMapper.toEntity(netBusinessModel);
+        AbandonedNetDataLayerModel entityToSave = mapper.toEntity(netBusinessModel);
         // 2. Save the entity using the repository
         AbandonedNetDataLayerModel savedEntity = repository.save(entityToSave);
         // 3. Map the saved entity back to a business model and return it
-        return BusinessLayerMapper.toBusinessModel(savedEntity);
+        return mapper.toBusinessModel(savedEntity);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 2. Retrieve the entities
         List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
         // 3. Map to business models
-        return BusinessLayerMapper.toAbandonedNetBusinessModelList(entities);
+        return mapper.toBusinessModelList(entities);
     }
 
     @Override
