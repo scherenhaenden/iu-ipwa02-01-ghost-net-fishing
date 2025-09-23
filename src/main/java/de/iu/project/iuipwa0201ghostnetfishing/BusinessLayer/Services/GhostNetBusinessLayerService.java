@@ -23,6 +23,9 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
 
     @Override
     @Transactional(readOnly = true) // Read-only transaction is more efficient
+    /**
+     * Retrieves all GhostNetBusinessLayerModel instances from the repository.
+     */
     public List<GhostNetBusinessLayerModel> findAll() {
         List<GhostNetDataLayerModel> entities = repository.findAll();
         return BusinessLayerMapper.toGhostNetBusinessModelList(entities);
@@ -38,6 +41,9 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * Retrieves a list of GhostNetBusinessLayerModel by the specified status.
+     */
     public List<GhostNetBusinessLayerModel> findByStatus(NetStatusBusinessLayerEnum status) {
         // Convert business enum to data-layer enum
         NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
