@@ -56,12 +56,17 @@ public final class GhostNetBusinessLayerMapper {
         if (model == null) {
             return null;
         }
-        return new GhostNetDataLayerModel(
+        GhostNetDataLayerModel entity = new GhostNetDataLayerModel(
                 model.getId(),
                 model.getLocation(),
                 model.getSize(),
                 NetStatusDataLayerEnum.valueOf(model.getStatus().name()),
                 PersonBusinessLayerMapper.toEntity(model.getRecoveringPerson())
         );
+        // If the business model provides a createdAt, copy it to the entity (mirrors Abandoned mapper behavior)
+        if (model.getCreatedAt() != null) {
+            entity.setCreatedAt(java.util.Date.from(model.getCreatedAt()));
+        }
+        return entity;
     }
 }

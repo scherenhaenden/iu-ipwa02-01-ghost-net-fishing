@@ -7,9 +7,11 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.AbandonedNet
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.AbandonedNetDataLayerModelRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
     private final AbandonedNetDataLayerModelRepository repository;
 
@@ -24,7 +26,7 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 1. Retrieve entities from the data layer
         List<AbandonedNetDataLayerModel> entities = repository.findAllByOrderByCreatedAtDesc();
         // 2. Map to business models and return
-        return BusinessLayerMapper.toBusinessModelList(entities);
+        return BusinessLayerMapper.toAbandonedNetBusinessModelList(entities);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 2. Retrieve the entities
         List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
         // 3. Map to business models
-        return BusinessLayerMapper.toBusinessModelList(entities);
+        return BusinessLayerMapper.toAbandonedNetBusinessModelList(entities);
     }
 
     @Override

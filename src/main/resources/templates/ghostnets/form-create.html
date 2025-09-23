@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'create')">
+
+<div th:fragment="pageContent">
+    <h2>Reportar Ghost Net</h2>
+
+    <form method="post" action="#" novalidate>
+        <div class="form-row">
+            <label for="location">Location</label>
+            <input id="location" name="location" required pattern=".{2,}" aria-label="Location"/>
+        </div>
+        <div class="form-row">
+            <label for="size">Size</label>
+            <input id="size" name="size" type="number" min="0" step="0.01" required aria-label="Size"/>
+        </div>
+        <div class="form-row">
+            <label for="personName">Person name (optional)</label>
+            <input id="personName" name="personName" aria-label="Person name" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Enviar - API pendiente">Enviar</button>
+    </form>
+</div>
+
+</body>
+</html>

@@ -4,11 +4,14 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.BusinessLay
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetDataLayerModel;
+import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.GhostNetDataLayerModelRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
 
     private final GhostNetDataLayerModelRepository repository;
@@ -22,7 +25,7 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<GhostNetBusinessLayerModel> findAll() {
         List<GhostNetDataLayerModel> entities = repository.findAll();
-        return BusinessLayerMapper.toBusinessModelList(entities);
+        return BusinessLayerMapper.toGhostNetBusinessModelList(entities);
     }
 
     @Override
@@ -36,10 +39,11 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Override
     @Transactional(readOnly = true)
     public List<GhostNetBusinessLayerModel> findByStatus(NetStatusBusinessLayerEnum status) {
-        NetStatusBusinessLayerEnum dataLayerStatus = NetStatusBusinessLayerEnum.valueOf(status.name());
+        // Convert business enum to data-layer enum
+        NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
         // Assuming this method exists in the repo
         List<GhostNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
-        return BusinessLayerMapper.toBusinessModelList(entities);
+        return BusinessLayerMapper.toGhostNetBusinessModelList(entities);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 
@@ -21,13 +23,16 @@ public class PersonDataLayerModel implements Serializable {
     /* Full name
        Name of the reporting/recovering person. Not null.
     */
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 120)
+    @Column(nullable = false, length = 120)
     private String name;
 
     /* Contact phone number
        Optional phone number; may be null for anonymous reports.
     */
-    @Column(name = "PHONE_NUMBER")
+    @Size(max = 40)
+    @Column(name = "PHONE_NUMBER", length = 40)
     private String phoneNumber;
 
     /* Protected no-args constructor

@@ -1,6 +1,10 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,7 +16,11 @@ import java.util.Date;
    Mapped to table GHOST_NET. Uses Jakarta Persistence annotations.
 */
 @Entity
-@Table(name = "GHOST_NET")
+@Table(name = "GHOST_NET", indexes = {
+        @Index(name = "idx_ghostnet_status", columnList = "STATUS"),
+        @Index(name = "idx_ghostnet_created_at", columnList = "CREATED_AT"),
+        @Index(name = "idx_ghostnet_location", columnList = "LOCATION")
+})
 public class GhostNetDataLayerModel implements Serializable {
 
     /* Primary key
@@ -25,12 +33,15 @@ public class GhostNetDataLayerModel implements Serializable {
     /* GPS location
        Stores a textual GPS coordinate or location description. Not null.
     */
-    @Column(name = "LOCATION", nullable = false)
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "LOCATION", nullable = false, length = 255)
     private String location;
 
     /* Area size
        Size of the net in square meters. Not null.
     */
+    @DecimalMin("0.0")
     @Column(name = "SIZE", nullable = false)
     private Double size;
 
@@ -44,6 +55,7 @@ public class GhostNetDataLayerModel implements Serializable {
     /* Current status
        Enum stored as string; reflects lifecycle stage of the net.
     */
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
     private NetStatusDataLayerEnum status;
@@ -51,7 +63,7 @@ public class GhostNetDataLayerModel implements Serializable {
     /* Reporting/Recovery person
        Optional many-to-one relation to the Person who reported or recovered the net.
     */
-    @ManyToOne
+    @ManyToOne(optional = true)
     @JoinColumn(name = "PERSON_ID")
     private PersonDataLayerModel person;
 
