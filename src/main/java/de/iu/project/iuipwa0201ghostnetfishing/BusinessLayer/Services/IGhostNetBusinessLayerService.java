@@ -13,4 +13,6 @@ public interface IGhostNetBusinessLayerService {
     GhostNetBusinessLayerModel save(GhostNetBusinessLayerModel net);
 
     void deleteById(Long id);
+
+    GhostNetBusinessLayerModel findByIdOrThrow(Long id);
 }

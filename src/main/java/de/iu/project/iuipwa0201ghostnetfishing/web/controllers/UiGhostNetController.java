@@ -3,6 +3,7 @@ package de.iu.project.iuipwa0201ghostnetfishing.web.controllers;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
+import de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,11 +51,7 @@ public class UiGhostNetController {
     @GetMapping("/{id}/reserve")
     public String reserveForm(@PathVariable("id") Long id, Model model) {
         // For presentation: fetch the ghostnet to show details if present
-        GhostNetBusinessLayerModel ghostNet = null;
-        try {
-            List<GhostNetBusinessLayerModel> all = service.findAll();
-            ghostNet = all.stream().filter(g -> id != null && id.equals(g.getId())).findFirst().orElse(null);
-        } catch (Exception ignored) {}
+        GhostNetBusinessLayerModel ghostNet = service.findByIdOrThrow(id);
         model.addAttribute("ghostNet", ghostNet);
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-reserve";
@@ -62,11 +59,7 @@ public class UiGhostNetController {
 
     @GetMapping("/{id}/recover")
     public String recoverForm(@PathVariable("id") Long id, Model model) {
-        GhostNetBusinessLayerModel ghostNet = null;
-        try {
-            List<GhostNetBusinessLayerModel> all = service.findAll();
-            ghostNet = all.stream().filter(g -> id != null && id.equals(g.getId())).findFirst().orElse(null);
-        } catch (Exception ignored) {}
+        GhostNetBusinessLayerModel ghostNet = service.findByIdOrThrow(id);
         model.addAttribute("ghostNet", ghostNet);
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-recover";

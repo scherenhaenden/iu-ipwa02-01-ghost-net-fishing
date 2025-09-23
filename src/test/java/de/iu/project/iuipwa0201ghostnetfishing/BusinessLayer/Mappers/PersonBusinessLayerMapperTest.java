@@ -2,131 +2,140 @@ package de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers;
 
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.PersonBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.PersonDataLayerModel;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit-Tests für die PersonBusinessLayerMapper-Klasse.
- * Testet das Mapping zwischen PersonDataLayerModel und PersonBusinessLayerModel.
- */
 class PersonBusinessLayerMapperTest {
 
-    private PersonDataLayerModel entity;
-    private PersonBusinessLayerModel model;
+    private PersonBusinessLayerMapper mapper;
 
     @BeforeEach
     void setUp() {
-        entity = new PersonDataLayerModel();
+        mapper = new PersonBusinessLayerMapper();
+    }
+
+    @Test
+    void toBusiness_ShouldMapEntityToBusinessModel() {
+        // Given
+        PersonDataLayerModel entity = new PersonDataLayerModel();
         entity.setId(1L);
-        entity.setName("Test Person");
-        entity.setPhoneNumber("+123456789");
+        entity.setName("John Doe");
+        entity.setPhoneNumber("123-456-7890");
 
-        model = new PersonBusinessLayerModel();
+        // When
+        PersonBusinessLayerModel result = mapper.toBusiness(entity);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("John Doe", result.getName());
+        assertEquals("123-456-7890", result.getPhoneNumber());
+    }
+
+    @Test
+    void toBusiness_ShouldReturnNull_WhenEntityIsNull() {
+        // When
+        PersonBusinessLayerModel result = mapper.toBusiness(null);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void toEntity_ShouldMapBusinessModelToEntity() {
+        // Given
+        PersonBusinessLayerModel model = new PersonBusinessLayerModel();
         model.setId(1L);
-        model.setName("Test Person");
-        model.setPhoneNumber("+123456789");
-    }
+        model.setName("John Doe");
+        model.setPhoneNumber("123-456-7890");
 
-    @Test
-    @DisplayName("toBusinessModel: Mapping von Entity zu BusinessModel")
-    void testToBusinessModel() {
-        // Act
-        PersonBusinessLayerModel result = PersonBusinessLayerMapper.toBusinessModel(entity);
+        // When
+        PersonDataLayerModel result = mapper.toEntity(model);
 
-        // Assert
+        // Then
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("Test Person", result.getName());
-        assertEquals("+123456789", result.getPhoneNumber());
+        assertEquals("John Doe", result.getName());
+        assertEquals("123-456-7890", result.getPhoneNumber());
     }
 
     @Test
-    @DisplayName("toBusinessModel: Null-Entity gibt Null zurück")
-    void testToBusinessModelNull() {
-        // Act
-        PersonBusinessLayerModel result = PersonBusinessLayerMapper.toBusinessModel(null);
+    void toEntity_ShouldReturnNull_WhenModelIsNull() {
+        // When
+        PersonDataLayerModel result = mapper.toEntity(null);
 
-        // Assert
+        // Then
         assertNull(result);
     }
 
     @Test
-    @DisplayName("toBusinessModelList: Mapping einer Liste von Entities")
-    void testToBusinessModelList() {
-        // Arrange
-        List<PersonDataLayerModel> entities = Arrays.asList(entity, createAnotherEntity());
+    void toBusinessList_ShouldMapListOfEntitiesToListOfBusinessModels() {
+        // Given
+        PersonDataLayerModel entity1 = new PersonDataLayerModel();
+        entity1.setId(1L);
+        entity1.setName("John Doe");
+        entity1.setPhoneNumber("123-456-7890");
 
-        // Act
-        List<PersonBusinessLayerModel> result = PersonBusinessLayerMapper.toBusinessModelList(entities);
+        PersonDataLayerModel entity2 = new PersonDataLayerModel();
+        entity2.setId(2L);
+        entity2.setName("Jane Smith");
+        entity2.setPhoneNumber("098-765-4321");
 
-        // Assert
-        assertNotNull(result);
+        List<PersonDataLayerModel> entities = Arrays.asList(entity1, entity2);
+
+        // When
+        List<PersonBusinessLayerModel> result = mapper.toBusinessList(entities);
+
+        // Then
         assertEquals(2, result.size());
-        assertEquals(1L, result.get(0).getId());
-        assertEquals("Test Person", result.get(0).getName());
-        assertEquals("+123456789", result.get(0).getPhoneNumber());
-        assertEquals(2L, result.get(1).getId());
-        assertEquals("Another Person", result.get(1).getName());
-        assertEquals("+987654321", result.get(1).getPhoneNumber());
+        assertEquals("John Doe", result.get(0).getName());
+        assertEquals("Jane Smith", result.get(1).getName());
     }
 
     @Test
-    @DisplayName("toBusinessModelList: Leere Liste gibt leere Liste zurück")
-    void testToBusinessModelListEmpty() {
-        // Act
-        List<PersonBusinessLayerModel> result = PersonBusinessLayerMapper.toBusinessModelList(Collections.emptyList());
+    void toBusinessList_ShouldReturnEmptyList_WhenEntitiesIsNull() {
+        // When
+        List<PersonBusinessLayerModel> result = mapper.toBusinessList(null);
 
-        // Assert
-        assertNotNull(result);
+        // Then
         assertTrue(result.isEmpty());
     }
 
     @Test
-    @DisplayName("toBusinessModelList: Null-Liste gibt leere Liste zurück")
-    void testToBusinessModelListNull() {
-        // Act
-        List<PersonBusinessLayerModel> result = PersonBusinessLayerMapper.toBusinessModelList(null);
+    void toEntityList_ShouldMapListOfBusinessModelsToListOfEntities() {
+        // Given
+        PersonBusinessLayerModel model1 = new PersonBusinessLayerModel();
+        model1.setId(1L);
+        model1.setName("John Doe");
+        model1.setPhoneNumber("123-456-7890");
 
-        // Assert
-        assertNotNull(result);
+        PersonBusinessLayerModel model2 = new PersonBusinessLayerModel();
+        model2.setId(2L);
+        model2.setName("Jane Smith");
+        model2.setPhoneNumber("098-765-4321");
+
+        List<PersonBusinessLayerModel> models = Arrays.asList(model1, model2);
+
+        // When
+        List<PersonDataLayerModel> result = mapper.toEntityList(models);
+
+        // Then
+        assertEquals(2, result.size());
+        assertEquals("John Doe", result.get(0).getName());
+        assertEquals("Jane Smith", result.get(1).getName());
+    }
+
+    @Test
+    void toEntityList_ShouldReturnEmptyList_WhenListIsNull() {
+        // When
+        List<PersonDataLayerModel> result = mapper.toEntityList(null);
+
+        // Then
         assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("toEntity: Mapping von BusinessModel zu Entity")
-    void testToEntity() {
-        // Act
-        PersonDataLayerModel result = PersonBusinessLayerMapper.toEntity(model);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Test Person", result.getName());
-        assertEquals("+123456789", result.getPhoneNumber());
-    }
-
-    @Test
-    @DisplayName("toEntity: Null-BusinessModel gibt Null zurück")
-    void testToEntityNull() {
-        // Act
-        PersonDataLayerModel result = PersonBusinessLayerMapper.toEntity(null);
-
-        // Assert
-        assertNull(result);
-    }
-
-    private PersonDataLayerModel createAnotherEntity() {
-        PersonDataLayerModel another = new PersonDataLayerModel();
-        another.setId(2L);
-        another.setName("Another Person");
-        another.setPhoneNumber("+987654321");
-        return another;
     }
 }

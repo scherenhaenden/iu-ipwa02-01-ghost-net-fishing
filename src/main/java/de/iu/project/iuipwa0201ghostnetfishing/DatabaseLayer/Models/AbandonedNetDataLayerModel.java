@@ -85,6 +85,19 @@ public class AbandonedNetDataLayerModel implements Serializable {
         this.createdAt = new Date();
     }
 
+    /**
+     * New constructor which accepts an explicit createdAt (may be null).
+     * This allows mappers to preserve null createdAt values for tests.
+     */
+    public AbandonedNetDataLayerModel(Long id, String location, Double size, NetStatusDataLayerEnum status, Date createdAt, PersonDataLayerModel person) {
+        this.id = id;
+        this.location = location;
+        this.size = size;
+        this.status = status;
+        this.person = person;
+        this.createdAt = createdAt;
+    }
+
     /* Convenience constructor with LocalDateTime
        Accepts a LocalDateTime for createdAt and converts it to java.util.Date for JPA compatibility.
        This constructor is convenient for services that use java.time types.
