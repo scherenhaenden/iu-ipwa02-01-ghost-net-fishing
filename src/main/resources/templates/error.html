@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'error')">
+
+<div th:fragment="pageContent">
+    <h2>Fehler aufgetreten</h2>
+
+    <div>
+        <p><strong>Status:</strong> <span th:text="${status}">N/A</span></p>
+        <p><strong>Error:</strong> <span th:text="${error}">N/A</span></p>
+        <p><strong>Message:</strong> <span th:text="${message}">N/A</span></p>
+        <p><strong>Path:</strong> <span th:text="${path}">N/A</span></p>
+        <p><strong>Timestamp:</strong> <span th:text="${timestamp}">N/A</span></p>
+    </div>
+
+    <div th:if="${trace}">
+        <h3>Stacktrace</h3>
+        <pre th:text="${trace}" style="white-space:pre-wrap; background:#f8f8f8; padding:8px; border-radius:4px;"></pre>
+    </div>
+
+    <div th:if="${errors}">
+        <h3>Binding / Validation Errors</h3>
+        <pre th:text="${errors}" style="white-space:pre-wrap; background:#f8f8f8; padding:8px; border-radius:4px;"></pre>
+    </div>
+
+    <div>
+        <h3>Alle Error-Attribute</h3>
+        <ul>
+            <li th:each="entry : ${#lists.entrySet(attributes)}">
+                <strong th:text="${entry.key}">key</strong>: <span th:text="${entry.value}">value</span>
+            </li>
+        </ul>
+    </div>
+
+    <div style="margin-top:12px;">
+        <a th:href="@{/}" class="btn">Zur Startseite</a>
+    </div>
+</div>
+
+</body>
+</html>
+

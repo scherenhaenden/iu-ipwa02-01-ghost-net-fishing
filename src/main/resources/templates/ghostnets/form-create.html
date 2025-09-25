@@ -5,21 +5,25 @@
 <div th:fragment="pageContent">
     <h2>Reportar Ghost Net</h2>
 
-    <form method="post" action="#" novalidate>
+    <!-- Usa el atributo que el controller añade: "ghostNetForm" -->
+    <form th:action="@{/ui/ghostnets}" th:object="${ghostNetForm}" method="post" novalidate>
         <div class="form-row">
             <label for="location">Location</label>
-            <input id="location" name="location" required pattern=".{2,}" aria-label="Location"/>
+            <input id="location" type="text" th:field="*{location}" required pattern=".{2,}" aria-label="Location"/>
         </div>
         <div class="form-row">
             <label for="size">Size</label>
-            <input id="size" name="size" type="number" min="0" step="0.01" required aria-label="Size"/>
+            <input id="size" type="number" th:field="*{size}" min="0" step="0.01" required aria-label="Size"/>
         </div>
         <div class="form-row">
             <label for="personName">Person name (optional)</label>
-            <input id="personName" name="personName" aria-label="Person name" />
+            <input id="personName" type="text" th:field="*{personName}" aria-label="Person name" />
         </div>
 
-        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Enviar - API pendiente">Enviar</button>
+        <div style="margin-top:8px;">
+            <button type="submit" class="btn btn-primary" title="Enviar">Enviar</button>
+            <a th:href="@{/ui/ghostnets}" class="btn">Cancelar</a>
+        </div>
     </form>
 </div>
 

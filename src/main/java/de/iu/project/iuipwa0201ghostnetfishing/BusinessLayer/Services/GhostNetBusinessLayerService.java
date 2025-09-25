@@ -27,8 +27,9 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Override
     @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<GhostNetBusinessLayerModel> findAll() {
-        List<GhostNetDataLayerModel> entities = repository.findAll();
-        return mapper.toBusinessModelList(entities);
+        //List<GhostNetDataLayerModel> entities = repository.findAll();
+        //return mapper.toBusinessModelList(entities);
+        return List.of();
     }
 
     @Override

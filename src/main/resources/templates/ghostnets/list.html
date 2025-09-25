@@ -5,6 +5,10 @@
 <div th:fragment="pageContent">
     <section class="banner">Acciones Reserve/Recover disponibles cuando la API PATCH esté lista</section>
 
+    <!-- Mensajes flash -->
+    <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
+    <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
+
     <div class="controls">
         <form method="get" th:action="@{/ui/ghostnets}">
             <label for="status">Filtrar por estado:</label>
@@ -20,7 +24,7 @@
         <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Reportar net</a>
     </div>
 
-    <table class="table">
+    <table class="table" style="margin-top:12px;">
         <thead>
         <tr>
             <th>ID</th>
@@ -48,11 +52,16 @@
             <td th:text="${g.size}">0.0</td>
             <td><span th:text="${g.status}" th:class="'badge ' + ${g.status}">STATUS</span></td>
             <td th:text="${#temporals.format(g.createdAt, 'yyyy-MM-dd HH:mm')}">--</td>
-            <td th:text="${g.recoveringPerson != null ? g.recoveringPerson.name : ''}"></td>
+
+            <!-- mostrar 'anónimo' si no hay persona -->
+            <td th:text="${g.recoveringPerson != null ? g.recoveringPerson.name : 'anónimo'}"></td>
+
             <td>
+                <!-- Los enlaces GET a los formularios de reserve/recover están implementados en el controller -->
                 <a th:href="@{|/ui/ghostnets/${g.id}/reserve|}"
                    class="btn btn-ghost"
                    th:attr="title=${'Reservar ghost net ' + g.id}, aria-label=${'Reservar ghost net ' + g.id}">Reserve</a>
+
                 <a th:href="@{|/ui/ghostnets/${g.id}/recover|}"
                    class="btn btn-ghost"
                    th:attr="title=${'Marcar recuperado net ' + g.id}, aria-label=${'Marcar recuperado net ' + g.id}">Recover</a>
