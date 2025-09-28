@@ -40,6 +40,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Area size
        Size of the net in square meters. Not null.
     */
+    @NotNull
     @PositiveOrZero
     @Column(name = "SIZE", nullable = false)
     private Double size;
@@ -47,6 +48,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Creation timestamp
        Time when the net was first reported/created in the system.
     */
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     @PastOrPresent
     @Column(name = "CREATED_AT", nullable = false)

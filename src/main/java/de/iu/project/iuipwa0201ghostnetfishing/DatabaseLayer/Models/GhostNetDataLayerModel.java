@@ -1,7 +1,6 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +42,7 @@ public class GhostNetDataLayerModel implements Serializable {
     /* Area size
        Size of the net in square meters. Not null.
     */
+    @NotNull
     @PositiveOrZero
     @Column(name = "SIZE", nullable = false)
     private Double size;
@@ -50,6 +50,7 @@ public class GhostNetDataLayerModel implements Serializable {
     /* Creation timestamp
        Stores when the record was created in the system. Not nullable.
     */
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     @PastOrPresent
     @Column(name = "CREATED_AT", nullable = false)
