@@ -51,7 +51,8 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 1. Convert the business enum to the data layer enum
         NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
         // 2. Retrieve the entities
-        List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
+        // Use the repository method that returns results ordered newest-first
+        List<AbandonedNetDataLayerModel> entities = repository.findByStatusOrderByCreatedAtDesc(dataLayerStatus);
         // 3. Map to business models
         return mapper.toBusinessModelList(entities);
     }
