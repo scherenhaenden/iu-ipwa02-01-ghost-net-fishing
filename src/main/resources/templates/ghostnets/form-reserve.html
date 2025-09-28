@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'list')">
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
     <h2>Reservar Ghost Net</h2>
@@ -15,12 +15,15 @@
         <p>GhostNet no encontrado (solo vista).</p>
     </div>
 
-    <form method="post" action="#" novalidate>
+    <form th:action="@{/ui/ghostnets/{id}/reserve(id=${netId})}" method="post" th:object="${reserveForm}">
         <div class="form-row">
             <label for="personName">Your name</label>
-            <input id="personName" name="personName" required pattern=".{2,}" aria-label="Your name" />
+            <input type="text" id="personName" th:field="*{personName}" />
         </div>
-        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Reservar - API pendiente">Reservar</button>
+        <div>
+            <button class="btn btn-primary" type="submit">Reservar</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancelar</a>
+        </div>
     </form>
 </div>
 

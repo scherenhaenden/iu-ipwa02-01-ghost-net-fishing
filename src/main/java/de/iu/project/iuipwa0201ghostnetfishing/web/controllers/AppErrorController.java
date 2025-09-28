@@ -6,10 +6,13 @@ import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Controller
@@ -42,6 +45,17 @@ public class AppErrorController implements ErrorController {
         model.addAttribute("attributes", attrs);
 
         return "error";
+    }
+
+    // @ControllerAdvice or inside your error controller
+    @ModelAttribute("attributesFlat")
+    public Map<String, String> attributesFlat(HttpServletRequest req) {
+        Map<String, String> out = new LinkedHashMap<>();
+        req.getAttributeNames().asIterator().forEachRemaining(n -> {
+            Object v = req.getAttribute(n);
+            out.put(n, String.valueOf(v)); // or serialize with Jackson if you prefer JSON
+        });
+        return out;
     }
 }
 

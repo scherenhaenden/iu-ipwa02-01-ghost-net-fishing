@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'create')">
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'create')}">
 
 <div th:fragment="pageContent">
     <h2>Reportar Ghost Net</h2>
 
     <!-- Usa el atributo que el controller añade: "ghostNetForm" -->
-    <form th:action="@{/ui/ghostnets}" th:object="${ghostNetForm}" method="post" novalidate>
+    <form th:action="@{/ui/ghostnets}" method="post" th:object="${ghostNetForm}">
         <div class="form-row">
             <label for="location">Location</label>
-            <input id="location" type="text" th:field="*{location}" required pattern=".{2,}" aria-label="Location"/>
+            <input type="text" id="location" th:field="*{location}" />
         </div>
         <div class="form-row">
             <label for="size">Size</label>
-            <input id="size" type="number" th:field="*{size}" min="0" step="0.01" required aria-label="Size"/>
+            <input type="number" step="0.1" id="size" th:field="*{size}" />
         </div>
         <div class="form-row">
-            <label for="personName">Person name (optional)</label>
-            <input id="personName" type="text" th:field="*{personName}" aria-label="Person name" />
+            <label for="personName">Your name (optional)</label>
+            <input type="text" id="personName" th:field="*{personName}" />
         </div>
-
-        <div style="margin-top:8px;">
-            <button type="submit" class="btn btn-primary" title="Enviar">Enviar</button>
-            <a th:href="@{/ui/ghostnets}" class="btn">Cancelar</a>
+        <div>
+            <button class="btn btn-primary" type="submit">Reportar</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancelar</a>
         </div>
     </form>
 </div>
