@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'list')">
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
     <section class="banner">Acciones Reserve/Recover disponibles cuando la API PATCH esté lista</section>
@@ -13,7 +13,8 @@
         <form method="get" th:action="@{/ui/ghostnets}">
             <label for="status">Filtrar por estado:</label>
             <select name="status" id="status" onchange="this.form.submit()">
-                <option th:value="" th:selected="${selectedStatus == ''}">Todos</option>
+                <!-- th:value vacío causaba la excepción; usar literal cadena vacía '' -->
+                <option th:value="''" th:selected="${selectedStatus == ''}">Todos</option>
                 <option th:value="REPORTED" th:selected="${selectedStatus == 'REPORTED'}">REPORTED</option>
                 <option th:value="RECOVERY_PENDING" th:selected="${selectedStatus == 'RECOVERY_PENDING'}">RECOVERY_PENDING</option>
                 <option th:value="RECOVERED" th:selected="${selectedStatus == 'RECOVERED'}">RECOVERED</option>
