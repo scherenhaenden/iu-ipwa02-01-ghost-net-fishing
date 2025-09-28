@@ -3,9 +3,7 @@ package de.iu.project.iuipwa0201ghostnetfishing.web.controllers;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.PersonBusinessLayerModel;
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.GhostNetDomainService;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebLayerMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebToBusinessMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.PersonWebToBusinessMapper;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * REST API for GhostNet resources.
@@ -35,29 +32,30 @@ public class GhostNetRestController {
     private final GhostNetWebLayerMapper webMapper;
     private final GhostNetWebToBusinessMapper webToBusinessMapper;
     private final PersonWebToBusinessMapper personWebToBusinessMapper;
-    private final GhostNetDomainService domainService;
 
-    public GhostNetRestController(IGhostNetBusinessLayerService service, GhostNetWebLayerMapper webMapper, GhostNetWebToBusinessMapper webToBusinessMapper, PersonWebToBusinessMapper personWebToBusinessMapper, GhostNetDomainService domainService) {
+    public GhostNetRestController(IGhostNetBusinessLayerService service, GhostNetWebLayerMapper webMapper, GhostNetWebToBusinessMapper webToBusinessMapper, PersonWebToBusinessMapper personWebToBusinessMapper) {
         this.service = service;
         this.webMapper = webMapper;
         this.webToBusinessMapper = webToBusinessMapper;
         this.personWebToBusinessMapper = personWebToBusinessMapper;
-        this.domainService = domainService;
     }
 
     /* ---- READ ---------------------------------------------------------- */
 
-    /** All GhostNets (unsorted). */
+    /** All GhostNets (optionally filtered by status via query param). */
     @GetMapping
-    public List<GhostNetWebLayerModel> findAll() {
-        return webMapper.toWebModelList(service.findAll());
+    public List<GhostNetWebLayerModel> findAll(@RequestParam(name = "status", required = false) String status) {
+        if (status == null || status.isBlank()) {
+            return webMapper.toWebModelList(service.findAll());
+        }
+        NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.toUpperCase());
+        return webMapper.toWebModelList(service.findByStatus(enumStatus));
     }
 
-    /** GhostNets filtered by status (e.g. REPORTED). */
+    /** GhostNets filtered by status (path style) - kept for backward compatibility. */
     @GetMapping("/status/{status}")
     public List<GhostNetWebLayerModel> findByStatus(@PathVariable String status) {
-        NetStatusBusinessLayerEnum enumStatus =
-                NetStatusBusinessLayerEnum.valueOf(status.toUpperCase());
+        NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.toUpperCase());
         return webMapper.toWebModelList(service.findByStatus(enumStatus));
     }
 
@@ -82,30 +80,18 @@ public class GhostNetRestController {
 
     @PatchMapping("/{id}/reserve")
     public ResponseEntity<?> reserve(@PathVariable Long id, @Valid @RequestBody ReserveRequest req) {
-        PersonBusinessLayerModel person = personWebToBusinessMapper.toBusinessModel(req.personName());
-        OperationResult result = domainService.assignPerson(id, person);
-        if (result == OperationResult.OK) {
-            Optional<GhostNetBusinessLayerModel> updated = domainService.findById(id);
-            return updated.map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-        } else if (result == OperationResult.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        var b = service.findByIdOrThrow(id);
+        var person = personWebToBusinessMapper.toBusinessModel(req.personName());
+        b.assignTo(person);
+        var saved = service.save(b);
+        return ResponseEntity.ok(webMapper.toWebModel(saved));
     }
 
     @PatchMapping("/{id}/recover")
     public ResponseEntity<?> recover(@PathVariable Long id, @RequestBody RecoverRequest req) {
-        OperationResult result = domainService.markRecovered(id);
-        if (result == OperationResult.OK) {
-            Optional<GhostNetBusinessLayerModel> updated = domainService.findById(id);
-            return updated.map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-        } else if (result == OperationResult.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        var b = service.findByIdOrThrow(id);
+        b.markAsRecovered();
+        var saved = service.save(b);
+        return ResponseEntity.ok(webMapper.toWebModel(saved));
     }
 }
