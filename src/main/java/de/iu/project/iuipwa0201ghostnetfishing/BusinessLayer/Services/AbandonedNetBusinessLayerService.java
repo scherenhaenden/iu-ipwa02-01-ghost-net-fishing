@@ -6,10 +6,12 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBus
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.AbandonedNetDataLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.AbandonedNetDataLayerModelRepository;
+import de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
@@ -52,6 +54,14 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
         // 3. Map to business models
         return mapper.toBusinessModelList(entities);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AbandonedNetBusinessLayerModel findById(Long id) {
+        Optional<AbandonedNetDataLayerModel> opt = repository.findById(id);
+        return opt.map(mapper::toBusinessModel)
+                .orElseThrow(() -> new ResourceNotFoundException("AbandonedNet with id " + id + " not found"));
     }
 
     @Override
