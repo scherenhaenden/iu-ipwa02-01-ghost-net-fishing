@@ -18,28 +18,28 @@
     <div th:if="${errors != null}">
         <pre th:text="${errors}" style="white-space:pre-wrap; background:#f8f8f8; padding:8px; border-radius:4px;"></pre>
     </div>
+    <!--TODO: this ain't working at all-->
 
 
+  <h2 th:if="${attributes != null}">Request attributes</h2>
+  <ul th:if="${attributes != null}">
 
-    <h2 th:if="${attributes != null}">Request attributes</h2>
-    <ul th:if="${attributes != null}">
+  <span th:if="${attributes != null}">attributes</span>
 
-    <span th:if="${attributes != null}">attributes</span>
-
-        <!--
+      <!--
 
 
-        <li th:each="entry : ${#maps.entries(attributes)}">
-            <strong th:text="${entry.key}">key</strong>:
-            <span th:if="${entry.value == null}">null</span>
+      <li th:each="entry : ${#maps.entries(attributes)}">
+          <strong th:text="${entry.key}">key</strong>:
+          <span th:if="${entry.value == null}">null</span>
 
-            <!- - show primitive-like values directly - ->
-            <span th:if="${entry.value != null and (entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}" th:text="${entry.value}">value</span>
+          <!- - show primitive-like values directly - ->
+          <span th:if="${entry.value != null and (entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}" th:text="${entry.value}">value</span>
 
-            <!- - otherwise show the class name to avoid dumping large objects - ->
-            <span th:if="${entry.value != null and !(entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}"
-                  th:text="${entry.value.getClass().getName()}">type</span>
-        </li>-->
+          <!- - otherwise show the class name to avoid dumping large objects - ->
+          <span th:if="${entry.value != null and !(entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}"
+                th:text="${entry.value.getClass().getName()}">type</span>
+      </li>-->
     </ul>
 </div>
 
