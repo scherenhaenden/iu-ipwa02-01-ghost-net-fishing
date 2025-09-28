@@ -312,3 +312,70 @@ pero decidí cambiar esa idea a una mejor sin usar exceptions como flujo de prog
   3. Arranca con ese perfil activo para que use el archivo `ghostnet.db` en la raíz del proyecto.
 
 Con esto tienes una ruta de 10 pasos, clara y finita, para cerrar la Historia 1 hoy mismo. Si quieres, te digo cuál de esos pasos te conviene implementar **primero** con el menor riesgo (spoiler: 2→3→4→5→7).
+
+
+US2
+
+¡vamos con US2! aquí tienes **10 pasos cortos y accionables** para cerrar “**Asignarme para recuperar un ghost net**” (reserva) con lo que ya tienes en el repo y tu stack:
+
+1. **Clavar criterios y transiciones**
+
+   * Reserva solo desde `REPORTED` → pasa a `RECOVERY_PENDING` y se asocia la persona.
+   * Si `status != REPORTED` ⇒ 409 Conflict.
+   * `personName` obligatorio en la operación.
+     (Esto corresponde tal cual a tus criterios Gherkin y trazabilidad de endpoints/BL. )
+
+2. **DTO de entrada (REST)**
+
+   * `ReserveRequest { String personName }` con `@NotBlank`.
+   * Mensajes de validación listos para i18n si ya usas Bean Validation.
+   * Caso error de validación ⇒ 400 (tu `ApiExceptionHandler` ya lo mapea). 
+
+3. **Endpoint REST**
+
+   * `PATCH /api/ghostnets/{id}/reserve` en `GhostNetRestController#reserve(…​)`.
+   * Lee `{id}`, valida `ReserveRequest`, delega a servicio, mapea resultado a `200/404/409`.
+   * Devuelve representación del net actualizado (incluye `status` y `recoveringPersonName`). 
+
+4. **Modelo/Servicio de dominio (sin exceptions como flujo)**
+
+   * En `GhostNetBusinessLayerService` añade `reserve(long id, Person person)` que retorna `OperationResult<GhostNet>` con estados `OK | NOT_FOUND | CONFLICT`.
+   * Implementa en `GhostNetBusinessLayerModel#assignTo(Person)` la regla: si `status==REPORTED` y `person != null` ⇒ set persona + `RECOVERY_PENDING`; si `person==null` ⇒ `INVALID_ARGUMENT` (mapearás a 400); en otros estados ⇒ `CONFLICT`.
+   * El controller traduce `OK→200`, `NOT_FOUND→404`, `CONFLICT→409`, `INVALID_ARGUMENT→400`. (Encaja con tus reglas y manejo de errores.) 
+
+5. **Mapper Web↔BL**
+
+   * Reutiliza `PersonWebToBusinessMapper` para crear `Person` desde `personName`.
+   * Asegura que el mapper de salida pueble `recoveringPersonName` cuando haya persona asignada. (Ya está mencionado en tus mappers/tabla de trazabilidad.) 
+
+6. **Repos / Capa de datos**
+
+   * Usa `GhostNetDataLayerModelRepository#findById` y `#save`.
+   * (Opcional pero recomendado) añade **optimistic locking** con `@Version` en la entidad para evitar dobles reservas simultáneas; un `OptimisticLockException` lo traduces a 409 también.
+
+7. **UI MVC (pantalla de reserva)**
+
+   * `GET /ui/ghostnets/{id}/reserve` muestra `form-reserve.html` con campo `personName` requerido y resumen del net.
+   * `POST` del formulario: o bien llama al **endpoint REST** (`/api/ghostnets/{id}/reserve`) o directamente al **servicio** (mantén consistencia con cómo hiciste US1).
+   * Mensajes: si 409, muestra “Ya no se puede reservar este net (estado actual: …)”; si 400, pinta validación en `personName`. (La vista está listada en tu trazabilidad; falta el POST.) 
+
+8. **Tests (mínimo que debe pasar)**
+
+   * `GhostNetRestControllerTest#reserveGhostNet_Success` (REPORTED→RECOVERY_PENDING, persona asignada).
+   * `…#reserveGhostNet_ValidationError` (`personName=""` ⇒ 400).
+   * `…#reserveGhostNet_Conflict` (estado inicial `RECOVERY_PENDING`/`RECOVERED` ⇒ 409).
+   * `GhostNetIntegrationTest#reserveAndRecoverGhostNet` ya referenciado: confirma el “happy path” completo. 
+
+9. **Listados/Detalle (estado y persona)**
+
+   * En `/ui/ghostnets` y `GET /api/ghostnets` asegúrate de mostrar `status` y `person` (o “anónimo” si no hay).
+   * El filtro por estado ya está definido para US3; te sirve para comprobar rápidamente los `RECOVERY_PENDING`. 
+
+10. **Checklist de errores y contratos**
+
+* **404** cuando `{id}` no existe (`ResourceNotFoundException` o `NOT_FOUND` del servicio).
+* **400** por `@NotBlank`/`INVALID_ARGUMENT` en `ReserveRequest`.
+* **409** por transición inválida/lock concurrente.
+* **Idempotencia** (opcional): si el mismo `personName` reserva dos veces el MISMO net y ya está `RECOVERY_PENDING` con esa persona, puedes devolver `200` con el recurso tal cual; si es OTRO nombre ⇒ `409`. (Encaja con la semántica de “reserva”.) 
+
+Con estos diez, cierras US2 de punta a punta (REST + BL + UI + tests) y quedas alineado con tu documento de historias/criterios y la tabla de trazabilidad existente. Si quieres, te bosquejo el `reserve(…)` del servicio y el `@PatchMapping` del controller en el siguiente mensaje.

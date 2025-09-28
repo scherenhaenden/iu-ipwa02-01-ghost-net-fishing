@@ -24,20 +24,22 @@
     <h2 th:if="${attributes != null}">Request attributes</h2>
     <ul th:if="${attributes != null}">
 
-        
+    <span th:if="${attributes != null}">attributes</span>
+
+        <!--
 
 
         <li th:each="entry : ${#maps.entries(attributes)}">
             <strong th:text="${entry.key}">key</strong>:
             <span th:if="${entry.value == null}">null</span>
 
-            <!-- show primitive-like values directly -->
+            <!- - show primitive-like values directly - ->
             <span th:if="${entry.value != null and (entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}" th:text="${entry.value}">value</span>
 
-            <!-- otherwise show the class name to avoid dumping large objects -->
+            <!- - otherwise show the class name to avoid dumping large objects - ->
             <span th:if="${entry.value != null and !(entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}"
                   th:text="${entry.value.getClass().getName()}">type</span>
-        </li>
+        </li>-->
     </ul>
 </div>
 
