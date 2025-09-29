@@ -16,7 +16,7 @@
         <p>GhostNet no encontrado (solo vista).</p>
     </div>
 
-    <form th:action="@{/ui/ghostnets/{id}/reserve(id=${netId})}" method="post" th:object="${reserveForm}">
+    <form th:action="@{/ui/ghostnets/{id}/reserve(id=${ghostNet.id})}" method="post" th:object="${ghostNetForm}">
         <div class="form-row">
             <label for="personName">Your name</label>
             <input type="text" id="personName" th:field="*{personName}" />
