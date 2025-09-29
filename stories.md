@@ -1,381 +1,378 @@
-# Ghost Net Fishing — User Stories y Trazabilidad
+# Ghost Net Fishing — User Stories and Traceability
 
-> **Versión**: 1.0
-> **Ámbito**: funcionalidad UI/REST para gestión de *ghost nets* (reportar, reservar, recuperar y marcar como missing).
+> **Version**: 1.0
+> **Scope**: UI/REST functionality for managing *ghost nets* (report, reserve, recover, and mark as missing).
 
 ---
 
-## US1 — Reportar un ghost net de forma anónima
+## US1 — Report a Ghost Net Anonymously
 
-**Como** reportante
-**quiero** registrar un ghost net con ubicación (y tamaño opcional), **incluso sin dar mi nombre**,
-**para** que quede en el sistema para su futura recuperación.
+**As** a reporter
+**I want** to register a ghost net with location (and optional size), **even without giving my name**,
+**so that** it is recorded in the system for future recovery.
 
-### Criterios de aceptación (Gherkin)
+### Acceptance Criteria (Gherkin)
 
 ```gherkin
-Scenario: Crear ghost net anónimo desde la UI
-  Given abro "/ui/ghostnets/new"
-  When envío location (obligatorio), size (opcional) y personName vacío
-  Then el net se crea con status = REPORTED y sin persona
-   And lo veo en "/ui/ghostnets" ordenado por fecha
+Scenario: Create anonymous ghost net from the UI
+  Given I open "/ui/ghostnets/new"
+  When I submit location (required), size (optional), and personName empty
+  Then the net is created with status = REPORTED and without a person
+   And I see it in "/ui/ghostnets" ordered by date
 
-Scenario: Crear ghost net con persona desde la API
+Scenario: Create ghost net with person from the API
   Given endpoint POST /api/ghostnets
-  When envío { location: "Test", size: 5.0, personName: "John Doe" }
-  Then responde 201 Created con recoveringPersonName = "John Doe"
+  When I send { location: "Test", size: 5.0, personName: "John Doe" }
+  Then it responds 201 Created with recoveringPersonName = "John Doe"
    And status = REPORTED
 
-Scenario: Validación de location
-  Given POST /api/ghostnets con location "" (vacío)
-  Then responde 400 Bad Request con error = VALIDATION_ERROR
+Scenario: Location validation
+  Given POST /api/ghostnets with location "" (empty)
+  Then it responds 400 Bad Request with error = VALIDATION_ERROR
 ```
 
 ---
 
-## US2 — Asignarme para recuperar un ghost net
+## US2 — Assign Myself to Recover a Ghost Net
 
-**Como** voluntario
-**quiero** asignarme a un ghost net reportado,
-**para** indicar que me encargo de su recuperación.
+**As** a volunteer
+**I want** to assign myself to a reported ghost net,
+**so that** I can indicate that I am in charge of its recovery.
 
-### Criterios de aceptación
+### Acceptance Criteria
 
 ```gherkin
-Scenario: Reserva exitosa
-  Given un net con status = REPORTED
-  When PATCH /api/ghostnets/{id}/reserve con { personName: "Jane" }
-  Then status cambia a RECOVERY_PENDING y queda asignada la persona
+Scenario: Successful reservation
+  Given a net with status = REPORTED
+  When PATCH /api/ghostnets/{id}/reserve with { personName: "Jane" }
+  Then status changes to RECOVERY_PENDING and the person is assigned
 
-Scenario: Reserva inválida por estado
-  Given un net con status != REPORTED
-  When intento reservar
-  Then responde 409 Conflict (o 400 si aplica)
+Scenario: Invalid reservation due to status
+  Given a net with status != REPORTED
+  When I attempt to reserve
+  Then it responds 409 Conflict (or 400 if applicable)
 
-Scenario: Validación de personName
-  When PATCH /api/ghostnets/{id}/reserve con personName "" (vacío)
-  Then responde 400 Bad Request con error = VALIDATION_ERROR
+Scenario: Validation of personName
+  When PATCH /api/ghostnets/{id}/reserve with personName "" (empty)
+  Then it responds 400 Bad Request with error = VALIDATION_ERROR
 ```
 
 ---
 
-## US3 — Listar y filtrar ghost nets por estado
+## US3 — List and Filter Ghost Nets by Status
 
-**Como** usuario
-**quiero** ver una lista de ghost nets y filtrarlos por estado,
-**para** entender rápidamente qué está reportado, pendiente o recuperado.
+**As** a user
+**I want** to see a list of ghost nets and filter them by status,
+**so that** I can quickly understand what is reported, pending, or recovered.
 
-### Criterios de aceptación
+### Acceptance Criteria
 
 ```gherkin
-Scenario: Listado general
-  Given abro "/ui/ghostnets"
-  Then veo tabla con columnas: id, location, size, status, createdAt, person
+Scenario: General listing
+  Given I open "/ui/ghostnets"
+  Then I see a table with columns: id, location, size, status, createdAt, person
 
-Scenario: Filtrar por estado
-  Given selecciono un estado en el filtro de la lista
-  When aplico el filtro
-  Then solo se muestran nets con ese estado
+Scenario: Filter by status
+  Given I select a status in the list filter
+  When I apply the filter
+  Then only nets with that status are shown
 ```
 
 ---
 
-## US4 — Marcar un ghost net como recuperado (con notas)
+## US4 — Mark a Ghost Net as Recovered (with Notes)
 
-**Como** voluntario asignado
-**quiero** marcar el ghost net como **RECOVERED** y opcionalmente adjuntar **notas**,
-**para** finalizar la intervención y dejar registro.
+**As** an assigned volunteer
+**I want** to mark the ghost net as **RECOVERED** and optionally attach **notes**,
+**so that** I can finalize the intervention and leave a record.
 
-### Criterios de aceptación
+### Acceptance Criteria
 
 ```gherkin
-Scenario: Recuperación exitosa
-  Given un net con status = RECOVERY_PENDING
-  When PATCH /api/ghostnets/{id}/recover con { notes: "..." }
-  Then el status cambia a RECOVERED (las notas pueden persistirse en una iteración posterior)
+Scenario: Successful recovery
+  Given a net with status = RECOVERY_PENDING
+  When PATCH /api/ghostnets/{id}/recover with { notes: "..." }
+  Then the status changes to RECOVERED (notes can be persisted in a later iteration)
 
-Scenario: Recuperación inválida por estado
-  Given un net con status != RECOVERY_PENDING
-  When intento marcar como recuperado
-  Then responde 409 Conflict
+Scenario: Invalid recovery due to status
+  Given a net with status != RECOVERY_PENDING
+  When I attempt to mark as recovered
+  Then it responds 409 Conflict
 ```
 
 ---
 
-## US5 — Marcar un ghost net como “MISSING” (no localizado) *(propuesta)*
+## US5 — Mark a Ghost Net as “MISSING” (Not Located) *(proposal)*
 
-**Como** operador
-**quiero** marcar un reportado como **MISSING** cuando no se encuentre,
-**para** mantener el estado real y evitar falsas recuperaciones.
+**As** an operator
+**I want** to mark a reported net as **MISSING** when it is not found,
+**so that** I can maintain the real status and avoid false recoveries.
 
-### Criterios de aceptación
+### Acceptance Criteria
 
 ```gherkin
-Scenario: Marcar como MISSING
-  Given un net en REPORTED o RECOVERY_PENDING
+Scenario: Mark as MISSING
+  Given a net in REPORTED or RECOVERY_PENDING
   When PATCH /api/ghostnets/{id}/missing
-  Then el estado cambia a MISSING
+  Then the status changes to MISSING
 
-Scenario: Transición no permitida
-  Given reglas de negocio establecidas (p.ej., no desde RECOVERED)
-  When intento marcar desde un estado inválido
-  Then responde 409 Conflict
+Scenario: Not allowed transition
+  Given established business rules (e.g., not from RECOVERED)
+  When I attempt to mark from an invalid status
+  Then it responds 409 Conflict
 ```
 
-> **Nota**: US5 aún no está implementada en el código actual; se deja trazabilidad como *propuesta*.
+> **Note**: US5 is not yet implemented in the current code; traceability is left as a *proposal*.
 
 ---
 
-## Reglas de negocio (resumen)
+## Business Rules (Summary)
 
-* **Reserva** (`assignTo`): solo permitida desde `REPORTED`. Si persona es `null` ⇒ `IllegalArgumentException`. Si estado inválido ⇒ `IllegalStateException`.
-* **Recuperación** (`markAsRecovered`): solo permitida desde `RECOVERY_PENDING`; de lo contrario ⇒ `IllegalStateException`.
-* **MISSING**: por implementar; se recomienda `markAsMissing()` con validaciones equivalentes.
+* **Reservation** (`assignTo`): only allowed from `REPORTED`. If person is `null` ⇒ `IllegalArgumentException`. If invalid status ⇒ `IllegalStateException`.
+* **Recovery** (`markAsRecovered`): only allowed from `RECOVERY_PENDING`; otherwise ⇒ `IllegalStateException`.
+* **MISSING**: to be implemented; recommend `markAsMissing()` with equivalent validations.
 
-## Manejo de errores (REST)
+## Error Handling (REST)
 
-* 404 → `ResourceNotFoundException` (mapeado por `ApiExceptionHandler`).
-* 400 → validaciones (`MethodArgumentNotValidException`) y `IllegalArgumentException`.
-* 409 → `IllegalStateException` (transiciones inválidas).
+* 404 → `ResourceNotFoundException` (mapped by `ApiExceptionHandler`).
+* 400 → validations (`MethodArgumentNotValidException`) and `IllegalArgumentException`.
+* 409 → `IllegalStateException` (invalid transitions).
 
 ---
 
-## Trazabilidad a código (clases/métodos)
+## Traceability to Code (Classes/Methods)
 
-| US                | UI / Vistas / Controladores                                                                                                                                              | REST / Endpoints                                                                                                | BL / Modelos & Servicios                                                                                                                                                                   | Repos / Entidades                                                                                                      | Tests                                                                                                     |
+| US                | UI / Views / Controllers                                                                                                                                              | REST / Endpoints                                                                                                | BL / Models & Services                                                                                                                                                                   | Repos / Entities                                                                                                      | Tests                                                                                                     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **US1**           | `UiGhostNetController#new` (GET `/ui/ghostnets/new`), `UiGhostNetController#create` (POST `/ui/ghostnets`) · Vistas: `ghostnets/form-create.html`, `ghostnets/list.html` | `GhostNetRestController#create` (POST `/api/ghostnets`) · DTO: `CreateGhostNetRequest`                          | `GhostNetBusinessLayerModel` (estado `REPORTED`), `GhostNetBusinessLayerService#save` · Mappers: `GhostNetWebToBusinessMapper`, `GhostNetBusinessLayerMapper`, `PersonBusinessLayerMapper` | `GhostNetDataLayerModelRepository#save` · Entidades: `GhostNetDataLayerModel`, `PersonDataLayerModel`                  | `GhostNetRestControllerTest#createGhostNet_*`, `GhostNetIntegrationTest#createAndRetrieveGhostNet`        |
-| **US2**           | Vista: `ghostnets/form-reserve.html` (GET `/ui/ghostnets/{id}/reserve`) *(POST UI pendiente)*                                                                            | `GhostNetRestController#reserve` (PATCH `/api/ghostnets/{id}/reserve`) · DTO: `ReserveRequest`                  | `GhostNetBusinessLayerModel#assignTo(Person)` (valida estado/persona), `GhostNetBusinessLayerService#findByIdOrThrow`/`save` · `PersonWebToBusinessMapper`                                 | `GhostNetDataLayerModelRepository#findById`/`save`                                                                     | `GhostNetRestControllerTest#reserveGhostNet_*`, `GhostNetIntegrationTest#reserveAndRecoverGhostNet`       |
-| **US3**           | `UiGhostNetController#list` (GET `/ui/ghostnets?status=`) · Vista: `ghostnets/list.html`                                                                                 | `GhostNetRestController#findAll` (GET `/api/ghostnets`), `#findByStatus` (GET `/api/ghostnets/status/{status}`) | `GhostNetBusinessLayerService#findAll` / `#findByStatus`                                                                                                                                   | `GhostNetDataLayerModelRepository#findAllByOrderByCreatedAtDesc`, `#findByStatus`, `#findByStatusOrderByCreatedAtDesc` | *(cubierto indirectamente por tests de REST/servicio)*                                                    |
-| **US4**           | Vista: `ghostnets/form-recover.html` (GET `/ui/ghostnets/{id}/recover`) *(POST UI pendiente)*                                                                            | `GhostNetRestController#recover` (PATCH `/api/ghostnets/{id}/recover`) · DTO: `RecoverRequest`                  | `GhostNetBusinessLayerModel#markAsRecovered()` (valida estado), `GhostNetBusinessLayerService#findByIdOrThrow`/`save`                                                                      | `GhostNetDataLayerModelRepository`                                                                                     | `GhostNetRestControllerTest#recoverGhostNet_Success`, `GhostNetIntegrationTest#reserveAndRecoverGhostNet` |
-| **US5** *(prop.)* | Botón en lista o detalle *(a definir)*                                                                                                                                   | **Nuevo**: PATCH `/api/ghostnets/{id}/missing`                                                                  | **Nuevo**: `GhostNetBusinessLayerModel#markAsMissing()` y validaciones                                                                                                                     | Repos existentes                                                                                                       | **N/A (a crear)**                                                                                         |
+| **US1**           | `UiGhostNetController#new` (GET `/ui/ghostnets/new`), `UiGhostNetController#create` (POST `/ui/ghostnets`) · Views: `ghostnets/form-create.html`, `ghostnets/list.html` | `GhostNetRestController#create` (POST `/api/ghostnets`) · DTO: `CreateGhostNetRequest`                          | `GhostNetBusinessLayerModel` (status `REPORTED`), `GhostNetBusinessLayerService#save` · Mappers: `GhostNetWebToBusinessMapper`, `GhostNetBusinessLayerMapper`, `PersonBusinessLayerMapper` | `GhostNetDataLayerModelRepository#save` · Entities: `GhostNetDataLayerModel`, `PersonDataLayerModel`                  | `GhostNetRestControllerTest#createGhostNet_*`, `GhostNetIntegrationTest#createAndRetrieveGhostNet`        |
+| **US2**           | View: `ghostnets/form-reserve.html` (GET `/ui/ghostnets/{id}/reserve`) *(POST UI pending)*                                                                            | `GhostNetRestController#reserve` (PATCH `/api/ghostnets/{id}/reserve`) · DTO: `ReserveRequest`                  | `GhostNetBusinessLayerModel#assignTo(Person)` (validates status/person), `GhostNetBusinessLayerService#findByIdOrThrow`/`save` · `PersonWebToBusinessMapper`                                 | `GhostNetDataLayerModelRepository#findById`/`save`                                                                     | `GhostNetRestControllerTest#reserveGhostNet_*`, `GhostNetIntegrationTest#reserveAndRecoverGhostNet`       |
+| **US3**           | `UiGhostNetController#list` (GET `/ui/ghostnets?status=`) · View: `ghostnets/list.html`                                                                                 | `GhostNetRestController#findAll` (GET `/api/ghostnets`), `#findByStatus` (GET `/api/ghostnets/status/{status}`) | `GhostNetBusinessLayerService#findAll` / `#findByStatus`                                                                                                                                   | `GhostNetDataLayerModelRepository#findAllByOrderByCreatedAtDesc`, `#findByStatus`, `#findByStatusOrderByCreatedAtDesc` | *(covered indirectly by REST/service tests)*                                                    |
+| **US4**           | View: `ghostnets/form-recover.html` (GET `/ui/ghostnets/{id}/recover`) *(POST UI pending)*                                                                            | `GhostNetRestController#recover` (PATCH `/api/ghostnets/{id}/recover`) · DTO: `RecoverRequest`                  | `GhostNetBusinessLayerModel#markAsRecovered()` (validates status), `GhostNetBusinessLayerService#findByIdOrThrow`/`save`                                                                      | `GhostNetDataLayerModelRepository`                                                                                     | `GhostNetRestControllerTest#recoverGhostNet_Success`, `GhostNetIntegrationTest#reserveAndRecoverGhostNet` |
+| **US5** *(prop.)* | Button in list or detail *(to be defined)*                                                                                                                                   | **New**: PATCH `/api/ghostnets/{id}/missing`                                                                  | **New**: `GhostNetBusinessLayerModel#markAsMissing()` and validations                                                                                                                     | Existing repos                                                                                                       | **N/A (to create)**                                                                                         |
 
 ---
 
-## Esquema de estados (actual + propuesto)
+## State Schema (Current + Proposed)
 
 ```
 REPORTED --reserve--> RECOVERY_PENDING --recover--> RECOVERED
-REPORTED --markMissing--> MISSING        (propuesto)
-RECOVERY_PENDING --markMissing--> MISSING (propuesto)
+REPORTED --markMissing--> MISSING        (proposed)
+RECOVERY_PENDING --markMissing--> MISSING (proposed)
 ```
 
 ---
 
-## Diccionario de datos (campos relevantes)
+## Data Dictionary (Relevant Fields)
 
-* `location` *(String, req.)*: ubicación o coordenadas; validación `@NotBlank` en REST; UI valida y muestra error.
-* `size` *(Double, opc.)*: ≥ 0 (`@DecimalMin("0.0")`).
+* `location` *(String, req.)*: location or coordinates; validation `@NotBlank` in REST; UI validates and shows error.
+* `size` *(Double, opt.)*: ≥ 0 (`@DecimalMin("0.0")`).
 * `status` *(Enum)*: `REPORTED | RECOVERY_PENDING | RECOVERED | MISSING`.
-* `personName` *(String, opc.)*: si se informa al crear o reservar, se persiste vía `Person*` mappers.
-* `createdAt` *(Instant/Date)*: sellado al crear; repos con ordenado descendente disponible.
+* `personName` *(String, opt.)*: if provided on create or reserve, it is persisted via `Person*` mappers.
+* `createdAt` *(Instant/Date)*: stamped on create; repos with descending order available.
 
 ---
 
-## Ejemplos rápidos (cURL)
+## Quick Examples (cURL)
 
 ```bash
-# US1: Crear (anónimo)
+# US1: Create (anonymous)
 curl -s -X POST http://localhost:8080/api/ghostnets \
   -H 'Content-Type: application/json' \
   -d '{"location":"Bay A","size":12.5}'
 
-# US2: Reservar
+# US2: Reserve
 curl -s -X PATCH http://localhost:8080/api/ghostnets/1/reserve \
   -H 'Content-Type: application/json' \
   -d '{"personName":"Jane"}'
 
-# US4: Recuperar
+# US4: Recover
 curl -s -X PATCH http://localhost:8080/api/ghostnets/1/recover \
   -H 'Content-Type: application/json' \
-  -d '{"notes":"Recuperado con éxito"}'
+  -d '{"notes":"Recovered successfully"}'
 ```
 
 ---
 
-## Notas de implementación
+## Implementation Notes
 
-* **UI**: en `form-create.html` el botón está marcado como *API pendiente*; ya existe `UiGhostNetController#create` que persiste vía BL. Para completar ciclo UI de US2/US4, añadir POST de `reserve`/`recover` contra la API o directamente contra el servicio.
-* **Persistencia de notas** (US4): añadir campo `notes` a `GhostNet*` (entidad + modelos + mappers + DTO `RecoverRequest`) si se decide almacenar.
-* **MISSING** (US5): crear endpoint, método BL y tests análogos a `recover`.
+* **UI**: in `form-create.html` the button is marked as *API pending*; `UiGhostNetController#create` already exists that persists via BL. To complete the UI cycle for US2/US4, add POST for `reserve`/`recover` against the API or directly against the service.
+* **Persistence of notes** (US4): add `notes` field to `GhostNet*` (entity + models + mappers + DTO `RecoverRequest`) if decided to store.
+* **MISSING** (US5): create endpoint, BL method, and analogous tests to `recover`.
 
 ---
 
-**Fin del documento.**
+
+Assuming that **Story 1** is: *“As a user, I want to **report** a ghost net (location, size, optionally name), **list** the ghost nets with filter by status and **view details** of one”*. With what you already have, this is what is **missing** and **exactly** what needs to be done, broken down into 10 short steps:
+
+1. **Acceptance Criteria (Nail the Framework)**
+
+    * Report creates a net with `REPORTED`, `createdAt` now, and optional person.
+    * List shows all with filter by status and “anonymous” if no person (your list already paints it).
+    * Detail returns one by id (REST and/or simple view).
+    * Validations: `location` not empty, `size ≥ 0`.
+    * Errors: 400 for validation, 404 if not exists (you already have `ApiExceptionHandler`).
+
+2. **JPA Entities with Validation (DB)**
+
+    * Ensure that **database entities** (GhostNet/Person) carry validation annotations: `@NotBlank` on location, `@PositiveOrZero` on size, etc.
+    * Mark relationships (`ManyToOne` for person) and `createdAt` as past/present.
+    * Goal: if someone tries to save invalid data, it fails.
+
+3. **JPA Repositories**
+
+    * Create repos for GhostNet and Person.
+    * Add a query method by **status** for the filtered list.
+    * Goal: the service doesn't touch EntityManager directly.
+
+4. **Domain Service (Rules)**
+
+    * Implement `save`, `findByIdOrThrow`, `findAll(Optional<status>)`.
+    * Implement rules: on create → `REPORTED`; if person is assigned → `RECOVERY_PENDING`; on mark recovered → `RECOVERED` (with valid status checks).
+    * Throw `ResourceNotFoundException` if not exists.
+
+but I decided to change that idea to a better one without using exceptions as program flow, so:
+
+4. **Domain Service (Rules, without exceptions)**
+
+* **Methods**: `save`, `findById` *(Optional)*, `findAll(Optional<status>)`, `assignPerson`, `markRecovered`, `deleteById`.
+* **Create (`save`)**: if `status==null` ⇒ `REPORTED`; if `createdAt==null` ⇒ `now`.
+* **`assignPerson(id, person)`**: if not exists ⇒ **NOT_FOUND**; if `status==REPORTED` ⇒ set `person`, `RECOVERY_PENDING` ⇒ **OK**; other status ⇒ **CONFLICT**.
+* **`markRecovered(id)`**: if not exists ⇒ **NOT_FOUND**; if `status==RECOVERY_PENDING` ⇒ `RECOVERED` ⇒ **OK**; other status ⇒ **CONFLICT**.
+* **Returns**: commands return `OperationResult { OK | NOT_FOUND | CONFLICT }`; **controllers** map to **200/404/409**.
+* **Data Access**: only **repos** (`findAllByOrderByCreatedAtDesc`, `findByStatusOrderByCreatedAtDesc`); **no EntityManager**.
 
 
-¡Vamos! Asumiendo que la **Historia 1** es: *“Como usuario, quiero **reportar** una ghost net (ubicación, tamaño, opcionalmente nombre), **listar** las ghost nets con filtro por estado y **ver detalles** de una”*. Con lo que ya tienes, esto es lo que **falta** y **exactamente** lo que hay que hacer, partido en 10 pasos cortos:
+5. **REST Controller (Aligned to Your Tests)**
 
-1. **Criterios de aceptación (clavar el marco)**
+    * Endpoints:
 
-   * Reporte crea una net con `REPORTED`, `createdAt` ahora, y persona opcional.
-   * Lista muestra todas con filtro por estado y “anónimo” si no hay persona (tu lista ya lo pinta).
-   * Detalle devuelve una por id (REST y/o vista simple).
-   * Validaciones: `location` no vacío, `size ≥ 0`.
-   * Errores: 400 por validación, 404 si no existe (ya tienes `ApiExceptionHandler`).
+        * `POST /api/ghostnets` (create with validation; returns 201 + JSON).
+        * `GET /api/ghostnets/{id}` (detail).
+        * (Optional in H1) `GET /api/ghostnets?status=...` (filtered list for future tests).
+    * Note: your tests already cover `PATCH /reserve` and `PATCH /recover` too; if **not** part of H1, leave them for H2. If yes, implement them with input validation (name and notes).
 
-2. **Entidades JPA con validación (BD)**
+6. **Web↔Business Mapper (You Already Have It)**
 
-   * Asegura que **las entidades de base de datos** (GhostNet/Person) lleven anotaciones de validación: `@NotBlank` en ubicación, `@PositiveOrZero` en tamaño, etc.
-   * Marca relaciones (`ManyToOne` para persona) y `createdAt` como pasado/presente.
-   * Objetivo: si alguien intenta guardar datos inválidos, falle.
-
-3. **Repositorios JPA**
-
-   * Crea repos para GhostNet y Person.
-   * Añade un método de consulta por **estado** para la lista filtrada.
-   * Objetivo: el servicio no toque EntityManager directo.
-
-4. **Servicio de dominio (reglas)**
-
-   * Implementa `save`, `findByIdOrThrow`, `findAll(Optional<status>)`.
-   * Implementa reglas: al crear → `REPORTED`; si se asigna persona → `RECOVERY_PENDING`; al marcar recuperado → `RECOVERED` (con chequeos de estado válidos).
-   * Lanza `ResourceNotFoundException` si no existe.
-
-pero decidí cambiar esa idea a una mejor sin usar exceptions como flujo de programa, así que:
-
-   4. **Servicio de dominio (reglas, sin exceptions)**
-
-* **Métodos**: `save`, `findById` *(Optional)*, `findAll(Optional<status>)`, `assignPerson`, `markRecovered`, `deleteById`.
-* **Crear (`save`)**: si `status==null` ⇒ `REPORTED`; si `createdAt==null` ⇒ `now`.
-* **`assignPerson(id, person)`**: si no existe ⇒ **NOT_FOUND**; si `status==REPORTED` ⇒ set `person`, `RECOVERY_PENDING` ⇒ **OK**; otro estado ⇒ **CONFLICT**.
-* **`markRecovered(id)`**: si no existe ⇒ **NOT_FOUND**; si `status==RECOVERY_PENDING` ⇒ `RECOVERED` ⇒ **OK**; otro estado ⇒ **CONFLICT**.
-* **Retornos**: comandos devuelven `OperationResult { OK | NOT_FOUND | CONFLICT }`; **controllers** mapean a **200/404/409**.
-* **Acceso a datos**: solo **repos** (`findAllByOrderByCreatedAtDesc`, `findByStatusOrderByCreatedAtDesc`); **sin EntityManager**.
-
-
-5. **REST Controller (alineado a tus tests)**
-
-   * Endpoints:
-
-     * `POST /api/ghostnets` (crear con validación; devuelve 201 + JSON).
-     * `GET /api/ghostnets/{id}` (detalle).
-     * (Opcional en H1) `GET /api/ghostnets?status=...` (lista filtrada para futuros tests).
-   * Nota: tus tests ya cubren también `PATCH /reserve` y `PATCH /recover`; si **no** forman parte de H1, déjalos para H2. Si sí lo son, impleméntalos con validación de entrada (nombre y notas).
-
-6. **Mapper web↔negocio (ya tienes)**
-
-   * Revisa que el mapper **a web** ponga `recoveringPersonName` a `null` si no hay persona (lo hace).
-   * Revisa que el mapper **de creación** ponga `REPORTED` y `createdAt` (ya lo hace).
+    * Review that the mapper **to web** sets `recoveringPersonName` to `null` if no person (it does).
+    * Review that the **creation** mapper sets `REPORTED` and `createdAt` (it already does).
 
 7. **UI MVC (Thymeleaf)**
 
-   * Ya tienes vistas y nav. Falta:
+    * You already have views and nav. Missing:
 
-     * Controlador MVC que:
+        * MVC Controller that:
 
-       * GET `/ui/ghostnets` → llama al servicio con el filtro y pasa la lista.
-       * GET `/ui/ghostnets/new` → muestra formulario con `ghostNetForm`.
-       * POST `/ui/ghostnets` → valida, llama al servicio, redirige a la lista con mensaje.
-       * (Opcional) GET detalle simple si lo quieres mostrar.
-   * Asegura que la ruta del CSS cargue (tu `WebConfig` + `th:href="@{/static/styles.css}"` está bien).
+            * GET `/ui/ghostnets` → calls the service with the filter and passes the list.
+            * GET `/ui/ghostnets/new` → shows form with `ghostNetForm`.
+            * POST `/ui/ghostnets` → validates, calls the service, redirects to the list with message.
+            * (Optional) Simple GET detail if you want to show it.
+    * Ensure the CSS path loads (your `WebConfig` + `th:href="@{/static/styles.css}"` is fine).
 
-8. **Limpieza de restos Java EE**
+8. **Cleanup of Java EE Remnants**
 
-   * Ignora/elimina `beans.xml`, `context.xml`, artefactos de TomEE/JSF para evitar confusión en Spring Boot.
-   * Deja **solo** Spring Boot (jar embebido) como camino de ejecución.
+    * Ignore/delete `beans.xml`, `context.xml`, TomEE/JSF artifacts to avoid confusion in Spring Boot.
+    * Keep **only** Spring Boot (embedded jar) as the execution path.
 
-9. **Pruebas que faltan (mínimas y directas)**
+9. **Missing Tests (Minimal and Direct)**
 
-   * **Validación de entidades**: tests que verifiquen que `location=""` y `size<0` producen violaciones.
-   * **Servicio**: tests con repos simulados (o H2) para:
+    * **Entity Validation**: tests that verify `location=""` and `size<0` produce violations.
+    * **Service**: tests with mocked repos (or H2) for:
 
-     * crear → `REPORTED`;
-     * asignar persona → `RECOVERY_PENDING`;
-     * recuperar → `RECOVERED`;
-     * 404 en `findByIdOrThrow`.
-   * **MVC UI** (opcional H1): test de controlador que la lista renderiza y respeta el filtro.
-   * Tus tests REST ya están esbozados; completa el controller para que pasen los de H1 (POST/GET).
+        * create → `REPORTED`;
+        * assign person → `RECOVERY_PENDING`;
+        * recover → `RECOVERED`;
+        * 404 on `findByIdOrThrow`.
+    * **MVC UI** (optional H1): controller test that the list renders and respects the filter.
+    * Your REST tests are already sketched; complete the controller so the H1 ones pass (POST/GET).
 
-10. **Ejecución & checklist manual**
+10. **Execution & Manual Checklist**
 
-* Levanta la app, abre `/ui/ghostnets`.
-* Reporta una net válida, verifica en la lista (estado, tamaño, createdAt, anónimo).
-* Prueba filtro por estado.
-* Verifica también vía REST `POST` y `GET` con `curl`/Postman que responde 201/200 y 400/404 cuando toca.
-* Marca como “Hecho” cada criterio de aceptación.
+* Start the app, open `/ui/ghostnets`.
+* Report a valid net, verify in the list (status, size, createdAt, anonymous).
+* Test filter by status.
+* Also verify via REST `POST` and `GET` with `curl`/Postman that it responds 201/200 and 400/404 when appropriate.
+* Mark each acceptance criterion as “Done”.
 
 ---
 
-## BD para probar hoy (rápido)
+## DB for Testing Today (Quick)
 
-* **In-memory (H2)**: ya lo tienes configurado. Simplemente ejecuta la app y tendrás base **volátil** por sesión. Útil para pruebas inmediatas (no persiste al reiniciar).
-* **SQLite (archivo pequeño y persistente)**: si prefieres guardar entre reinicios:
+* **In-memory (H2)**: you already have it configured. Simply run the app and you'll have a **volatile** database per session. Useful for immediate tests (doesn't persist on restart).
+* **SQLite (small file and persistent)**: if you prefer to save between restarts:
 
-  1. Añade el driver SQLite y el dialecto de Hibernate Community.
-  2. Crea un **perfil** (por ejemplo `sqlite`) con estos ajustes:
+    1. Add the SQLite driver and Hibernate Community dialect.
+    2. Create a **profile** (e.g., `sqlite`) with these settings:
 
-     * URL JDBC tipo `jdbc:sqlite:./ghostnet.db`
-     * Usuario/clave vacíos
-     * Dialecto SQLite
-     * `ddl-auto=update`
-  3. Arranca con ese perfil activo para que use el archivo `ghostnet.db` en la raíz del proyecto.
+        * JDBC URL like `jdbc:sqlite:./ghostnet.db`
+        * Empty user/password
+        * SQLite Dialect
+        * `ddl-auto=update`
+    3. Start with that profile active to use the `ghostnet.db` file in the project root.
 
-Con esto tienes una ruta de 10 pasos, clara y finita, para cerrar la Historia 1 hoy mismo. Si quieres, te digo cuál de esos pasos te conviene implementar **primero** con el menor riesgo (spoiler: 2→3→4→5→7).
-
+---
 
 US2
 
-¡vamos con US2! aquí tienes **10 pasos cortos y accionables** para cerrar “**Asignarme para recuperar un ghost net**” (reserva) con lo que ya tienes en el repo y tu stack:
+Let's go with US2! here you have **10 short and actionable steps** to close “**Assign Myself to Recover a Ghost Net**” (reservation) with what you already have in the repo and your stack:
 
-1. **Clavar criterios y transiciones**
+1. **Nail Criteria and Transitions**
 
-   * Reserva solo desde `REPORTED` → pasa a `RECOVERY_PENDING` y se asocia la persona.
-   * Si `status != REPORTED` ⇒ 409 Conflict.
-   * `personName` obligatorio en la operación.
-     (Esto corresponde tal cual a tus criterios Gherkin y trazabilidad de endpoints/BL. )
+    * Reservation only from `REPORTED` → moves to `RECOVERY_PENDING` and associates the person.
+    * If `status != REPORTED` ⇒ 409 Conflict.
+    * `personName` mandatory in the operation.
+      (This matches your Gherkin criteria and traceability of endpoints/BL exactly.)
 
-2. **DTO de entrada (REST)**
+2. **Input DTO (REST)**
 
-   * `ReserveRequest { String personName }` con `@NotBlank`.
-   * Mensajes de validación listos para i18n si ya usas Bean Validation.
-   * Caso error de validación ⇒ 400 (tu `ApiExceptionHandler` ya lo mapea). 
+    * `ReserveRequest { String personName }` with `@NotBlank`.
+    * Validation messages ready for i18n if you already use Bean Validation.
+    * Validation error case ⇒ 400 (your `ApiExceptionHandler` already maps it).
 
-3. **Endpoint REST**
+3. **REST Endpoint**
 
-   * `PATCH /api/ghostnets/{id}/reserve` en `GhostNetRestController#reserve(…​)`.
-   * Lee `{id}`, valida `ReserveRequest`, delega a servicio, mapea resultado a `200/404/409`.
-   * Devuelve representación del net actualizado (incluye `status` y `recoveringPersonName`). 
+    * `PATCH /api/ghostnets/{id}/reserve` in `GhostNetRestController#reserve(…​)`.
+    * Read `{id}`, validate `ReserveRequest`, delegate to service, map result to `200/404/409`.
+    * Return representation of the updated net (includes `status` and `recoveringPersonName`).
 
-4. **Modelo/Servicio de dominio (sin exceptions como flujo)**
+4. **Model/Domain Service (without exceptions as flow)**
 
-   * En `GhostNetBusinessLayerService` añade `reserve(long id, Person person)` que retorna `OperationResult<GhostNet>` con estados `OK | NOT_FOUND | CONFLICT`.
-   * Implementa en `GhostNetBusinessLayerModel#assignTo(Person)` la regla: si `status==REPORTED` y `person != null` ⇒ set persona + `RECOVERY_PENDING`; si `person==null` ⇒ `INVALID_ARGUMENT` (mapearás a 400); en otros estados ⇒ `CONFLICT`.
-   * El controller traduce `OK→200`, `NOT_FOUND→404`, `CONFLICT→409`, `INVALID_ARGUMENT→400`. (Encaja con tus reglas y manejo de errores.) 
+    * In `GhostNetBusinessLayerService` add `reserve(long id, Person person)` that returns `OperationResult<GhostNet>` with states `OK | NOT_FOUND | CONFLICT`.
+    * Implement in `GhostNetBusinessLayerModel#assignTo(Person)` the rule: if `status==REPORTED` and `person != null` ⇒ set person + `RECOVERY_PENDING`; if `person==null` ⇒ `INVALID_ARGUMENT` (you'll map to 400); in other states ⇒ `CONFLICT`.
+    * The controller translates `OK→200`, `NOT_FOUND→404`, `CONFLICT→409`, `INVALID_ARGUMENT→400`. (Fits your rules and error handling.)
 
-5. **Mapper Web↔BL**
+5. **Web↔BL Mapper**
 
-   * Reutiliza `PersonWebToBusinessMapper` para crear `Person` desde `personName`.
-   * Asegura que el mapper de salida pueble `recoveringPersonName` cuando haya persona asignada. (Ya está mencionado en tus mappers/tabla de trazabilidad.) 
+    * Reuse `PersonWebToBusinessMapper` to create `Person` from `personName`.
+    * Ensure the output mapper populates `recoveringPersonName` when a person is assigned. (Already mentioned in your mappers/traceability table.)
 
-6. **Repos / Capa de datos**
+6. **Repos / Data Layer**
 
-   * Usa `GhostNetDataLayerModelRepository#findById` y `#save`.
-   * (Opcional pero recomendado) añade **optimistic locking** con `@Version` en la entidad para evitar dobles reservas simultáneas; un `OptimisticLockException` lo traduces a 409 también.
+    * Use `GhostNetDataLayerModelRepository#findById` and `#save`.
+    * (Optional but recommended) add **optimistic locking** with `@Version` in the entity to avoid double simultaneous reservations; an `OptimisticLockException` you translate to 409 too.
 
-7. **UI MVC (pantalla de reserva)**
+7. **UI MVC (Reservation Screen)**
 
-   * `GET /ui/ghostnets/{id}/reserve` muestra `form-reserve.html` con campo `personName` requerido y resumen del net.
-   * `POST` del formulario: o bien llama al **endpoint REST** (`/api/ghostnets/{id}/reserve`) o directamente al **servicio** (mantén consistencia con cómo hiciste US1).
-   * Mensajes: si 409, muestra “Ya no se puede reservar este net (estado actual: …)”; si 400, pinta validación en `personName`. (La vista está listada en tu trazabilidad; falta el POST.) 
+    * `GET /ui/ghostnets/{id}/reserve` shows `form-reserve.html` with required `personName` field and net summary.
+    * `POST` of the form: either call the **REST endpoint** (`/api/ghostnets/{id}/reserve`) or directly the **service** (keep consistency with how you did US1).
+    * Messages: if 409, show “This net can no longer be reserved (current status: …)”; if 400, paint validation on `personName`. (The view is listed in your traceability; POST is missing.)
 
-8. **Tests (mínimo que debe pasar)**
+8. **Tests (Minimum That Must Pass)**
 
-   * `GhostNetRestControllerTest#reserveGhostNet_Success` (REPORTED→RECOVERY_PENDING, persona asignada).
-   * `…#reserveGhostNet_ValidationError` (`personName=""` ⇒ 400).
-   * `…#reserveGhostNet_Conflict` (estado inicial `RECOVERY_PENDING`/`RECOVERED` ⇒ 409).
-   * `GhostNetIntegrationTest#reserveAndRecoverGhostNet` ya referenciado: confirma el “happy path” completo. 
+    * `GhostNetRestControllerTest#reserveGhostNet_Success` (REPORTED→RECOVERY_PENDING, person assigned).
+    * `…#reserveGhostNet_ValidationError` (`personName=""` ⇒ 400).
+    * `…#reserveGhostNet_Conflict` (initial status `RECOVERY_PENDING`/`RECOVERED` ⇒ 409).
+    * `GhostNetIntegrationTest#reserveAndRecoverGhostNet` already referenced: confirms the full “happy path”.
 
-9. **Listados/Detalle (estado y persona)**
+9. **Listings/Detail (Status and Person)**
 
-   * En `/ui/ghostnets` y `GET /api/ghostnets` asegúrate de mostrar `status` y `person` (o “anónimo” si no hay).
-   * El filtro por estado ya está definido para US3; te sirve para comprobar rápidamente los `RECOVERY_PENDING`. 
+    * In `/ui/ghostnets` and `GET /api/ghostnets` ensure to show `status` and `person` (or “anonymous” if none).
+    * The status filter is already defined for US3; it serves to quickly check the `RECOVERY_PENDING` ones.
 
-10. **Checklist de errores y contratos**
+10. **Error and Contract Checklist**
 
-* **404** cuando `{id}` no existe (`ResourceNotFoundException` o `NOT_FOUND` del servicio).
-* **400** por `@NotBlank`/`INVALID_ARGUMENT` en `ReserveRequest`.
-* **409** por transición inválida/lock concurrente.
-* **Idempotencia** (opcional): si el mismo `personName` reserva dos veces el MISMO net y ya está `RECOVERY_PENDING` con esa persona, puedes devolver `200` con el recurso tal cual; si es OTRO nombre ⇒ `409`. (Encaja con la semántica de “reserva”.) 
+* **404** when `{id}` not exists (`ResourceNotFoundException` or `NOT_FOUND` from service).
+* **400** for `@NotBlank`/`INVALID_ARGUMENT` in `ReserveRequest`.
+* **409** for invalid transition/concurrent lock.
+* **Idempotency** (optional): if the same `personName` reserves the SAME net twice and it's already `RECOVERY_PENDING` with that person, you can return `200` with the resource as is; if ANOTHER name ⇒ `409`. (Fits the “reservation” semantics.)
 
-Con estos diez, cierras US2 de punta a punta (REST + BL + UI + tests) y quedas alineado con tu documento de historias/criterios y la tabla de trazabilidad existente. Si quieres, te bosquejo el `reserve(…)` del servicio y el `@PatchMapping` del controller en el siguiente mensaje.
+
