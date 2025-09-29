@@ -6,13 +6,17 @@
 <div th:fragment="pageContent">
     <h2>Reportar Ghost Net</h2>
 
-    <!-- Globale Fehlermeldung -->
-    <div th:if="${#fields.hasGlobalErrors()}" style="color:red; margin-bottom:8px;">
-        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
-    </div>
+    <!-- Flash messages (from RedirectAttributes) -->
+    <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
+    <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
 
     <!-- Formular mit Binding und Feldfehlern -->
     <form th:action="@{/ui/ghostnets}" method="post" th:object="${ghostNetForm}">
+        <!-- Globale Fehlermeldung (wird nur innerhalb eines gebundenen Formulars ausgewertet) -->
+        <div th:if="${#fields.hasGlobalErrors()}" style="color:red; margin-bottom:8px;">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        </div>
+
         <div class="form-row">
             <label for="location">Location</label>
             <input type="text" id="location" th:field="*{location}" />
