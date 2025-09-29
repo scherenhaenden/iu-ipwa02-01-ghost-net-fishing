@@ -1,11 +1,8 @@
 package de.iu.project.iuipwa0201ghostnetfishing.web.controllers;
 
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.PersonBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.GhostNetDomainService;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
-import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebLayerMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebToBusinessMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.PersonWebToBusinessMapper;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST API for GhostNet resources.
@@ -70,8 +66,8 @@ public class GhostNetRestController {
     /** Single GhostNet by ID. */
     @GetMapping("/{id}")
     public GhostNetWebLayerModel findOne(@PathVariable Long id) {
-        var b = service.findByIdOrThrow(id);
-        return webMapper.toWebModel(b);
+        var ghostNet = service.findByIdOrThrow(id);
+        return webMapper.toWebModel(ghostNet);
     }
 
     /* ---- CREATE ---------------------------------------------------------- */
@@ -102,14 +98,14 @@ public class GhostNetRestController {
             };
         }
         // Fallback: previous behavior using business service (for tests/back-compat)
-        var b = service.findByIdOrThrow(id);
+        var ghostNet = service.findByIdOrThrow(id);
         var person = personWebToBusinessMapper.toBusinessModel(req.personName());
         // Minimal conflict guard: if already reserved or recovered, return 409
-        if (b.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || b.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
+        if (ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        b.assignTo(person);
-        var saved = service.save(b);
+        ghostNet.assignTo(person);
+        var saved = service.save(ghostNet);
         return ResponseEntity.ok(webMapper.toWebModel(saved));
     }
 
@@ -125,9 +121,9 @@ public class GhostNetRestController {
                 case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
             };
         }
-        var b = service.findByIdOrThrow(id);
-        b.markAsRecovered();
-        var saved = service.save(b);
+        var ghostNet = service.findByIdOrThrow(id);
+        ghostNet.markAsRecovered();
+        var saved = service.save(ghostNet);
         return ResponseEntity.ok(webMapper.toWebModel(saved));
     }
 }
