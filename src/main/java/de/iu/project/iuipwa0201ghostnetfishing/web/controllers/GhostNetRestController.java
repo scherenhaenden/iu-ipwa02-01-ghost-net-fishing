@@ -104,6 +104,10 @@ public class GhostNetRestController {
         // Fallback: previous behavior using business service (for tests/back-compat)
         var b = service.findByIdOrThrow(id);
         var person = personWebToBusinessMapper.toBusinessModel(req.personName());
+        // Minimal conflict guard: if already reserved or recovered, return 409
+        if (b.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || b.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         b.assignTo(person);
         var saved = service.save(b);
         return ResponseEntity.ok(webMapper.toWebModel(saved));
