@@ -162,4 +162,12 @@ public class GhostNetDataLayerModel implements Serializable {
                 ", person=" + (person != null ? person.getId() : null) +
                 '}';
     }
+
+    // Pre-persist hook to ensure createdAt is never null at INSERT time
+    @PrePersist
+    protected void onPrePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = new Date();
+        }
+    }
 }
