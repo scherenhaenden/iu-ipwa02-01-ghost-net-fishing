@@ -315,6 +315,26 @@ US2
 
 Let's go with US2! here you have **10 short and actionable steps** to close “**Assign Myself to Recover a Ghost Net**” (reservation) with what you already have in the repo and your stack:
 
+**0.9. Domain Service Preparation (OperationResult Pattern)**
+
+*Before implementing reservation endpoints, adjust the business service to stop using exceptions as control flow and return structured results.*
+
+* Add two new service methods:
+
+  * `assignPerson(id, personName)` → returns `OperationResult<GhostNet>`
+  * `markRecovered(id)` → returns `OperationResult<GhostNet>`
+* `OperationResult` must support at least: `OK`, `NOT_FOUND`, `CONFLICT` (and optionally `INVALID_ARGUMENT` for empty names).
+* Internally, these methods call the repository with `findById`, apply status transition rules, and only persist when valid.
+* The controller then maps results to HTTP codes:
+
+  * `OK → 200`, `NOT_FOUND → 404`, `CONFLICT → 409`, `INVALID_ARGUMENT → 400`.
+* Keep existing `findByIdOrThrow` only for legacy US1 paths; new reservation/recovery flow uses `Optional` and `OperationResult`.
+* This step ensures US2 can be implemented consistently, without exceptions as part of the happy/error path.
+
+
+
+
+
 1. **Nail Criteria and Transitions**
 
     * Reservation only from `REPORTED` → moves to `RECOVERY_PENDING` and associates the person.
