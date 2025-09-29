@@ -19,7 +19,7 @@
             <tr><th>Status</th><td th:text="${ghostNet.status}"></td></tr>
             <tr><th>Created At</th><td th:text="${#temporals.format(ghostNet.createdAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
             <tr><th>Recovering Person</th>
-                <td th:text="${ghostNet.recoveringPerson != null ? ghostNet.recoveringPerson.name : 'anónimo'}"></td></tr>
+                <td th:text="${ghostNet.recoveringPersonName != null ? ghostNet.recoveringPersonName : 'anónimo'}"></td></tr>
         </table>
 
         <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Zurück</a>

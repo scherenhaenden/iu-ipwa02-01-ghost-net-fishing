@@ -5,6 +5,7 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBus
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.PersonBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetForm;
+import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetViewModel;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/ui/ghostnets")
@@ -27,15 +29,21 @@ public class UiGhostNetController {
         this.service = service;
     }
 
+    private GhostNetViewModel toViewModel(GhostNetBusinessLayerModel b) {
+        if (b == null) return null;
+        String personName = (b.getRecoveringPerson() != null) ? b.getRecoveringPerson().getName() : null;
+        return new GhostNetViewModel(b.getId(), b.getLocation(), b.getSize(), b.getStatus(), b.getCreatedAt(), personName);
+    }
+
     @GetMapping({"", "/"})
     public String list(@RequestParam(name = "status", required = false) String status, Model model) {
-        List<GhostNetBusinessLayerModel> ghostNets;
+        List<GhostNetViewModel> ghostNets;
         if (status == null || status.isBlank()) {
-            ghostNets = service.findAll();
+            ghostNets = service.findAll().stream().map(this::toViewModel).collect(Collectors.toList());
         } else {
             try {
                 NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.trim().toUpperCase());
-                ghostNets = service.findByStatus(enumStatus);
+                ghostNets = service.findByStatus(enumStatus).stream().map(this::toViewModel).collect(Collectors.toList());
             } catch (IllegalArgumentException ex) {
                 ghostNets = Collections.emptyList();
             }
@@ -58,7 +66,7 @@ public class UiGhostNetController {
             ra.addFlashAttribute("error", "Ghost net nicht gefunden.");
             return "redirect:/ui/ghostnets";
         }
-        model.addAttribute("ghostNet", opt.get());
+        model.addAttribute("ghostNet", toViewModel(opt.get()));
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-reserve";
     }
@@ -70,7 +78,7 @@ public class UiGhostNetController {
             ra.addFlashAttribute("error", "Ghost net nicht gefunden.");
             return "redirect:/ui/ghostnets";
         }
-        model.addAttribute("ghostNet", opt.get());
+        model.addAttribute("ghostNet", toViewModel(opt.get()));
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-recover";
     }
@@ -108,7 +116,7 @@ public class UiGhostNetController {
             ra.addFlashAttribute("error", "Ghost net nicht gefunden.");
             return "redirect:/ui/ghostnets";
         }
-        model.addAttribute("ghostNet", opt.get());
+        model.addAttribute("ghostNet", toViewModel(opt.get()));
         return "ghostnets/detail";
     }
 

@@ -56,7 +56,7 @@
             <td th:text="${#temporals.format(g.createdAt, 'yyyy-MM-dd HH:mm')}">--</td>
 
             <!-- mostrar 'anónimo' si no hay persona -->
-            <td th:text="${g.recoveringPerson != null ? g.recoveringPerson.name : 'anónimo'}"></td>
+            <td th:text="${g.recoveringPersonName != null ? g.recoveringPersonName : 'anónimo'}"></td>
 
             <td>
                 <!-- Los enlaces GET a los formularios de reserve/recover están implementados en el controller -->
