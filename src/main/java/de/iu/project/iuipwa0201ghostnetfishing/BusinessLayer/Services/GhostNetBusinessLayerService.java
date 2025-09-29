@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
@@ -62,5 +63,11 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
         GhostNetDataLayerModel entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("GhostNet with id " + id + " not found"));
         return mapper.toBusinessModel(entity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<GhostNetBusinessLayerModel> findById(Long id) {
+        return repository.findById(id).map(mapper::toBusinessModel);
     }
 }

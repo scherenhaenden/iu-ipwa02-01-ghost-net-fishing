@@ -6,19 +6,27 @@
 <div th:fragment="pageContent">
     <h2>Reportar Ghost Net</h2>
 
-    <!-- Usa el atributo que el controller añade: "ghostNetForm" -->
+    <!-- Globale Fehlermeldung -->
+    <div th:if="${#fields.hasGlobalErrors()}" style="color:red; margin-bottom:8px;">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+    </div>
+
+    <!-- Formular mit Binding und Feldfehlern -->
     <form th:action="@{/ui/ghostnets}" method="post" th:object="${ghostNetForm}">
         <div class="form-row">
             <label for="location">Location</label>
             <input type="text" id="location" th:field="*{location}" />
+            <div class="field-error" th:if="${#fields.hasErrors('location')}" th:errors="*{location}" style="color:red;"></div>
         </div>
         <div class="form-row">
             <label for="size">Size</label>
             <input type="number" step="0.1" id="size" th:field="*{size}" />
+            <div class="field-error" th:if="${#fields.hasErrors('size')}" th:errors="*{size}" style="color:red;"></div>
         </div>
         <div class="form-row">
             <label for="personName">Your name (optional)</label>
             <input type="text" id="personName" th:field="*{personName}" />
+            <div class="field-error" th:if="${#fields.hasErrors('personName')}" th:errors="*{personName}" style="color:red;"></div>
         </div>
         <div>
             <button class="btn btn-primary" type="submit">Reportar</button>

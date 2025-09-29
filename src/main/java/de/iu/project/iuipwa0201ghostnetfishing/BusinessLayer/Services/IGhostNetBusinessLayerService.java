@@ -4,6 +4,7 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusi
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IGhostNetBusinessLayerService {
     List<GhostNetBusinessLayerModel> findAll();
@@ -15,4 +16,6 @@ public interface IGhostNetBusinessLayerService {
     void deleteById(Long id);
 
     GhostNetBusinessLayerModel findByIdOrThrow(Long id);
+
+    Optional<GhostNetBusinessLayerModel> findById(Long id);
 }
