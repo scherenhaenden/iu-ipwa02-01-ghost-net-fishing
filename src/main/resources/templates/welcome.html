@@ -1,33 +1,33 @@
-&lt;!DOCTYPE html&gt;
-&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
-&lt;head&gt;
-    &lt;title&gt;Ghost Net Fishing&lt;/title&gt;
-    &lt;meta charset="UTF-8"/&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Ghost Net Eingabe&lt;/h1&gt;
-    &lt;form th:action="@{/create}" method="post"&gt;
-        &lt;table&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Name:&lt;/td&gt;
-                &lt;td&gt;&lt;input type="text" th:field="*{name}" required /&gt;&lt;/td&gt;
-                &lt;td&gt;&lt;input type="submit" value="Hinzufügen" /&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/table&gt;
-    &lt;/form&gt;
-    &lt;br/&gt;
-    &lt;table border="1" th:if="${not #lists.isEmpty(ghostNets)}"&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Name&lt;/th&gt;
-            &lt;th&gt;Erstellt am&lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;tr th:each="g : ${ghostNets}"&gt;
-            &lt;td th:text="${g.name}"&gt;&lt;/td&gt;
-            &lt;td th:text="${#dates.format(g.createdAt, 'yyyy-MM-dd HH:mm:ss')}"&gt;&lt;/td&gt;
-        &lt;/tr&gt;
-    &lt;/table&gt;
-    &lt;br/&gt;
-    &lt;a th:href="@{/}"&gt;Zurück zur Index&lt;/a&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ghost Net Fishing</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+    <h1>Ghost Net Eingabe</h1>
+    <form th:action="@{/create}" method="post">
+        <table>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" th:field="*{name}" required /></td>
+                <td><input type="submit" value="Hinzufügen" /></td>
+            </tr>
+        </table>
+    </form>
+    <br/>
+    <table border="1" th:if="${not #lists.isEmpty(ghostNets)}">
+        <tr>
+            <th>Name</th>
+            <th>Erstellt am</th>
+        </tr>
+        <tr th:each="g : ${ghostNets}">
+            <td th:text="${g.name}"></td>
+            <td th:text="${#dates.format(g.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+    </table>
+    <br/>
+    <a th:href="@{/}">Zurück zur Index</a>
+</body>
+</html>
 

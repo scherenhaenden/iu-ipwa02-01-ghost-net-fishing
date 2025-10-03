@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.time.Instant; // added for createdAt handling
 
 @Service
 public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerService {
@@ -27,13 +29,25 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Override
     @Transactional(readOnly = true) // Read-only transaction is more efficient
     public List<GhostNetBusinessLayerModel> findAll() {
-        List<GhostNetDataLayerModel> entities = repository.findAll();
-        return mapper.toBusinessModelList(entities);
+        //List<GhostNetDataLayerModel> entities = repository.findAll();
+        //return mapper.toBusinessModelList(entities);
+        return List.of();
     }
 
     @Override
     @Transactional
     public GhostNetBusinessLayerModel save(GhostNetBusinessLayerModel netBusinessModel) {
+        // Guard: ensure US1 invariants before mapping/persisting
+        if (netBusinessModel == null) {
+            return null;
+        }
+        if (netBusinessModel.getStatus() == null) {
+            netBusinessModel.setStatus(NetStatusBusinessLayerEnum.REPORTED);
+        }
+        if (netBusinessModel.getCreatedAt() == null) {
+            netBusinessModel.setCreatedAt(Instant.now());
+        }
+
         GhostNetDataLayerModel entityToSave = mapper.toEntity(netBusinessModel);
         GhostNetDataLayerModel savedEntity = repository.save(entityToSave);
         return mapper.toBusinessModel(savedEntity);
@@ -61,5 +75,11 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
         GhostNetDataLayerModel entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("GhostNet with id " + id + " not found"));
         return mapper.toBusinessModel(entity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<GhostNetBusinessLayerModel> findById(Long id) {
+        return repository.findById(id).map(mapper::toBusinessModel);
     }
 }

@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Ghost Net Fishing</title>
-    <link rel="stylesheet" th:href="@{/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <div th:fragment="layout(content, active)">
     <header class="site-header">
         <div class="container">
             <h1 class="site-title">Ghost Net Fishing</h1>
-            <div th:replace="fragments/_nav :: nav(${active})"></div>
+            <div th:replace="~{fragments/_nav :: nav(${active})}"></div>
         </div>
     </header>
 
