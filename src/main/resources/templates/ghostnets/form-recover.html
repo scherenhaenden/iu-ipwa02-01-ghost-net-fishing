@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/styles.css}" />
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
-    <h2>Marcar como recuperado</h2>
+    <h2>Mark as Recovered</h2>
 
     <div class="ghostnet-details" th:if="${ghostNet != null}">
         <p><strong>ID:</strong> <span th:text="${ghostNet.id}"></span></p>
@@ -13,7 +13,7 @@
         <p><strong>Status:</strong> <span th:text="${ghostNet.status}"></span></p>
     </div>
     <div th:if="${ghostNet == null}">
-        <p>GhostNet no encontrado (solo vista).</p>
+        <p>Ghost Net not found (view only).</p>
     </div>
 
     <form method="post" action="#" novalidate>
@@ -21,7 +21,7 @@
             <label for="notes">Notes</label>
             <textarea id="notes" name="notes" required minlength="2" aria-label="Notes" rows="3"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Marcar recuperado - API pendiente">Marcar recuperado</button>
+        <button type="submit" class="btn btn-primary" disabled title="API pending" aria-label="Mark as recovered - API pending">Mark as Recovered</button>
     </form>
 </div>
 

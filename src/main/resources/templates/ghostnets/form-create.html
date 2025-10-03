@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/styles.css}" />
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'create')}">
 
 <div th:fragment="pageContent">
-    <h2>Reportar Ghost Net</h2>
+    <h2>Report Ghost Net</h2>
 
     <!-- Flash messages (from RedirectAttributes) -->
     <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
     <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
 
-    <!-- Formular mit Binding und Feldfehlern -->
+    <!-- Form with Binding and Field Errors -->
     <form th:action="@{/ui/ghostnets}" method="post" th:object="${ghostNetForm}">
-        <!-- Globale Fehlermeldung (wird nur innerhalb eines gebundenen Formulars ausgewertet) -->
+        <!-- Global Error Message (only evaluated within a bound form) -->
         <div th:if="${#fields.hasGlobalErrors()}" style="color:red; margin-bottom:8px;">
             <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
         </div>
@@ -33,8 +33,8 @@
             <div class="field-error" th:if="${#fields.hasErrors('personName')}" th:errors="*{personName}" style="color:red;"></div>
         </div>
         <div>
-            <button class="btn btn-primary" type="submit">Reportar</button>
-            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancelar</a>
+            <button class="btn btn-primary" type="submit">Report</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
         </div>
     </form>
 </div>

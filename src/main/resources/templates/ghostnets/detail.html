@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/styles.css}" />
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'detail')}">
 
@@ -7,8 +7,8 @@
     <h2>Ghost Net Detail</h2>
 
     <div th:if="${ghostNet == null}">
-        <p>Ghost net nicht gefunden.</p>
-        <a th:href="@{/ui/ghostnets}">Zurück zur Liste</a>
+        <p>Ghost net not found.</p>
+        <a th:href="@{/ui/ghostnets}">Back to list</a>
     </div>
 
     <div th:if="${ghostNet != null}">
@@ -19,10 +19,10 @@
             <tr><th>Status</th><td th:text="${ghostNet.status}"></td></tr>
             <tr><th>Created At</th><td th:text="${#temporals.format(ghostNet.createdAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
             <tr><th>Recovering Person</th>
-                <td th:text="${ghostNet.recoveringPersonName != null ? ghostNet.recoveringPersonName : 'anónimo'}"></td></tr>
+                <td th:text="${ghostNet.recoveringPersonName != null ? ghostNet.recoveringPersonName : 'anonymous'}"></td></tr>
         </table>
 
-        <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Zurück</a>
+        <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Back</a>
     </div>
 </div>
 
