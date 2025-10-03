@@ -2,9 +2,8 @@
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="nav(active)">
     <nav class="nav">
         <a th:href="@{/ui/ghostnets}"
-           th:classappend="${active} == 'list' ? ' active' : ''">Lista</a>
+           th:classappend="${active} == 'list' ? ' active' : ''">List</a>
         <a th:href="@{/ui/ghostnets/new}"
-           th:classappend="${active} == 'create' ? ' active' : ''">Reportar net</a>
+           th:classappend="${active} == 'create' ? ' active' : ''">Report net</a>
     </nav>
 </div>
-

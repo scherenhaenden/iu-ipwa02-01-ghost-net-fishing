@@ -145,6 +145,22 @@ class GhostNetRestControllerTest {
     }
 
     @Test
+    void reserveGhostNet_Conflict() throws Exception {
+        ReserveRequest request = new ReserveRequest("John Doe");
+        // simulate existing net already reserved
+        sampleNet.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
+        when(service.findByIdOrThrow(eq(1L))).thenReturn(sampleNet);
+
+        mockMvc.perform(patch("/api/ghostnets/1/reserve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+
+        verify(service, times(1)).findByIdOrThrow(eq(1L));
+        verify(service, times(0)).save(any(GhostNetBusinessLayerModel.class));
+    }
+
+    @Test
     void recoverGhostNet_Success() throws Exception {
         RecoverRequest request = new RecoverRequest("Recovery notes");
         sampleNet.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);

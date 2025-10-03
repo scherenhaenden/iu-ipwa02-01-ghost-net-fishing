@@ -14,8 +14,10 @@ public interface IAbandonedNetBusinessLayerService {
 
     AbandonedNetBusinessLayerModel save(AbandonedNetBusinessLayerModel net);
 
+    /**
+     * Finds an abandoned net by id or throws ResourceNotFoundException.
+     */
+    AbandonedNetBusinessLayerModel findById(Long id);
+
     void deleteById(Long id);
 }
-
-
-

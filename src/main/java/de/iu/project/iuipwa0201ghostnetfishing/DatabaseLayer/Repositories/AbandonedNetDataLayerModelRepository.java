@@ -26,4 +26,9 @@ public interface AbandonedNetDataLayerModelRepository extends JpaRepository<Aban
        SQL generated: SELECT * FROM ABANDONED_NET WHERE STATUS = ?
     */
     List<AbandonedNetDataLayerModel> findByStatus(NetStatusDataLayerEnum status);
+
+    /* Derived query by status ordered by createdAt desc
+       Convenience method returning results filtered by status and sorted newest-first.
+    */
+    List<AbandonedNetDataLayerModel> findByStatusOrderByCreatedAtDesc(NetStatusDataLayerEnum status);
 }
