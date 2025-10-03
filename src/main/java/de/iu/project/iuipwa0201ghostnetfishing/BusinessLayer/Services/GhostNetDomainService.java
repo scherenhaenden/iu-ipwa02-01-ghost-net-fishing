@@ -72,6 +72,7 @@ public class GhostNetDomainService {
     // assignPerson(id, person) -> OperationResult
     public OperationResult assignPerson(Long id, PersonBusinessLayerModel personModel) {
         if (id == null) return OperationResult.NOT_FOUND;
+        if (personModel == null) return OperationResult.BAD_REQUEST;
         Optional<GhostNetDataLayerModel> oe = repository.findById(id);
         if (oe.isEmpty()) return OperationResult.NOT_FOUND;
         GhostNetDataLayerModel entity = oe.get();
@@ -82,6 +83,16 @@ public class GhostNetDomainService {
             entity.setStatus(NetStatusDataLayerEnum.RECOVERY_PENDING);
             repository.save(entity);
             return OperationResult.OK;
+        } else if (entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
+            // idempotency: if same person name => OK, otherwise conflict
+            PersonDataLayerModel existing = entity.getPerson();
+            String existingName = (existing != null) ? existing.getName() : null;
+            String requestedName = (personModel.getName() != null) ? personModel.getName() : null;
+            if (existingName != null && existingName.equals(requestedName)) {
+                return OperationResult.OK;
+            } else {
+                return OperationResult.CONFLICT;
+            }
         } else {
             return OperationResult.CONFLICT;
         }

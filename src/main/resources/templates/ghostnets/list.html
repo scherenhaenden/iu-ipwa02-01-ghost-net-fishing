@@ -14,8 +14,8 @@
         <form method="get" th:action="@{/ui/ghostnets}">
             <label for="status">Filter by status:</label>
             <select name="status" id="status" onchange="this.form.submit()">
-                <!-- empty th:value was causing the exception; use literal empty string '' -->
-                <option th:value="''" th:selected="${selectedStatus == ''}">All</option>
+                <!-- use a real empty value for All -->
+                <option value="" th:selected="${selectedStatus == ''}">All</option>
                 <option th:value="REPORTED" th:selected="${selectedStatus == 'REPORTED'}">REPORTED</option>
                 <option th:value="RECOVERY_PENDING" th:selected="${selectedStatus == 'RECOVERY_PENDING'}">RECOVERY_PENDING</option>
                 <option th:value="RECOVERED" th:selected="${selectedStatus == 'RECOVERED'}">RECOVERED</option>
