@@ -21,11 +21,17 @@ public interface IGhostNetBusinessLayerService {
     Optional<GhostNetBusinessLayerModel> findById(Long id);
 
     // New for US2: reserve a net by id with a person model, returns OperationResult (OK / NOT_FOUND / CONFLICT)
+    /**
+     * Reserves an operation for a given person.
+     */
     de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult reserve(Long id, PersonBusinessLayerModel person);
 
     // New for US3: mark a net as recovered, returns OperationResult (OK / NOT_FOUND / CONFLICT)
     de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult recover(Long id);
 
     // New for US4: mark a net as missing, returns OperationResult (OK / NOT_FOUND / CONFLICT)
+    /**
+     * Marks an item as missing based on the provided ID.
+     */
     de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult markMissing(Long id);
 }
