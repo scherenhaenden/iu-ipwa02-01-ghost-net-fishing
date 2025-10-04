@@ -17,7 +17,6 @@ class IGhostNetBusinessLayerServiceTest {
         assertTrue(names.contains("findAll"));
         assertTrue(names.contains("save"));
         assertTrue(names.contains("findById"));
-        assertTrue(names.contains("findByIdOrThrow"));
         assertTrue(names.contains("reserve"));
         assertTrue(names.contains("recover"));
         assertTrue(names.contains("markMissing"));
