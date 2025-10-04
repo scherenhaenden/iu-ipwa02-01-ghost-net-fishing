@@ -4,8 +4,6 @@
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
-    <section class="banner">Reserve/Recover actions available when the PATCH API is ready</section>
-
     <!-- Flash messages -->
     <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
     <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
@@ -67,6 +65,10 @@
                 <a th:href="@{|/ui/ghostnets/${g.id}/recover|}"
                    class="btn btn-ghost"
                    th:attr="title=${'Mark recovered net ' + g.id}, aria-label=${'Mark recovered net ' + g.id}">Recover</a>
+
+                <a th:href="@{|/ui/ghostnets/${g.id}/missing|}"
+                   class="btn btn-ghost"
+                   th:attr="title=${'Mark missing net ' + g.id}, aria-label=${'Mark missing net ' + g.id}">Missing</a>
             </td>
         </tr>
         </tbody>

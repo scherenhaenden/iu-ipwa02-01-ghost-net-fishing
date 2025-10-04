@@ -16,12 +16,15 @@
         <p>Ghost Net not found (view only).</p>
     </div>
 
-    <form method="post" action="#" novalidate>
+    <form th:action="@{/ui/ghostnets/{id}/recover(id=${ghostNet.id})}" method="post" th:object="${recoverForm}">
         <div class="form-row">
             <label for="notes">Notes</label>
-            <textarea id="notes" name="notes" required minlength="2" aria-label="Notes" rows="3"></textarea>
+            <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes about the recovery"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" disabled title="API pending" aria-label="Mark as recovered - API pending">Mark as Recovered</button>
+        <div>
+            <button type="submit" class="btn btn-primary">Mark as Recovered</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
+        </div>
     </form>
 </div>
 

@@ -115,4 +115,51 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
             return OperationResult.CONFLICT;
         }
     }
+
+    // New for US3: mark a net as recovered
+    @Override
+    @Transactional
+    public OperationResult recover(Long id) {
+        if (id == null) return OperationResult.NOT_FOUND;
+        Optional<GhostNetDataLayerModel> oe = repository.findById(id);
+        if (oe.isEmpty()) return OperationResult.NOT_FOUND;
+        GhostNetDataLayerModel entity = oe.get();
+
+        // Only allow recovery from RECOVERY_PENDING status
+        if (entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
+            entity.setStatus(NetStatusDataLayerEnum.RECOVERED);
+            repository.save(entity);
+            return OperationResult.OK;
+        } else if (entity.getStatus() == NetStatusDataLayerEnum.RECOVERED) {
+            // Idempotent: already recovered -> OK
+            return OperationResult.OK;
+        } else {
+            // Cannot recover from REPORTED or MISSING status
+            return OperationResult.CONFLICT;
+        }
+    }
+
+    // New for US4: mark a net as missing
+    @Override
+    @Transactional
+    public OperationResult markMissing(Long id) {
+        if (id == null) return OperationResult.NOT_FOUND;
+        Optional<GhostNetDataLayerModel> oe = repository.findById(id);
+        if (oe.isEmpty()) return OperationResult.NOT_FOUND;
+        GhostNetDataLayerModel entity = oe.get();
+
+        // Allow marking as missing from REPORTED or RECOVERY_PENDING status
+        if (entity.getStatus() == NetStatusDataLayerEnum.REPORTED ||
+            entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
+            entity.setStatus(NetStatusDataLayerEnum.MISSING);
+            repository.save(entity);
+            return OperationResult.OK;
+        } else if (entity.getStatus() == NetStatusDataLayerEnum.MISSING) {
+            // Idempotent: already missing -> OK
+            return OperationResult.OK;
+        } else {
+            // Cannot mark as missing from RECOVERED status
+            return OperationResult.CONFLICT;
+        }
+    }
 }
