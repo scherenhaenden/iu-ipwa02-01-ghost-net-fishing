@@ -391,9 +391,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testCreateGhostNet() throws Exception {
-        CreateGhostNetRequest request = new CreateGhostNetRequest();
-        request.setLocation("Test Location");
-        request.setSize(15.5);
+        CreateGhostNetRequest request = new CreateGhostNetRequest("Test Location", 15.5, null);
 
         when(service.save(any())).thenReturn(sampleNet);
 
@@ -409,8 +407,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testReserveGhostNet() throws Exception {
-        ReserveRequest request = new ReserveRequest();
-        request.setPersonName("Test Person");
+        ReserveRequest request = new ReserveRequest("Test Person");
 
         when(service.reserve(eq(1L), any())).thenReturn(OperationResult.OK);
         when(service.findById(1L)).thenReturn(Optional.of(sampleNet));
@@ -425,8 +422,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testReserveGhostNetNotFound() throws Exception {
-        ReserveRequest request = new ReserveRequest();
-        request.setPersonName("Test Person");
+        ReserveRequest request = new ReserveRequest("Test Person");
 
         when(service.reserve(eq(999L), any())).thenReturn(OperationResult.NOT_FOUND);
 
@@ -440,8 +436,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testReserveGhostNetConflict() throws Exception {
-        ReserveRequest request = new ReserveRequest();
-        request.setPersonName("Test Person");
+        ReserveRequest request = new ReserveRequest("Test Person");
 
         when(service.reserve(eq(1L), any())).thenReturn(OperationResult.CONFLICT);
 
@@ -455,7 +450,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testRecoverGhostNet() throws Exception {
-        RecoverRequest request = new RecoverRequest();
+        RecoverRequest request = new RecoverRequest(null);
 
         when(service.recover(1L)).thenReturn(OperationResult.OK);
         when(service.findById(1L)).thenReturn(Optional.of(sampleNet));
@@ -470,7 +465,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testRecoverGhostNetNotFound() throws Exception {
-        RecoverRequest request = new RecoverRequest();
+        RecoverRequest request = new RecoverRequest(null);
 
         when(service.recover(999L)).thenReturn(OperationResult.NOT_FOUND);
 
@@ -484,7 +479,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testRecoverGhostNetConflict() throws Exception {
-        RecoverRequest request = new RecoverRequest();
+        RecoverRequest request = new RecoverRequest(null);
 
         when(service.recover(1L)).thenReturn(OperationResult.CONFLICT);
 
