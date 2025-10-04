@@ -95,18 +95,31 @@ public class GhostNetRestController {
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
                 case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             };
         }
-        // Fallback: previous behavior using business service (for tests/back-compat)
-        var ghostNet = service.findByIdOrThrow(id);
+        // Fallback: try the new business service reserve method (OperationResult)
         var person = personWebToBusinessMapper.toBusinessModel(req.personName());
-        // Minimal conflict guard: if already reserved or recovered, return 409
-        if (ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        var result = service.reserve(id, person);
+        if (result == null) {
+            // preserve previous behavior for backward compatibility (e.g. tests using a mock service)
+            var ghostNet = service.findByIdOrThrow(id);
+            // Minimal conflict guard: if already reserved or recovered, return 409
+            if (ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            ghostNet.assignTo(person);
+            var saved = service.save(ghostNet);
+            return ResponseEntity.ok(webMapper.toWebModel(saved));
         }
-        ghostNet.assignTo(person);
-        var saved = service.save(ghostNet);
-        return ResponseEntity.ok(webMapper.toWebModel(saved));
+        return switch (result) {
+            case OK -> service.findById(id)
+                    .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+            case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        };
     }
 
     @PatchMapping("/{id}/recover")
@@ -119,6 +132,7 @@ public class GhostNetRestController {
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
                 case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             };
         }
         var ghostNet = service.findByIdOrThrow(id);
