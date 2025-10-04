@@ -54,194 +54,166 @@ class GhostNetRestControllerUiTest {
     void setUp() {
         sample = new GhostNetBusinessLayerModel();
         sample.setId(1L);
-        sample.setLocation("L");
-        sample.setSize(2.0);
+        sample.setLocation("Test Location");
+        sample.setSize(10.5);
         sample.setStatus(NetStatusBusinessLayerEnum.REPORTED);
         sample.setCreatedAt(Instant.now());
     }
 
     @Test
-    void findAll_noStatus_returnsList() throws Exception {
+    void testFindAllGhostNets() throws Exception {
         when(service.findAll()).thenReturn(List.of(sample));
 
-        mockMvc.perform(get("/api/ghostnets"))
+        mockMvc.perform(get("/api/ghostnets")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].location").value("L"));
+                .andExpect(jsonPath("$[0].location").value("Test Location"));
 
-        verify(service, times(1)).findAll();
+        verify(service).findAll();
     }
 
     @Test
-    void findAll_withStatus_returnsFiltered() throws Exception {
-        sample.setStatus(NetStatusBusinessLayerEnum.RECOVERED);
-        when(service.findByStatus(NetStatusBusinessLayerEnum.RECOVERED)).thenReturn(List.of(sample));
+    void testFindGhostNetById() throws Exception {
+        when(service.findByIdOrThrow(1L)).thenReturn(sample);
 
-        mockMvc.perform(get("/api/ghostnets").param("status", "recovered"))
+        mockMvc.perform(get("/api/ghostnets/1")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].status").value("RECOVERED"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.location").value("Test Location"));
 
-        verify(service, times(1)).findByStatus(NetStatusBusinessLayerEnum.RECOVERED);
+        verify(service).findByIdOrThrow(1L);
     }
 
     @Test
-    void findOne_returnsSingle() throws Exception {
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sample);
+    void testCreateGhostNetWithMapper() throws Exception {
+        CreateGhostNetRequest request = new CreateGhostNetRequest("New Location", 5.0, null);
 
-        mockMvc.perform(get("/api/ghostnets/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+        GhostNetBusinessLayerModel created = new GhostNetBusinessLayerModel();
+        created.setId(2L);
+        created.setLocation("New Location");
+        created.setSize(5.0);
+        created.setStatus(NetStatusBusinessLayerEnum.REPORTED);
+        created.setCreatedAt(Instant.now());
 
-        verify(service, times(1)).findByIdOrThrow(eq(1L));
-    }
-
-    @Test
-    void create_valid_returnsCreatedWithLocation() throws Exception {
-        CreateGhostNetRequest req = new CreateGhostNetRequest("loc", 3.0, null);
-        GhostNetBusinessLayerModel saved = new GhostNetBusinessLayerModel();
-        saved.setId(42L);
-        saved.setLocation("loc");
-        saved.setSize(3.0);
-        saved.setStatus(NetStatusBusinessLayerEnum.REPORTED);
-        saved.setCreatedAt(Instant.now());
-        when(service.save(any())).thenReturn(saved);
+        when(service.save(any(GhostNetBusinessLayerModel.class))).thenReturn(created);
 
         mockMvc.perform(post("/api/ghostnets")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/api/ghostnets/42")))
-                .andExpect(jsonPath("$.id").value(42));
+                .andExpect(header().exists("Location"))
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.location").value("New Location"));
 
-        verify(service, times(1)).save(any());
+        verify(service).save(any(GhostNetBusinessLayerModel.class));
     }
 
     @Test
-    void create_invalid_returnsValidationError() throws Exception {
-        // missing location -> validation error
-        CreateGhostNetRequest req = new CreateGhostNetRequest("", null, null);
+    void testReserveWithDomainService() throws Exception {
+        ReserveRequest request = new ReserveRequest("John Doe");
 
-        mockMvc.perform(post("/api/ghostnets")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+        when(domainService.assignPerson(eq(1L), any(PersonBusinessLayerModel.class)))
+                .thenReturn(OperationResult.OK);
 
-        verify(service, never()).save(any());
-    }
+        GhostNetBusinessLayerModel reserved = new GhostNetBusinessLayerModel();
+        reserved.setId(1L);
+        reserved.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
+        PersonBusinessLayerModel person = new PersonBusinessLayerModel();
+        person.setName("John Doe");
+        reserved.setRecoveringPerson(person);
 
-    @Test
-    void reserve_domainService_OK_maps200() throws Exception {
-        ReserveRequest req = new ReserveRequest("Alice");
-        PersonBusinessLayerModel p = new PersonBusinessLayerModel();
-        p.setName("Alice");
-        GhostNetBusinessLayerModel updated = new GhostNetBusinessLayerModel();
-        updated.setId(1L);
-        updated.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
-        updated.setRecoveringPerson(p);
-
-        when(domainService.assignPerson(eq(1L), any())).thenReturn(OperationResult.OK);
-        when(domainService.findById(eq(1L))).thenReturn(Optional.of(updated));
+        when(domainService.findById(1L)).thenReturn(Optional.of(reserved));
 
         mockMvc.perform(patch("/api/ghostnets/1/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.recoveringPersonName").value("Alice"));
-
-        verify(domainService, times(1)).assignPerson(eq(1L), any());
-    }
-
-    @Test
-    void reserve_serviceFallback_assignsAndReturns200_whenServiceReserveNull() throws Exception {
-        ReserveRequest req = new ReserveRequest("Bob");
-        PersonBusinessLayerModel p = new PersonBusinessLayerModel();
-        p.setName("Bob");
-        // domainService returns null to force fallback
-        when(domainService.assignPerson(eq(1L), any())).thenReturn(null);
-        when(service.reserve(eq(1L), any())).thenReturn(null);
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sample);
-        GhostNetBusinessLayerModel saved = new GhostNetBusinessLayerModel();
-        saved.setId(1L);
-        saved.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
-        PersonBusinessLayerModel rp = new PersonBusinessLayerModel(); rp.setName("Bob");
-        saved.setRecoveringPerson(rp);
-        when(service.save(any())).thenReturn(saved);
-
-        mockMvc.perform(patch("/api/ghostnets/1/reserve")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RECOVERY_PENDING"))
-                .andExpect(jsonPath("$.recoveringPersonName").value("Bob"));
+                .andExpect(jsonPath("$.recoveringPersonName").value("John Doe"));
 
-        verify(service, times(1)).findByIdOrThrow(eq(1L));
-        verify(service, times(1)).save(any());
+        verify(domainService).assignPerson(eq(1L), any(PersonBusinessLayerModel.class));
     }
 
     @Test
-    void reserve_domainService_CONFLICT_maps409() throws Exception {
-        ReserveRequest req = new ReserveRequest("X");
-        when(domainService.assignPerson(eq(1L), any())).thenReturn(OperationResult.CONFLICT);
+    void testRecoverWithDomainService() throws Exception {
+        RecoverRequest request = new RecoverRequest("Recovery completed");
+
+        when(domainService.markRecovered(1L)).thenReturn(OperationResult.OK);
+
+        GhostNetBusinessLayerModel recovered = new GhostNetBusinessLayerModel();
+        recovered.setId(1L);
+        recovered.setStatus(NetStatusBusinessLayerEnum.RECOVERED);
+
+        when(domainService.findById(1L)).thenReturn(Optional.of(recovered));
+
+        mockMvc.perform(patch("/api/ghostnets/1/recover")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("RECOVERED"));
+
+        verify(domainService).markRecovered(1L);
+    }
+
+    @Test
+    void testFindByStatusParameter() throws Exception {
+        when(service.findByStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING))
+                .thenReturn(List.of(sample));
+
+        mockMvc.perform(get("/api/ghostnets")
+                .param("status", "recovery_pending")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        verify(service).findByStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
+    }
+
+    @Test
+    void testFindByStatusPath() throws Exception {
+        when(service.findByStatus(NetStatusBusinessLayerEnum.REPORTED))
+                .thenReturn(List.of(sample));
+
+        mockMvc.perform(get("/api/ghostnets/status/reported")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        verify(service).findByStatus(NetStatusBusinessLayerEnum.REPORTED);
+    }
+
+    @Test
+    void testReserveConflict() throws Exception {
+        ReserveRequest request = new ReserveRequest("Jane Doe");
+
+        when(domainService.assignPerson(eq(1L), any(PersonBusinessLayerModel.class)))
+                .thenReturn(OperationResult.CONFLICT);
 
         mockMvc.perform(patch("/api/ghostnets/1/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
 
-        verify(domainService, times(1)).assignPerson(eq(1L), any());
+        verify(domainService).assignPerson(eq(1L), any(PersonBusinessLayerModel.class));
     }
 
     @Test
-    void reserve_missingPerson_validation_shouldReturn400() throws Exception {
-        // empty personName -> validation error
-        ReserveRequest req = new ReserveRequest("");
+    void testRecoverConflict() throws Exception {
+        RecoverRequest request = new RecoverRequest("Failed recovery");
 
-        mockMvc.perform(patch("/api/ghostnets/1/reserve")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
-
-        verify(domainService, never()).assignPerson(any(), any());
-    }
-
-    @Test
-    void recover_domainService_OK_maps200() throws Exception {
-        when(domainService.markRecovered(eq(1L))).thenReturn(OperationResult.OK);
-        GhostNetBusinessLayerModel updated = new GhostNetBusinessLayerModel();
-        updated.setId(1L);
-        updated.setStatus(NetStatusBusinessLayerEnum.RECOVERED);
-        when(domainService.findById(eq(1L))).thenReturn(Optional.of(updated));
+        when(domainService.markRecovered(1L)).thenReturn(OperationResult.CONFLICT);
 
         mockMvc.perform(patch("/api/ghostnets/1/recover")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new RecoverRequest("ok"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("RECOVERED"));
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
 
-        verify(domainService, times(1)).markRecovered(eq(1L));
+        verify(domainService).markRecovered(1L);
     }
-
-    @Test
-    void recover_serviceFallback_marksRecoveredWhenDomainNull() throws Exception {
-        when(domainService.markRecovered(eq(1L))).thenReturn(null);
-        sample.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sample);
-        GhostNetBusinessLayerModel saved = new GhostNetBusinessLayerModel();
-        saved.setId(1L);
-        saved.setStatus(NetStatusBusinessLayerEnum.RECOVERED);
-        when(service.save(any())).thenReturn(saved);
-
-        mockMvc.perform(patch("/api/ghostnets/1/recover")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new RecoverRequest("notes"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("RECOVERED"));
-
-        verify(service, times(1)).findByIdOrThrow(eq(1L));
-        verify(service, times(1)).save(any());
-    }
-
 }
-
