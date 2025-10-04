@@ -164,4 +164,34 @@ public class GhostNetRestController {
             default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         };
     }
+
+    @PatchMapping("/{id}/missing")
+    public ResponseEntity<?> markAsMissing(@PathVariable Long id) {
+        if (domainService != null) {
+            var result = domainService.markAsMissing(id);
+            if (result != null) {
+                return switch (result) {
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.OK -> domainService.findById(id)
+                            .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                            .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                };
+            }
+            // if result is null, fall through to fallback path below
+        }
+        // Use service.markMissing() method that returns OperationResult
+        var result = service.markMissing(id);
+        return switch (result) {
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.OK -> service.findById(id)
+                    .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        };
+    }
 }
