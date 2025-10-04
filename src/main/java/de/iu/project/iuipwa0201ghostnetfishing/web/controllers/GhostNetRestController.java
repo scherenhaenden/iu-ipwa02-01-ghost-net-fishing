@@ -3,6 +3,7 @@ package de.iu.project.iuipwa0201ghostnetfishing.web.controllers;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.GhostNetDomainService;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
+import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebLayerMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.GhostNetWebToBusinessMapper;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Mappers.PersonWebToBusinessMapper;
@@ -65,9 +66,12 @@ public class GhostNetRestController {
 
     /** Single GhostNet by ID. */
     @GetMapping("/{id}")
-    public GhostNetWebLayerModel findOne(@PathVariable Long id) {
-        var ghostNet = service.findByIdOrThrow(id);
-        return webMapper.toWebModel(ghostNet);
+    public ResponseEntity<GhostNetWebLayerModel> findOne(@PathVariable Long id) {
+        var ghostNetOpt = service.findById(id);
+        if (ghostNetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(webMapper.toWebModel(ghostNetOpt.get()));
     }
 
     /* ---- CREATE ---------------------------------------------------------- */
@@ -91,12 +95,13 @@ public class GhostNetRestController {
             var result = domainService.assignPerson(id, person);
             if (result != null) {
                 return switch (result) {
-                    case OK -> domainService.findById(id)
+                    case OperationResult.OK -> domainService.findById(id)
                             .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
                             .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                    case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                    case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
-                    case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                    case OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    case OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                    case OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 };
             }
             // if result is null, fall through to fallback path below
@@ -106,7 +111,11 @@ public class GhostNetRestController {
         var result = service.reserve(id, person);
         if (result == null) {
             // preserve previous behavior for backward compatibility (e.g. tests using a mock service)
-            var ghostNet = service.findByIdOrThrow(id);
+            var ghostNetOpt = service.findById(id);
+            if (ghostNetOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            var ghostNet = ghostNetOpt.get();
             // Minimal conflict guard: if already reserved or recovered, return 409
             if (ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERY_PENDING || ghostNet.getStatus() == NetStatusBusinessLayerEnum.RECOVERED) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -116,12 +125,13 @@ public class GhostNetRestController {
             return ResponseEntity.ok(webMapper.toWebModel(saved));
         }
         return switch (result) {
-            case OK -> service.findById(id)
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.OK -> service.findById(id)
                     .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-            case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
-            case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         };
     }
 
@@ -131,19 +141,27 @@ public class GhostNetRestController {
             var result = domainService.markRecovered(id);
             if (result != null) {
                 return switch (result) {
-                    case OK -> domainService.findById(id)
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.OK -> domainService.findById(id)
                             .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
                             .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                    case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                    case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
-                    case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                    case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 };
             }
             // if result is null, fall through to fallback path below
         }
-        var ghostNet = service.findByIdOrThrow(id);
-        ghostNet.markAsRecovered();
-        var saved = service.save(ghostNet);
-        return ResponseEntity.ok(webMapper.toWebModel(saved));
+        // Use service.recover() method that returns OperationResult
+        var result = service.recover(id);
+        return switch (result) {
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.OK -> service.findById(id)
+                    .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+            case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        };
     }
 }

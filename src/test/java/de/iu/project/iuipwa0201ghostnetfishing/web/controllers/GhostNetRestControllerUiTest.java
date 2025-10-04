@@ -78,7 +78,7 @@ class GhostNetRestControllerUiTest {
 
     @Test
     void testFindGhostNetById() throws Exception {
-        when(service.findByIdOrThrow(1L)).thenReturn(sample);
+        when(service.findById(1L)).thenReturn(Optional.of(sample));
 
         mockMvc.perform(get("/api/ghostnets/1")
                 .accept(MediaType.APPLICATION_JSON))
@@ -87,7 +87,7 @@ class GhostNetRestControllerUiTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.location").value("Test Location"));
 
-        verify(service).findByIdOrThrow(1L);
+        verify(service).findById(1L);
     }
 
     @Test

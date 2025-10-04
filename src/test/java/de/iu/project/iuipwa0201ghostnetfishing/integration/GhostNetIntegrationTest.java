@@ -33,8 +33,9 @@ class GhostNetIntegrationTest {
         var saved = service.save(businessModel);
 
         // Retrieve
-        var retrieved = service.findByIdOrThrow(saved.getId());
-
+        var retrievedOpt = service.findById(saved.getId());
+        assertThat(retrievedOpt).isPresent();
+        var retrieved = retrievedOpt.get();
         assertThat(retrieved.getLocation()).isEqualTo("Test Location");
         assertThat(retrieved.getSize()).isEqualTo(10.5);
         assertThat(retrieved.getStatus()).isEqualTo(NetStatusBusinessLayerEnum.REPORTED);

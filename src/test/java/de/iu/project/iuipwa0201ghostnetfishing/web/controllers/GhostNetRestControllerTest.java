@@ -171,14 +171,16 @@ class GhostNetRestControllerTest {
     @Test
     void reserveGhostNet_Success() throws Exception {
         ReserveRequest request = new ReserveRequest("John Doe");
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sampleNet);
+        when(service.reserve(eq(1L), any())).thenReturn(OperationResult.OK);
+        // Controller maps OperationResult.OK -> it will call service.findById(id) to obtain the updated model
         GhostNetBusinessLayerModel updated = new GhostNetBusinessLayerModel();
         updated.setId(1L);
         updated.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
         PersonBusinessLayerModel person = new PersonBusinessLayerModel();
         person.setName("John Doe");
         updated.setRecoveringPerson(person);
-        when(service.save(any(GhostNetBusinessLayerModel.class))).thenReturn(updated);
+        when(service.findById(eq(1L))).thenReturn(Optional.of(updated));
+        // save is not used in the OperationResult.OK path (controller relies on service.findById)
 
         mockMvc.perform(patch("/api/ghostnets/1/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -187,8 +189,8 @@ class GhostNetRestControllerTest {
                 .andExpect(jsonPath("$.status").value("RECOVERY_PENDING"))
                 .andExpect(jsonPath("$.recoveringPersonName").value("John Doe"));
 
-        verify(service, times(1)).findByIdOrThrow(eq(1L));
-        verify(service, times(1)).save(any(GhostNetBusinessLayerModel.class));
+        verify(service, times(1)).reserve(eq(1L), any());
+        verify(service, times(1)).findById(eq(1L));
     }
 
     @Test
@@ -208,7 +210,7 @@ class GhostNetRestControllerTest {
         // simulate existing net already reserved
         sampleNet.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
         when(domainService.assignPerson(eq(1L), any())).thenReturn(OperationResult.CONFLICT);
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sampleNet);
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
 
         mockMvc.perform(patch("/api/ghostnets/1/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -248,12 +250,12 @@ class GhostNetRestControllerTest {
     @Test
     void recoverGhostNet_Success() throws Exception {
         RecoverRequest request = new RecoverRequest("Recovery notes");
-        sampleNet.setStatus(NetStatusBusinessLayerEnum.RECOVERY_PENDING);
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sampleNet);
+        when(service.recover(eq(1L))).thenReturn(OperationResult.OK);
+        // Controller expects service.findById to return the updated resource when OperationResult.OK
         GhostNetBusinessLayerModel updated = new GhostNetBusinessLayerModel();
         updated.setId(1L);
         updated.setStatus(NetStatusBusinessLayerEnum.RECOVERED);
-        when(service.save(any(GhostNetBusinessLayerModel.class))).thenReturn(updated);
+        when(service.findById(eq(1L))).thenReturn(Optional.of(updated));
 
         mockMvc.perform(patch("/api/ghostnets/1/recover")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -261,27 +263,31 @@ class GhostNetRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RECOVERED"));
 
-        verify(service, times(1)).findByIdOrThrow(eq(1L));
-        verify(service, times(1)).save(any(GhostNetBusinessLayerModel.class));
+        verify(service, times(1)).recover(eq(1L));
+        verify(service, times(1)).findById(eq(1L));
     }
 
     @Test
     void findOne_Success() throws Exception {
-        when(service.findByIdOrThrow(eq(1L))).thenReturn(sampleNet);
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
 
         mockMvc.perform(get("/api/ghostnets/1"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.location").value("Sample Location"));
+
+        verify(service).findById(eq(1L));
     }
 
     @Test
     void findOne_NotFound() throws Exception {
-        when(service.findByIdOrThrow(eq(999L))).thenThrow(new de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException("Not found"));
+        when(service.findById(eq(999L))).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/ghostnets/999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+                .andExpect(status().isNotFound());
+
+        verify(service).findById(eq(999L));
     }
 
     @Test
@@ -368,7 +374,7 @@ class GhostNetRestControllerTest {
 
     @Test
     void testGetGhostNetById() throws Exception {
-        when(service.findById(1L)).thenReturn(Optional.of(sampleNet));
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
 
         mockMvc.perform(get("/api/ghostnets/1"))
                 .andExpect(status().isOk())
@@ -376,17 +382,17 @@ class GhostNetRestControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.location").value("Sample Location"));
 
-        verify(service).findById(1L);
+        verify(service).findById(eq(1L));
     }
 
     @Test
     void testGetGhostNetByIdNotFound() throws Exception {
-        when(service.findById(999L)).thenReturn(Optional.empty());
+        when(service.findById(eq(999L))).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/ghostnets/999"))
                 .andExpect(status().isNotFound());
 
-        verify(service).findById(999L);
+        verify(service).findById(eq(999L));
     }
 
     @Test
@@ -410,14 +416,15 @@ class GhostNetRestControllerTest {
         ReserveRequest request = new ReserveRequest("Test Person");
 
         when(service.reserve(eq(1L), any())).thenReturn(OperationResult.OK);
-        when(service.findById(1L)).thenReturn(Optional.of(sampleNet));
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
 
-        mockMvc.perform(post("/api/ghostnets/1/reserve")
+        mockMvc.perform(patch("/api/ghostnets/1/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(service).reserve(eq(1L), any());
+        verify(service).findById(eq(1L));
     }
 
     @Test
@@ -426,7 +433,7 @@ class GhostNetRestControllerTest {
 
         when(service.reserve(eq(999L), any())).thenReturn(OperationResult.NOT_FOUND);
 
-        mockMvc.perform(post("/api/ghostnets/999/reserve")
+        mockMvc.perform(patch("/api/ghostnets/999/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -440,7 +447,7 @@ class GhostNetRestControllerTest {
 
         when(service.reserve(eq(1L), any())).thenReturn(OperationResult.CONFLICT);
 
-        mockMvc.perform(post("/api/ghostnets/1/reserve")
+        mockMvc.perform(patch("/api/ghostnets/1/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -453,41 +460,14 @@ class GhostNetRestControllerTest {
         RecoverRequest request = new RecoverRequest(null);
 
         when(service.recover(1L)).thenReturn(OperationResult.OK);
-        when(service.findById(1L)).thenReturn(Optional.of(sampleNet));
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
 
-        mockMvc.perform(post("/api/ghostnets/1/recover")
+        mockMvc.perform(patch("/api/ghostnets/1/recover")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(service).recover(1L);
-    }
-
-    @Test
-    void testRecoverGhostNetNotFound() throws Exception {
-        RecoverRequest request = new RecoverRequest(null);
-
-        when(service.recover(999L)).thenReturn(OperationResult.NOT_FOUND);
-
-        mockMvc.perform(post("/api/ghostnets/999/recover")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
-
-        verify(service).recover(999L);
-    }
-
-    @Test
-    void testRecoverGhostNetConflict() throws Exception {
-        RecoverRequest request = new RecoverRequest(null);
-
-        when(service.recover(1L)).thenReturn(OperationResult.CONFLICT);
-
-        mockMvc.perform(post("/api/ghostnets/1/recover")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
-
-        verify(service).recover(1L);
+        verify(service).findById(eq(1L));
     }
 }

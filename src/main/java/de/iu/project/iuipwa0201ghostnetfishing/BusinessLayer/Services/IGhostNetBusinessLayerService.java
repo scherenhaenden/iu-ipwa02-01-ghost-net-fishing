@@ -16,8 +16,6 @@ public interface IGhostNetBusinessLayerService {
 
     void deleteById(Long id);
 
-    GhostNetBusinessLayerModel findByIdOrThrow(Long id);
-
     Optional<GhostNetBusinessLayerModel> findById(Long id);
 
     // New for US2: reserve a net by id with a person model, returns OperationResult (OK / NOT_FOUND / CONFLICT)
