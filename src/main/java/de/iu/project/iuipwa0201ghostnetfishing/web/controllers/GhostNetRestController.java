@@ -89,14 +89,17 @@ public class GhostNetRestController {
         if (domainService != null) {
             var person = personWebToBusinessMapper.toBusinessModel(req.personName());
             var result = domainService.assignPerson(id, person);
-            return switch (result) {
-                case OK -> domainService.findById(id)
-                        .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
-                        .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
-                case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            };
+            if (result != null) {
+                return switch (result) {
+                    case OK -> domainService.findById(id)
+                            .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                            .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+                    case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                    case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                };
+            }
+            // if result is null, fall through to fallback path below
         }
         // Fallback: try the new business service reserve method (OperationResult)
         var person = personWebToBusinessMapper.toBusinessModel(req.personName());
@@ -126,14 +129,17 @@ public class GhostNetRestController {
     public ResponseEntity<?> recover(@PathVariable Long id, @RequestBody RecoverRequest req) {
         if (domainService != null) {
             var result = domainService.markRecovered(id);
-            return switch (result) {
-                case OK -> domainService.findById(id)
-                        .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
-                        .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
-                case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            };
+            if (result != null) {
+                return switch (result) {
+                    case OK -> domainService.findById(id)
+                            .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                            .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+                    case NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    case CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
+                    case BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                };
+            }
+            // if result is null, fall through to fallback path below
         }
         var ghostNet = service.findByIdOrThrow(id);
         ghostNet.markAsRecovered();
