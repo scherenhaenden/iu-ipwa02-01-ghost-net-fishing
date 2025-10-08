@@ -12,14 +12,18 @@ import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetWebLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.RecoverRequest;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.ReserveRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
+import java.util.Objects;
 
 /**
  * REST API for GhostNet resources.
@@ -29,20 +33,28 @@ import java.util.List;
 @Validated
 public class GhostNetRestController {
 
+    private static final Logger log = LoggerFactory.getLogger(GhostNetRestController.class);
+
     private final IGhostNetBusinessLayerService service;
     private final GhostNetWebLayerMapper webMapper;
     private final GhostNetWebToBusinessMapper webToBusinessMapper;
     private final PersonWebToBusinessMapper personWebToBusinessMapper;
 
     // domainService is optional for backward compatibility in tests; if present we use it to map conflicts
-    @Autowired(required = false)
-    private GhostNetDomainService domainService;
+    private final GhostNetDomainService domainService;
 
-    public GhostNetRestController(IGhostNetBusinessLayerService service, GhostNetWebLayerMapper webMapper, GhostNetWebToBusinessMapper webToBusinessMapper, PersonWebToBusinessMapper personWebToBusinessMapper) {
-        this.service = service;
-        this.webMapper = webMapper;
-        this.webToBusinessMapper = webToBusinessMapper;
-        this.personWebToBusinessMapper = personWebToBusinessMapper;
+    // Use constructor injection for mandatory dependencies and ObjectProvider to keep domainService optional
+    public GhostNetRestController(IGhostNetBusinessLayerService service,
+                                 GhostNetWebLayerMapper webMapper,
+                                 GhostNetWebToBusinessMapper webToBusinessMapper,
+                                 PersonWebToBusinessMapper personWebToBusinessMapper,
+                                 ObjectProvider<GhostNetDomainService> domainServiceProvider) {
+        this.service = Objects.requireNonNull(service, "service must not be null");
+        this.webMapper = Objects.requireNonNull(webMapper, "webMapper must not be null");
+        this.webToBusinessMapper = Objects.requireNonNull(webToBusinessMapper, "webToBusinessMapper must not be null");
+        this.personWebToBusinessMapper = Objects.requireNonNull(personWebToBusinessMapper, "personWebToBusinessMapper must not be null");
+        // keep optional semantics: provider may not provide a bean in tests or older configurations
+        this.domainService = domainServiceProvider != null ? domainServiceProvider.getIfAvailable() : null;
     }
 
     /* ---- READ ---------------------------------------------------------- */
@@ -67,11 +79,9 @@ public class GhostNetRestController {
     /** Single GhostNet by ID. */
     @GetMapping("/{id}")
     public ResponseEntity<GhostNetWebLayerModel> findOne(@PathVariable Long id) {
-        var ghostNetOpt = service.findById(id);
-        if (ghostNetOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(webMapper.toWebModel(ghostNetOpt.get()));
+        return service.findById(id)
+                .map(m -> ResponseEntity.ok(webMapper.toWebModel(m)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /* ---- CREATE ---------------------------------------------------------- */
@@ -101,7 +111,6 @@ public class GhostNetRestController {
                     case OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                     case OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
                     case OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 };
             }
             // if result is null, fall through to fallback path below
@@ -131,12 +140,16 @@ public class GhostNetRestController {
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         };
     }
 
     @PatchMapping("/{id}/recover")
-    public ResponseEntity<?> recover(@PathVariable Long id, @RequestBody RecoverRequest req) {
+    public ResponseEntity<?> recover(@PathVariable Long id, @RequestBody(required = false) RecoverRequest req) {
+        // `req` is optional; we may log notes if provided (notes are optional and may not be persisted yet)
+        String notes = (req == null) ? null : req.notes();
+        if (notes != null && !notes.isBlank()) {
+            log.info("Recover request for id {} with notes: {}", id, notes);
+        }
         if (domainService != null) {
             var result = domainService.markRecovered(id);
             if (result != null) {
@@ -147,7 +160,6 @@ public class GhostNetRestController {
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 };
             }
             // if result is null, fall through to fallback path below
@@ -161,7 +173,6 @@ public class GhostNetRestController {
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         };
     }
 
@@ -177,7 +188,6 @@ public class GhostNetRestController {
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
                     case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                    default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 };
             }
             // if result is null, fall through to fallback path below
@@ -191,7 +201,6 @@ public class GhostNetRestController {
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.CONFLICT -> ResponseEntity.status(HttpStatus.CONFLICT).build();
             case de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult.BAD_REQUEST -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         };
     }
 }
