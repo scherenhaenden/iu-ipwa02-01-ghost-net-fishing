@@ -9,12 +9,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test") // Assumes test profile with H2
+@TestPropertySource(properties = {
+        "spring.datasource.url=jdbc:h2:mem:ghostnetdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=password",
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.jpa.show-sql=true"
+})
 @Transactional
 class GhostNetIntegrationTest {
 
@@ -33,8 +42,9 @@ class GhostNetIntegrationTest {
         var saved = service.save(businessModel);
 
         // Retrieve
-        var retrieved = service.findByIdOrThrow(saved.getId());
-
+        var retrievedOpt = service.findById(saved.getId());
+        assertThat(retrievedOpt).isPresent();
+        var retrieved = retrievedOpt.get();
         assertThat(retrieved.getLocation()).isEqualTo("Test Location");
         assertThat(retrieved.getSize()).isEqualTo(10.5);
         assertThat(retrieved.getStatus()).isEqualTo(NetStatusBusinessLayerEnum.REPORTED);

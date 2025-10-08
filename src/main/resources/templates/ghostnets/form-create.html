@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'create')">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'create')}">
 
 <div th:fragment="pageContent">
-    <h2>Reportar Ghost Net</h2>
+    <h2>Report Ghost Net</h2>
 
-    <form method="post" action="#" novalidate>
+    <!-- Flash messages (from RedirectAttributes) -->
+    <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
+    <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
+
+    <!-- Form with Binding and Field Errors -->
+    <form th:action="@{/ui/ghostnets}" method="post" th:object="${ghostNetForm}">
+        <!-- Global Error Message (only evaluated within a bound form) -->
+        <div th:if="${#fields.hasGlobalErrors()}" style="color:red; margin-bottom:8px;">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        </div>
+
         <div class="form-row">
             <label for="location">Location</label>
-            <input id="location" name="location" required pattern=".{2,}" aria-label="Location"/>
+            <input type="text" id="location" th:field="*{location}" />
+            <div class="field-error" th:if="${#fields.hasErrors('location')}" th:errors="*{location}" style="color:red;"></div>
         </div>
         <div class="form-row">
             <label for="size">Size</label>
-            <input id="size" name="size" type="number" min="0" step="0.01" required aria-label="Size"/>
+            <input type="number" step="0.1" id="size" th:field="*{size}" />
+            <div class="field-error" th:if="${#fields.hasErrors('size')}" th:errors="*{size}" style="color:red;"></div>
         </div>
         <div class="form-row">
-            <label for="personName">Person name (optional)</label>
-            <input id="personName" name="personName" aria-label="Person name" />
+            <label for="personName">Your name (optional)</label>
+            <input type="text" id="personName" th:field="*{personName}" />
+            <div class="field-error" th:if="${#fields.hasErrors('personName')}" th:errors="*{personName}" style="color:red;"></div>
         </div>
-
-        <button type="submit" class="btn btn-primary" disabled title="API pendiente" aria-label="Enviar - API pendiente">Enviar</button>
+        <div>
+            <button class="btn btn-primary" type="submit">Report</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
+        </div>
     </form>
 </div>
 

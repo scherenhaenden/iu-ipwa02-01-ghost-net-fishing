@@ -25,14 +25,14 @@ public class PersonDataLayerModel implements Serializable {
     */
     @NotBlank
     @Size(max = 120)
-    @Column(nullable = false, length = 120)
+    @Column(name = "NAME", nullable = false, length = 120)
     private String name;
 
     /* Contact phone number
        Optional phone number; may be null for anonymous reports.
     */
-    @Size(max = 40)
-    @Column(name = "PHONE_NUMBER", length = 40)
+    @Size(max = 30)
+    @Column(name = "PHONE_NUMBER", length = 30)
     private String phoneNumber;
 
     /* Protected no-args constructor
