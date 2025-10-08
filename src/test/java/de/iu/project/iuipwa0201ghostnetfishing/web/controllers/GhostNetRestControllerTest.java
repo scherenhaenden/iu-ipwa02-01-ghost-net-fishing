@@ -470,4 +470,68 @@ class GhostNetRestControllerTest {
         verify(service).recover(1L);
         verify(service).findById(eq(1L));
     }
+
+    @Test
+    void markAsMissing_Success() throws Exception {
+        when(service.markMissing(1L)).thenReturn(OperationResult.OK);
+        sampleNet.setStatus(NetStatusBusinessLayerEnum.MISSING);
+        when(service.findById(eq(1L))).thenReturn(Optional.of(sampleNet));
+
+        mockMvc.perform(patch("/api/ghostnets/1/missing")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("MISSING"));
+
+        verify(service).markMissing(1L);
+        verify(service).findById(eq(1L));
+    }
+
+    @Test
+    void markAsMissing_NotFound() throws Exception {
+        when(service.markMissing(999L)).thenReturn(OperationResult.NOT_FOUND);
+
+        mockMvc.perform(patch("/api/ghostnets/999/missing")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(service).markMissing(999L);
+    }
+
+    @Test
+    void markAsMissing_Conflict() throws Exception {
+        when(service.markMissing(1L)).thenReturn(OperationResult.CONFLICT);
+
+        mockMvc.perform(patch("/api/ghostnets/1/missing")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+
+        verify(service).markMissing(1L);
+    }
+
+    @Test
+    void markAsMissing_domainService_OK_returns200() throws Exception {
+        when(domainService.markAsMissing(1L)).thenReturn(OperationResult.OK);
+        sampleNet.setStatus(NetStatusBusinessLayerEnum.MISSING);
+        when(domainService.findById(1L)).thenReturn(Optional.of(sampleNet));
+
+        mockMvc.perform(patch("/api/ghostnets/1/missing")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("MISSING"));
+
+        verify(domainService).markAsMissing(1L);
+        verify(domainService).findById(1L);
+    }
+
+    @Test
+    void markAsMissing_domainService_CONFLICT_returns409() throws Exception {
+        when(domainService.markAsMissing(1L)).thenReturn(OperationResult.CONFLICT);
+
+        mockMvc.perform(patch("/api/ghostnets/1/missing")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+
+        verify(domainService).markAsMissing(1L);
+    }
 }

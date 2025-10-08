@@ -113,6 +113,28 @@ public class GhostNetDomainService {
         }
     }
 
+    // markAsMissing(id) -> OperationResult
+    public OperationResult markAsMissing(Long id) {
+        if (id == null) return OperationResult.NOT_FOUND;
+        Optional<GhostNetDataLayerModel> oe = repository.findById(id);
+        if (oe.isEmpty()) return OperationResult.NOT_FOUND;
+        GhostNetDataLayerModel entity = oe.get();
+
+        // Allow marking as missing from REPORTED or RECOVERY_PENDING status
+        if (entity.getStatus() == NetStatusDataLayerEnum.REPORTED ||
+                entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
+            entity.setStatus(NetStatusDataLayerEnum.MISSING);
+            repository.save(entity);
+            return OperationResult.OK;
+        } else if (entity.getStatus() == NetStatusDataLayerEnum.MISSING) {
+            // Idempotent: already missing -> OK
+            return OperationResult.OK;
+        } else {
+            // Cannot mark as missing from RECOVERED status
+            return OperationResult.CONFLICT;
+        }
+    }
+
     // deleteById
     public OperationResult deleteById(Long id) {
         if (id == null) return OperationResult.NOT_FOUND;
