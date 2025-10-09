@@ -1,10 +1,11 @@
 package de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PastOrPresent;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -39,14 +40,17 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Area size
        Size of the net in square meters. Not null.
     */
-    @DecimalMin("0.0")
+    @NotNull
+    @PositiveOrZero
     @Column(name = "SIZE", nullable = false)
     private Double size;
 
     /* Creation timestamp
        Time when the net was first reported/created in the system.
     */
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
+    @PastOrPresent
     @Column(name = "CREATED_AT", nullable = false)
     private Date createdAt = new Date();
 
@@ -61,7 +65,7 @@ public class AbandonedNetDataLayerModel implements Serializable {
     /* Reporting/Recovery person
        Optional many-to-one relation to the Person who reported or recovered the net.
     */
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "PERSON_ID")
     private PersonDataLayerModel person;
 

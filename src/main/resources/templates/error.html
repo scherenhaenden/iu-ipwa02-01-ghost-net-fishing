@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'error')}">
+
+<div th:fragment="pageContent">
+    <h1>Error</h1>
+
+    <p><strong>Status:</strong> <span th:text="${status} ?: 'N/A'">N/A</span></p>
+    <p><strong>Error:</strong> <span th:text="${error} ?: 'N/A'">N/A</span></p>
+    <p><strong>Message:</strong> <span th:text="${message} ?: 'N/A'">N/A</span></p>
+    <p><strong>Path:</strong> <span th:text="${path} ?: 'N/A'">N/A</span></p>
+    <p><strong>Timestamp:</strong> <span th:text="${timestamp} ?: 'N/A'">N/A</span></p>
+
+    <div th:if="${trace != null}">
+        <pre th:text="${trace}" style="white-space:pre-wrap; background:#f8f8f8; padding:8px; border-radius:4px;"></pre>
+    </div>
+
+    <div th:if="${errors != null}">
+        <pre th:text="${errors}" style="white-space:pre-wrap; background:#f8f8f8; padding:8px; border-radius:4px;"></pre>
+    </div>
+    <!--TODO: this ain't working at all-->
+
+
+  <h2 th:if="${attributes != null}">Request attributes</h2>
+  <ul th:if="${attributes != null}">
+
+  <span th:if="${attributes != null}">attributes</span>
+
+      <!--
+
+
+      <li th:each="entry : ${#maps.entries(attributes)}">
+          <strong th:text="${entry.key}">key</strong>:
+          <span th:if="${entry.value == null}">null</span>
+
+          <!- - show primitive-like values directly - ->
+          <span th:if="${entry.value != null and (entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}" th:text="${entry.value}">value</span>
+
+          <!- - otherwise show the class name to avoid dumping large objects - ->
+          <span th:if="${entry.value != null and !(entry.value instanceof T(java.lang.CharSequence) or entry.value instanceof T(java.lang.Number) or entry.value instanceof T(java.lang.Boolean))}"
+                th:text="${entry.value.getClass().getName()}">type</span>
+      </li>-->
+    </ul>
+</div>
+
+</body>
+</html>

@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="fragments/_layout :: layout(~{this :: pageContent}, 'list')">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
-    <section class="banner">Acciones Reserve/Recover disponibles cuando la API PATCH esté lista</section>
+    <!-- Flash messages -->
+    <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
+    <div th:if="${error}" style="color:red; margin-bottom:8px;" th:text="${error}"></div>
 
     <div class="controls">
         <form method="get" th:action="@{/ui/ghostnets}">
-            <label for="status">Filtrar por estado:</label>
+            <label for="status">Filter by status:</label>
             <select name="status" id="status" onchange="this.form.submit()">
-                <option th:value="" th:selected="${selectedStatus == ''}">Todos</option>
+                <!-- use a real empty value for All -->
+                <option value="" th:selected="${selectedStatus == ''}">All</option>
                 <option th:value="REPORTED" th:selected="${selectedStatus == 'REPORTED'}">REPORTED</option>
                 <option th:value="RECOVERY_PENDING" th:selected="${selectedStatus == 'RECOVERY_PENDING'}">RECOVERY_PENDING</option>
                 <option th:value="RECOVERED" th:selected="${selectedStatus == 'RECOVERED'}">RECOVERED</option>
@@ -17,10 +21,10 @@
             </select>
         </form>
 
-        <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Reportar net</a>
+        <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Report net</a>
     </div>
 
-    <table class="table">
+    <table class="table" style="margin-top:12px;">
         <thead>
         <tr>
             <th>ID</th>
@@ -37,8 +41,8 @@
             <td colspan="7">
                 <div class="empty-state">
                     <div class="icon">🪝</div>
-                    <p>No hay ghost nets reportadas todavía.</p>
-                    <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Reportar net</a>
+                    <p>No ghost nets reported yet.</p>
+                    <a class="btn btn-primary" th:href="@{/ui/ghostnets/new}">Report net</a>
                 </div>
             </td>
         </tr>
@@ -48,14 +52,23 @@
             <td th:text="${g.size}">0.0</td>
             <td><span th:text="${g.status}" th:class="'badge ' + ${g.status}">STATUS</span></td>
             <td th:text="${#temporals.format(g.createdAt, 'yyyy-MM-dd HH:mm')}">--</td>
-            <td th:text="${g.recoveringPerson != null ? g.recoveringPerson.name : ''}"></td>
+
+            <!-- show 'anonymous' if no person -->
+            <td th:text="${g.recoveringPersonName != null ? g.recoveringPersonName : 'anonymous'}"></td>
+
             <td>
+                <!-- GET links to reserve/recover forms are implemented in the controller -->
                 <a th:href="@{|/ui/ghostnets/${g.id}/reserve|}"
                    class="btn btn-ghost"
-                   th:attr="title=${'Reservar ghost net ' + g.id}, aria-label=${'Reservar ghost net ' + g.id}">Reserve</a>
+                   th:attr="title=${'Reserve ghost net ' + g.id}, aria-label=${'Reserve ghost net ' + g.id}">Reserve</a>
+
                 <a th:href="@{|/ui/ghostnets/${g.id}/recover|}"
                    class="btn btn-ghost"
-                   th:attr="title=${'Marcar recuperado net ' + g.id}, aria-label=${'Marcar recuperado net ' + g.id}">Recover</a>
+                   th:attr="title=${'Mark recovered net ' + g.id}, aria-label=${'Mark recovered net ' + g.id}">Recover</a>
+
+                <a th:href="@{|/ui/ghostnets/${g.id}/missing|}"
+                   class="btn btn-ghost"
+                   th:attr="title=${'Mark missing net ' + g.id}, aria-label=${'Mark missing net ' + g.id}">Missing</a>
             </td>
         </tr>
         </tbody>
