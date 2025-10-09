@@ -57,7 +57,7 @@ public class UiGhostNetController {
                 ghostNets = Collections.emptyList();
             }
         }
-        log.info("UI list: status='{}' -> returned {} ghostNets", status, ghostNets == null ? 0 : ghostNets.size());
+        log.info("UI list: status='{}' -> returned {} ghostNets", status, ghostNets.size());
         model.addAttribute("ghostNets", ghostNets);
         model.addAttribute("selectedStatus", status == null ? "" : status);
         return "ghostnets/list";
