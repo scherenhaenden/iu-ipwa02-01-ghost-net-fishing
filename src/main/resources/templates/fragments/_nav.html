@@ -5,5 +5,10 @@
            th:classappend="${active} == 'list' ? ' active' : ''">List</a>
         <a th:href="@{/ui/ghostnets/new}"
            th:classappend="${active} == 'create' ? ' active' : ''">Report net</a>
+        <a th:href="@{/ui/settings}"
+            th:classappend="${active} == 'settings' ? ' active' : ''">Settings</a>
+        <div class="theme-toggle">
+            <button type="button" onclick="toggleTheme(event)" aria-label="Toggle theme">Theme: <span id="theme-name">Light</span></button>
+        </div>
     </nav>
 </div>
