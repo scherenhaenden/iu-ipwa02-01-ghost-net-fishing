@@ -1,3 +1,14 @@
+/**
+ * Toggles the website theme between dark and light modes.
+ *
+ * This function checks if the event is valid and prevents its default action.
+ * It then toggles the 'theme-dark' class on the document body and updates the
+ * theme name displayed in the element with the ID 'theme-name'. The current
+ * theme preference is stored in localStorage, handling any potential storage
+ * errors gracefully.
+ *
+ * @param {Event} event - The event object that triggered the theme toggle.
+ */
 function toggleTheme(event) {
     if (event && event.preventDefault) event.preventDefault();
     const body = document.body;
@@ -13,6 +24,9 @@ function toggleTheme(event) {
     }
 }
 
+/**
+ * Toggles high contrast mode and saves the preference in local storage.
+ */
 function toggleHighContrast() {
     const body = document.body;
     const enabled = body.classList.toggle('high-contrast');
@@ -21,6 +35,9 @@ function toggleHighContrast() {
     } catch (e) {}
 }
 
+/**
+ * Toggles the readable font class on the document body and stores the state in localStorage.
+ */
 function toggleReadableFont() {
     const body = document.body;
     const enabled = body.classList.toggle('readable-font');
@@ -29,6 +46,15 @@ function toggleReadableFont() {
     } catch (e) {}
 }
 
+/**
+ * Apply user settings for theme, high contrast, and readable font.
+ *
+ * The function retrieves the user's preferences from localStorage for theme, high contrast, and readable font settings.
+ * It then updates the document body and relevant elements based on these preferences, applying the appropriate classes
+ * and toggling the state of the UI elements accordingly.
+ *
+ * @returns {void}
+ */
 function applySettings() {
     let theme = null;
     try {
