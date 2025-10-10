@@ -21,13 +21,13 @@ public class I18nConfig implements WebMvcConfigurer {
         messageSource.setBasename("classpath:messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setFallbackToSystemLocale(false);
+        messageSource.setUseCodeAsDefaultMessage(false);
         return messageSource;
     }
 
     @Bean
     public LocaleResolver localeResolver() {
-        CookieLocaleResolver resolver = new CookieLocaleResolver();
-        resolver.setCookieName("LANG");
+        CookieLocaleResolver resolver = new CookieLocaleResolver("LANG");
         resolver.setDefaultLocale(Locale.GERMAN);
         resolver.setCookieMaxAge(60 * 60 * 24 * 365); // 1 year
         return resolver;
@@ -37,6 +37,7 @@ public class I18nConfig implements WebMvcConfigurer {
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
         interceptor.setParamName("lang");
+        interceptor.setIgnoreInvalidLocale(false);
         return interceptor;
     }
 
@@ -45,4 +46,3 @@ public class I18nConfig implements WebMvcConfigurer {
         registry.addInterceptor(localeChangeInterceptor());
     }
 }
-
