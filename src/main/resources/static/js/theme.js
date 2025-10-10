@@ -5,7 +5,7 @@ function toggleTheme(event) {
 
     const themeName = document.getElementById('theme-name');
     const isDarkMode = body.classList.contains('theme-dark');
-    if (themeName) themeName.textContent = isDarkMode ? 'Dark' : 'Light';
+    if (themeName) themeName.textContent = isDarkMode ? (themeName.getAttribute('data-dark') || 'Dark') : (themeName.getAttribute('data-light') || 'Light');
     try {
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
     } catch (e) {
@@ -29,6 +29,19 @@ function toggleReadableFont() {
     } catch (e) {}
 }
 
+function changeLanguage(lang) {
+    if (!lang) return;
+    try {
+        // store in localStorage for client-side convenience
+        localStorage.setItem('lang', lang);
+    } catch (e) {}
+    // navigate to same path with lang param so Spring's LocaleChangeInterceptor + CookieLocaleResolver persist it
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    // Prevent duplicate param stacking
+    window.location.href = url.toString();
+}
+
 function applySettings() {
     let theme = null;
     try {
@@ -44,13 +57,14 @@ function applySettings() {
     const themeName = document.getElementById('theme-name');
     const highContrastToggle = document.getElementById('high-contrast-toggle');
     const readableFontToggle = document.getElementById('readable-font-toggle');
+    const languageSelect = document.getElementById('language-select');
 
     if (theme === 'dark') {
         body.classList.add('theme-dark');
-        if (themeName) themeName.textContent = 'Dark';
+        if (themeName) themeName.textContent = themeName.getAttribute('data-dark') || 'Dark';
     } else {
         body.classList.remove('theme-dark');
-        if (themeName) themeName.textContent = 'Light';
+        if (themeName) themeName.textContent = themeName.getAttribute('data-light') || 'Light';
     }
 
     if (highContrast) {
@@ -68,6 +82,18 @@ function applySettings() {
         body.classList.remove('readable-font');
         if (readableFontToggle) readableFontToggle.checked = false;
     }
+
+    // Sync language select with server-side locale if available, else fall back to stored value
+    try {
+        const stored = localStorage.getItem('lang');
+        if (languageSelect) {
+            // If server rendered select has a selected option (Thymeleaf), prefer it; otherwise use stored value
+            if (!languageSelect.value && stored) languageSelect.value = stored;
+            else if (stored && languageSelect.value !== stored) {
+                // do nothing: server cookie takes precedence on reload; keep select in sync
+            }
+        }
+    } catch (e) {}
 }
 
 // Initialize on DOM ready
@@ -82,3 +108,4 @@ window.toggleTheme = toggleTheme;
 window.toggleHighContrast = toggleHighContrast;
 window.toggleReadableFont = toggleReadableFont;
 window.applySettings = applySettings;
+window.changeLanguage = changeLanguage;

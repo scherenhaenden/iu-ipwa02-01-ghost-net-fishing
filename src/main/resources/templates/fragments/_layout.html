@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Ghost Net Fishing</title>
+    <title th:text="#{app.title}">Ghost Net Fishing</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <div th:fragment="layout(content, active)">
     <header class="site-header">
         <div class="container">
-            <h1 class="site-title">Ghost Net Fishing</h1>
+            <h1 class="site-title" th:text="#{app.title}">Ghost Net Fishing</h1>
             <div th:replace="~{fragments/_nav :: nav(${active})}"></div>
         </div>
     </header>
@@ -20,7 +20,7 @@
     </main>
 
     <footer class="site-footer container">
-        <small>© Ghost Net Fishing</small>
+        <small th:text="#{footer.copy}">© Ghost Net Fishing</small>
     </footer>
 
     <script th:src="@{/js/theme.js}"></script>
