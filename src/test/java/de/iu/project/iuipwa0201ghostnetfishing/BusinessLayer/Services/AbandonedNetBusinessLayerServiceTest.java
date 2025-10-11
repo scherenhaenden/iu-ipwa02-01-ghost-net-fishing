@@ -7,7 +7,6 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.AbandonedNet
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.PersonDataLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.AbandonedNetDataLayerModelRepository;
-import de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -76,7 +75,7 @@ class AbandonedNetBusinessLayerServiceTest {
     }
 
     @Test
-    void findById_returns_model_or_throws() {
+    void findById_returns_model_or_null() {
         AbandonedNetDataLayerModel entity = new AbandonedNetDataLayerModel(5L, "loc", 1.0, NetStatusDataLayerEnum.REPORTED, (PersonDataLayerModel) null);
         when(repository.findById(1L)).thenReturn(Optional.of(entity));
         when(mapper.toBusinessModel(entity)).thenReturn(new AbandonedNetBusinessLayerModel());
@@ -85,7 +84,7 @@ class AbandonedNetBusinessLayerServiceTest {
         assertNotNull(out);
 
         when(repository.findById(2L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.findById(2L));
+        assertNull(service.findById(2L));
     }
 
     @Test

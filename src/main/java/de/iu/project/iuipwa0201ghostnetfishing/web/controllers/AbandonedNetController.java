@@ -65,6 +65,9 @@ public class AbandonedNetController {
     @GetMapping("/{id}")
     public ResponseEntity<AbandonedNetWebLayerModel> getById(@PathVariable("id") Long id) {
         AbandonedNetBusinessLayerModel found = service.findById(id);
+        if (found == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(mapper.toWebModel(found));
     }
 }

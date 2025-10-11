@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * REST API for GhostNet resources.
+ * REST API controller for managing GhostNet resources.
+ * Provides endpoints for CRUD operations and status transitions on ghost nets.
+ * This controller handles HTTP requests and responses for ghost net management,
+ * interacting with the business layer services to perform operations.
  */
 @RestController
 @RequestMapping("/api/ghostnets")
@@ -43,6 +46,16 @@ public class GhostNetRestController {
     // domainService is optional for backward compatibility in tests; if present we use it to map conflicts
     private final GhostNetDomainService domainService;
 
+    /**
+     * Constructs a new GhostNetRestController with the required dependencies.
+     * The domainService is optional and may be null for backward compatibility.
+     *
+     * @param service the business layer service for ghost nets
+     * @param webMapper mapper for converting business models to web models
+     * @param webToBusinessMapper mapper for converting web requests to business models
+     * @param personWebToBusinessMapper mapper for converting person web data to business models
+     * @param domainServiceProvider provider for the optional domain service
+     */
     // Use constructor injection for mandatory dependencies and ObjectProvider to keep domainService optional
     public GhostNetRestController(IGhostNetBusinessLayerService service,
                                  GhostNetWebLayerMapper webMapper,
@@ -59,7 +72,12 @@ public class GhostNetRestController {
 
     /* ---- READ ---------------------------------------------------------- */
 
-    /** All GhostNets (optionally filtered by status via query param). */
+    /**
+     * Retrieves all ghost nets, optionally filtered by status via query parameter.
+     *
+     * @param status the status filter (optional, case-insensitive)
+     * @return a list of GhostNetWebLayerModel objects
+     */
     @GetMapping
     public List<GhostNetWebLayerModel> findAll(@RequestParam(name = "status", required = false) String status) {
         if (status == null || status.isBlank()) {
@@ -69,14 +87,24 @@ public class GhostNetRestController {
         return webMapper.toWebModelList(service.findByStatus(enumStatus));
     }
 
-    /** GhostNets filtered by status (path style) - kept for backward compatibility. */
+    /**
+     * Retrieves ghost nets filtered by status (path style) - kept for backward compatibility.
+     *
+     * @param status the status filter (case-insensitive)
+     * @return a list of GhostNetWebLayerModel objects
+     */
     @GetMapping("/status/{status}")
     public List<GhostNetWebLayerModel> findByStatus(@PathVariable String status) {
         NetStatusBusinessLayerEnum enumStatus = NetStatusBusinessLayerEnum.valueOf(status.toUpperCase());
         return webMapper.toWebModelList(service.findByStatus(enumStatus));
     }
 
-    /** Single GhostNet by ID. */
+    /**
+     * Retrieves a single ghost net by its ID.
+     *
+     * @param id the ID of the ghost net
+     * @return ResponseEntity containing the GhostNetWebLayerModel if found, or 404 if not found
+     */
     @GetMapping("/{id}")
     public ResponseEntity<GhostNetWebLayerModel> findOne(@PathVariable Long id) {
         return service.findById(id)
@@ -86,6 +114,13 @@ public class GhostNetRestController {
 
     /* ---- CREATE ---------------------------------------------------------- */
 
+    /**
+     * Creates a new ghost net.
+     *
+     * @param req the create request containing ghost net details
+     * @param ucb URI components builder for creating the location header
+     * @return ResponseEntity with the created GhostNetWebLayerModel and location header
+     */
     @PostMapping
     public ResponseEntity<GhostNetWebLayerModel> create(@Valid @RequestBody CreateGhostNetRequest req,
                                                          UriComponentsBuilder ucb) {
@@ -97,6 +132,13 @@ public class GhostNetRestController {
 
     /* ---- UPDATE (Transitions) ---------------------------------------------------------- */
 
+    /**
+     * Reserves a ghost net for recovery by assigning a person.
+     *
+     * @param id the ID of the ghost net
+     * @param req the reserve request containing the person name
+     * @return ResponseEntity with the updated GhostNetWebLayerModel or appropriate error status
+     */
     @PatchMapping("/{id}/reserve")
     public ResponseEntity<?> reserve(@PathVariable Long id, @Valid @RequestBody ReserveRequest req) {
         // Prefer domainService if available to map OperationResult -> HTTP
@@ -143,6 +185,13 @@ public class GhostNetRestController {
         };
     }
 
+    /**
+     * Marks a ghost net as recovered.
+     *
+     * @param id the ID of the ghost net
+     * @param req the recover request (optional, may contain notes)
+     * @return ResponseEntity with the updated GhostNetWebLayerModel or appropriate error status
+     */
     @PatchMapping("/{id}/recover")
     public ResponseEntity<?> recover(@PathVariable Long id, @RequestBody(required = false) RecoverRequest req) {
         // `req` is optional; we may log notes if provided (notes are optional and may not be persisted yet)
@@ -176,6 +225,12 @@ public class GhostNetRestController {
         };
     }
 
+    /**
+     * Marks a ghost net as missing.
+     *
+     * @param id the ID of the ghost net
+     * @return ResponseEntity with the updated GhostNetWebLayerModel or appropriate error status
+     */
     @PatchMapping("/{id}/missing")
     public ResponseEntity<?> markAsMissing(@PathVariable Long id) {
         if (domainService != null) {
