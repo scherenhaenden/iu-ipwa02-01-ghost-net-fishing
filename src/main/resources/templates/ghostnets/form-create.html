@@ -4,7 +4,7 @@
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'create')}">
 
 <div th:fragment="pageContent">
-    <h2>Report Ghost Net</h2>
+    <h2 th:text="#{ghostnet.create.title}">Report Ghost Net</h2>
 
     <!-- Flash messages (from RedirectAttributes) -->
     <div th:if="${ok}" style="color:green; margin-bottom:8px;" th:text="${ok}"></div>
@@ -18,23 +18,23 @@
         </div>
 
         <div class="form-row">
-            <label for="location">Location</label>
-            <input type="text" id="location" th:field="*{location}" />
+            <label for="location" th:text="#{ghostnet.create.label.location}">Location</label>
+            <input type="text" id="location" th:field="*{location}" th:placeholder="#{ghostnet.create.placeholder.location}" />
             <div class="field-error" th:if="${#fields.hasErrors('location')}" th:errors="*{location}" style="color:red;"></div>
         </div>
         <div class="form-row">
-            <label for="size">Size</label>
-            <input type="number" step="0.1" id="size" th:field="*{size}" />
+            <label for="size" th:text="#{ghostnet.create.label.size}">Size</label>
+            <input type="number" step="0.1" id="size" th:field="*{size}" th:placeholder="#{ghostnet.create.placeholder.size}" />
             <div class="field-error" th:if="${#fields.hasErrors('size')}" th:errors="*{size}" style="color:red;"></div>
         </div>
         <div class="form-row">
-            <label for="personName">Your name (optional)</label>
-            <input type="text" id="personName" th:field="*{personName}" />
+            <label for="personName" th:text="#{ghostnet.create.label.personName}">Your name (optional)</label>
+            <input type="text" id="personName" th:field="*{personName}" th:placeholder="#{ghostnet.create.placeholder.personName}" />
             <div class="field-error" th:if="${#fields.hasErrors('personName')}" th:errors="*{personName}" style="color:red;"></div>
         </div>
         <div>
-            <button class="btn btn-primary" type="submit">Report</button>
-            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
+            <button class="btn btn-primary" type="submit" th:text="#{ghostnet.create.button.submit}">Report</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}" th:text="#{ghostnet.create.button.cancel}">Cancel</a>
         </div>
     </form>
 </div>
