@@ -58,6 +58,9 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
 
     @Override
     @Transactional(readOnly = true)
+    /**
+     * Retrieves an AbandonedNetBusinessLayerModel by its ID, returning null if not found.
+     */
     public AbandonedNetBusinessLayerModel findById(Long id) {
         Optional<AbandonedNetDataLayerModel> opt = repository.findById(id);
         return opt.map(mapper::toBusinessModel)
