@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/_layout :: layout(~{::main}, 'settings')}">
-<main>
-    <h2>Settings</h2>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'settings')}">
+
+<div th:fragment="pageContent">
+    <h2 th:text="#{settings.title}">Settings</h2>
     <div class="form-row">
         <label>
             <input type="checkbox" id="high-contrast-toggle" onchange="toggleHighContrast()">
-            High Contrast
+            <span th:text="#{settings.highContrast}">High Contrast</span>
         </label>
     </div>
     <div class="form-row">
         <label>
             <input type="checkbox" id="readable-font-toggle" onchange="toggleReadableFont()">
-            Readable Font
+            <span th:text="#{settings.readableFont}">Readable Font</span>
         </label>
     </div>
-</main>
-</html>
+</div>
 
+</body>
+</html>

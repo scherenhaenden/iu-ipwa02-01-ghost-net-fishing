@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Controller for handling UI requests related to GhostNet management.
+ * Provides endpoints for listing, creating, reserving, recovering, and marking ghost nets as missing.
+ * This controller interacts with the business layer service to perform operations and renders Thymeleaf templates.
+ */
 @Controller
 @RequestMapping("/ui/ghostnets")
 public class UiGhostNetController {
@@ -37,12 +42,25 @@ public class UiGhostNetController {
         this.service = service;
     }
 
+    /**
+     * Converts a GhostNet business model to a view model for display.
+     *
+     * @param b the GhostNet business model
+     * @return the corresponding GhostNetViewModel, or null if input is null
+     */
     private GhostNetViewModel toViewModel(GhostNetBusinessLayerModel b) {
         if (b == null) return null;
         String personName = (b.getRecoveringPerson() != null) ? b.getRecoveringPerson().getName() : null;
         return new GhostNetViewModel(b.getId(), b.getLocation(), b.getSize(), b.getStatus(), b.getCreatedAt(), personName);
     }
 
+    /**
+     * Displays the list of ghost nets, optionally filtered by status.
+     *
+     * @param status the status filter (optional, case-insensitive)
+     * @param model the model to add attributes to
+     * @return the view name "ghostnets/list"
+     */
     @GetMapping({"", "/"})
     public String list(@RequestParam(name = "status", required = false) String status, Model model) {
         log.debug("UI list requested with status param: '{}'", status);
@@ -63,12 +81,26 @@ public class UiGhostNetController {
         return "ghostnets/list";
     }
 
+    /**
+     * Displays the form for creating a new ghost net.
+     *
+     * @param model the model to add attributes to
+     * @return the view name "ghostnets/form-create"
+     */
     @GetMapping("/new")
     public String createForm(Model model) {
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-create";
     }
 
+    /**
+     * Displays the form for reserving a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-reserve" or redirect to list if not found
+     */
     @GetMapping("/{id}/reserve")
     public String reserveForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -87,6 +119,14 @@ public class UiGhostNetController {
         return "ghostnets/form-reserve";
     }
 
+    /**
+     * Displays the form for recovering a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-recover" or redirect to list if not found
+     */
     @GetMapping("/{id}/recover")
     public String recoverForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -99,6 +139,15 @@ public class UiGhostNetController {
         return "ghostnets/form-recover";
     }
 
+    /**
+     * Handles the creation of a new ghost net.
+     *
+     * @param form the form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to list or the form view if validation fails
+     */
     @PostMapping
     public String create(@Valid @ModelAttribute("ghostNetForm") GhostNetForm form,
                          BindingResult bindingResult,
@@ -125,6 +174,14 @@ public class UiGhostNetController {
         return "redirect:/ui/ghostnets";
     }
 
+    /**
+     * Displays the detail view of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/detail" or redirect to list if not found
+     */
     @GetMapping("/{id}")
     public String detail(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -138,6 +195,16 @@ public class UiGhostNetController {
 
     // TODO: Implement POST endpoints for create/reserve/recover when API is ready
 
+    /**
+     * Handles the reservation of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param form the reservation form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
     @PostMapping("/{id}/reserve")
     public String reserve(@PathVariable("id") Long id,
                           @Valid @ModelAttribute("reserveForm") ReserveForm form,
@@ -209,6 +276,16 @@ public class UiGhostNetController {
         }
     }
 
+    /**
+     * Handles the recovery of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param form the recovery form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
     @PostMapping("/{id}/recover")
     public String recover(@PathVariable("id") Long id,
                           @Valid @ModelAttribute("recoverForm") RecoverForm form,
@@ -274,6 +351,14 @@ public class UiGhostNetController {
         }
     }
 
+    /**
+     * Displays the form for marking a ghost net as missing.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-missing" or redirect to list if not found
+     */
     @GetMapping("/{id}/missing")
     public String missingForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -286,6 +371,16 @@ public class UiGhostNetController {
         return "ghostnets/form-missing";
     }
 
+    /**
+     * Handles marking a ghost net as missing.
+     *
+     * @param id the ID of the ghost net
+     * @param form the missing form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
     @PostMapping("/{id}/missing")
     public String reportMissing(@PathVariable("id") Long id,
                           @Valid @ModelAttribute("missingForm") MissingForm form,

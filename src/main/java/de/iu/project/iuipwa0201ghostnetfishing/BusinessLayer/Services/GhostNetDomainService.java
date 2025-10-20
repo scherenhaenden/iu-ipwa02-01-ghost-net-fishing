@@ -17,6 +17,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Domain service responsible for managing GhostNet entities in the business layer.
+ * This service provides operations for creating, retrieving, updating, and deleting ghost nets,
+ * as well as handling status transitions and person assignments, ensuring business rules are enforced.
+ */
 @Service
 @Transactional
 public class GhostNetDomainService {
@@ -26,13 +31,21 @@ public class GhostNetDomainService {
     private final PersonBusinessLayerMapper personMapper;
 
     @Autowired
-    public GhostNetDomainService(GhostNetDataLayerModelRepository repository, GhostNetBusinessLayerMapper mapper, PersonBusinessLayerMapper personMapper) {
+    public GhostNetDomainService(GhostNetDataLayerModelRepository repository,
+                                 GhostNetBusinessLayerMapper mapper,
+                                 PersonBusinessLayerMapper personMapper) {
         this.repository = repository;
         this.mapper = mapper;
         this.personMapper = personMapper;
     }
 
-    // save: apply defaults (status -> REPORTED if null, createdAt -> now if null)
+    /**
+     * Saves the given GhostNet business model to the database, applying default values if necessary.
+     * If the status is null, it is set to REPORTED. If createdAt is null, it is set to the current instant.
+     *
+     * @param model the GhostNet business model to save
+     * @return the saved GhostNet business model with applied defaults, or null if the input model was null
+     */
     public GhostNetBusinessLayerModel save(GhostNetBusinessLayerModel model) {
         if (model == null) return null;
         // apply defaults
@@ -47,7 +60,12 @@ public class GhostNetDomainService {
         return mapper.toBusinessModel(saved);
     }
 
-    // findById -> Optional
+    /**
+     * Finds a GhostNet by its ID.
+     *
+     * @param id the ID of the GhostNet to find
+     * @return an Optional containing the GhostNet business model if found, or empty if not found or id is null
+     */
     @Transactional(readOnly = true)
     public Optional<GhostNetBusinessLayerModel> findById(Long id) {
         if (id == null) return Optional.empty();
@@ -55,7 +73,12 @@ public class GhostNetDomainService {
         return e.map(mapper::toBusinessModel);
     }
 
-    // findAll(Optional<status>)
+    /**
+     * Finds all GhostNets, optionally filtered by status, ordered by creation date descending.
+     *
+     * @param status an Optional containing the status to filter by, or empty to retrieve all
+     * @return a list of GhostNet business models
+     */
     @Transactional(readOnly = true)
     public List<GhostNetBusinessLayerModel> findAll(Optional<NetStatusBusinessLayerEnum> status) {
         Optional<NetStatusBusinessLayerEnum> safeStatus = (status == null) ? Optional.empty() : status;
@@ -69,12 +92,27 @@ public class GhostNetDomainService {
         return mapper.toBusinessModelList(entities);
     }
 
-    // assignPerson(id, person) -> OperationResult
+    /**
+     * Assigns a person to a GhostNet for recovery, changing its status accordingly.
+     * If the net is REPORTED, assigns the person and sets status to RECOVERY_PENDING.
+     * If already RECOVERY_PENDING, checks for idempotency based on person name.
+     * Otherwise, returns CONFLICT.
+     *
+     * @param id the ID of the GhostNet
+     * @param personModel the person to assign
+     * @return OperationResult indicating the outcome: OK, NOT_FOUND, BAD_REQUEST, or CONFLICT
+     */
     public OperationResult assignPerson(Long id, PersonBusinessLayerModel personModel) {
-        if (id == null) return OperationResult.NOT_FOUND;
-        if (personModel == null) return OperationResult.BAD_REQUEST;
+        if (id == null) {
+            return OperationResult.NOT_FOUND;
+        }
+        if (personModel == null) {
+            return OperationResult.BAD_REQUEST;
+        }
         Optional<GhostNetDataLayerModel> oe = repository.findById(id);
-        if (oe.isEmpty()) return OperationResult.NOT_FOUND;
+        if (oe.isEmpty()) {
+            return OperationResult.NOT_FOUND;
+        }
         GhostNetDataLayerModel entity = oe.get();
         if (entity.getStatus() == NetStatusDataLayerEnum.REPORTED) {
             // set person and change state using mapper
@@ -90,15 +128,18 @@ public class GhostNetDomainService {
             String requestedName = (personModel.getName() != null) ? personModel.getName() : null;
             if (existingName != null && existingName.equals(requestedName)) {
                 return OperationResult.OK;
-            } else {
-                return OperationResult.CONFLICT;
             }
-        } else {
             return OperationResult.CONFLICT;
         }
+        return OperationResult.CONFLICT;
     }
 
-    // markRecovered(id) -> OperationResult
+    /**
+     * Marks a GhostNet as recovered if it is in RECOVERY_PENDING status.
+     *
+     * @param id the ID of the GhostNet
+     * @return OperationResult: OK if marked, NOT_FOUND if not found, CONFLICT if not in correct status
+     */
     public OperationResult markRecovered(Long id) {
         if (id == null) return OperationResult.NOT_FOUND;
         Optional<GhostNetDataLayerModel> oe = repository.findById(id);
@@ -108,12 +149,18 @@ public class GhostNetDomainService {
             entity.setStatus(NetStatusDataLayerEnum.RECOVERED);
             repository.save(entity);
             return OperationResult.OK;
-        } else {
-            return OperationResult.CONFLICT;
         }
+        return OperationResult.CONFLICT;
     }
 
-    // markAsMissing(id) -> OperationResult
+    /**
+     * Marks a GhostNet as missing if it is in REPORTED or RECOVERY_PENDING status.
+     * Idempotent if already MISSING.
+     *
+     * @param id the ID of the GhostNet
+     * @return OperationResult: OK if marked or already missing, NOT_FOUND if not found,
+     * CONFLICT if in RECOVERED status
+     */
     public OperationResult markAsMissing(Long id) {
         if (id == null) return OperationResult.NOT_FOUND;
         Optional<GhostNetDataLayerModel> oe = repository.findById(id);
@@ -129,13 +176,16 @@ public class GhostNetDomainService {
         } else if (entity.getStatus() == NetStatusDataLayerEnum.MISSING) {
             // Idempotent: already missing -> OK
             return OperationResult.OK;
-        } else {
-            // Cannot mark as missing from RECOVERED status
-            return OperationResult.CONFLICT;
-        }
+        }    // Cannot mark as missing from RECOVERED status
+        return OperationResult.CONFLICT;
     }
 
-    // deleteById
+    /**
+     * Deletes a GhostNet by its ID.
+     *
+     * @param id the ID of the GhostNet to delete
+     * @return OperationResult: OK if deleted, NOT_FOUND if not found
+     */
     public OperationResult deleteById(Long id) {
         if (id == null) return OperationResult.NOT_FOUND;
         Optional<GhostNetDataLayerModel> oe = repository.findById(id);

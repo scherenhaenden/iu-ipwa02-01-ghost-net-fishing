@@ -4,26 +4,26 @@
 <body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
 
 <div th:fragment="pageContent">
-    <h2>Mark as Recovered</h2>
+    <h2 th:text="#{ghostnet.recover.title}">Mark as Recovered</h2>
 
     <div class="ghostnet-details" th:if="${ghostNet != null}">
-        <p><strong>ID:</strong> <span th:text="${ghostNet.id}"></span></p>
-        <p><strong>Location:</strong> <span th:text="${ghostNet.location}"></span></p>
-        <p><strong>Size:</strong> <span th:text="${ghostNet.size}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${ghostNet.status}"></span></p>
+        <p><strong th:text="#{ghostnet.recover.label.id}">ID:</strong> <span th:text="${ghostNet.id}"></span></p>
+        <p><strong th:text="#{ghostnet.recover.label.location}">Location:</strong> <span th:text="${ghostNet.location}"></span></p>
+        <p><strong th:text="#{ghostnet.recover.label.size}">Size:</strong> <span th:text="${ghostNet.size}"></span></p>
+        <p><strong th:text="#{ghostnet.recover.label.status}">Status:</strong> <span th:text="${ghostNet.status}"></span></p>
     </div>
     <div th:if="${ghostNet == null}">
-        <p>Ghost Net not found (view only).</p>
+        <p th:text="#{ghostnet.recover.notFound}">Ghost Net not found (view only).</p>
     </div>
 
     <form th:action="@{/ui/ghostnets/{id}/recover(id=${ghostNet.id})}" method="post" th:object="${recoverForm}">
         <div class="form-row">
-            <label for="notes">Notes</label>
-            <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes about the recovery"></textarea>
+            <label for="notes" th:text="#{ghostnet.recover.label.notes}">Notes</label>
+            <textarea id="notes" th:field="*{notes}" rows="3" th:placeholder="#{ghostnet.recover.placeholder.notes}">Optional notes about the recovery</textarea>
         </div>
         <div>
-            <button type="submit" class="btn btn-primary">Mark as Recovered</button>
-            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
+            <button type="submit" class="btn btn-primary" th:text="#{ghostnet.recover.button.submit}">Mark as Recovered</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}" th:text="#{ghostnet.recover.button.cancel}">Cancel</a>
         </div>
     </form>
 </div>

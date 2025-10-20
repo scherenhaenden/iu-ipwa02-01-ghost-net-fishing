@@ -232,3 +232,18 @@ textarea {
   margin: 0 0 8px 0;
   color: var(--text-muted)
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nav {
+    display: block;
+    margin-left: 0;
+    margin-top: 12px;
+  }
+
+  .theme-toggle {
+    display: block;
+    margin-left: 0;
+    margin-top: 12px;
+  }
+}

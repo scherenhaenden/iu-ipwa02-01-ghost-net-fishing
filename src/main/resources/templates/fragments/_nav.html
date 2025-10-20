@@ -2,13 +2,37 @@
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="nav(active)">
     <nav class="nav">
         <a th:href="@{/ui/ghostnets}"
-           th:classappend="${active} == 'list' ? ' active' : ''">List</a>
+           th:classappend="${active} == 'list' ? ' active' : ''" th:text="#{nav.list}">List</a>
         <a th:href="@{/ui/ghostnets/new}"
-           th:classappend="${active} == 'create' ? ' active' : ''">Report net</a>
+           th:classappend="${active} == 'create' ? ' active' : ''" th:text="#{nav.report}">Report net</a>
         <a th:href="@{/ui/settings}"
-            th:classappend="${active} == 'settings' ? ' active' : ''">Settings</a>
+            th:classappend="${active} == 'settings' ? ' active' : ''" th:text="#{nav.settings}">Settings</a>
+
         <div class="theme-toggle">
-            <button type="button" onclick="toggleTheme(event)" aria-label="Toggle theme">Theme: <span id="theme-name">Light</span></button>
+            <button type="button" onclick="toggleTheme(event)" aria-label="Toggle theme"> <span th:text="#{theme.toggle}">Theme</span>: <span id="theme-name" th:text="#{theme.light}" th:attr="data-light=#{theme.light}, data-dark=#{theme.dark}">Light</span></button>
+        </div>
+
+        <!-- Language selector -->
+        <div class="theme-toggle" style="display:inline-block; margin-left:12px;">
+            <label for="language-select" style="margin-right:6px; color:var(--text-muted);" th:text="#{language.label}">Language</label>
+            <select id="language-select" onchange="changeLanguage(this.value)">
+                <!-- Supported: DE, EN, FR, ES, IT, PT, NL, PL, CS, RU, TR, AR, ZH, JA, KO -->
+                <option value="de" th:selected="${#locale.language} == 'de'">DE</option>
+                <option value="en" th:selected="${#locale.language} == 'en'">EN</option>
+                <option value="fr" th:selected="${#locale.language} == 'fr'">FR</option>
+                <option value="es" th:selected="${#locale.language} == 'es'">ES</option>
+                <option value="it" th:selected="${#locale.language} == 'it'">IT</option>
+                <option value="pt" th:selected="${#locale.language} == 'pt'">PT</option>
+                <option value="nl" th:selected="${#locale.language} == 'nl'">NL</option>
+                <option value="pl" th:selected="${#locale.language} == 'pl'">PL</option>
+                <option value="cs" th:selected="${#locale.language} == 'cs'">CS</option>
+                <option value="ru" th:selected="${#locale.language} == 'ru'">RU</option>
+                <option value="tr" th:selected="${#locale.language} == 'tr'">TR</option>
+                <option value="ar" th:selected="${#locale.language} == 'ar'">AR</option>
+                <option value="zh" th:selected="${#locale.language} == 'zh'">ZH</option>
+                <option value="ja" th:selected="${#locale.language} == 'ja'">JA</option>
+                <option value="ko" th:selected="${#locale.language} == 'ko'">KO</option>
+            </select>
         </div>
     </nav>
 </div>
