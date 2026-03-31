@@ -22,6 +22,9 @@ public class ApiExceptionHandlerTest {
     private MockMvc mockMvc;
 
     @Test
+    /**
+     * Tests that a bad request is returned for illegal arguments.
+     */
     void returns400ForIllegalArgument() throws Exception {
         mockMvc.perform(get("/test/illegal-arg").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -30,6 +33,9 @@ public class ApiExceptionHandlerTest {
     }
 
     @Test
+    /**
+     * Tests that a 409 Conflict response is returned for an illegal state.
+     */
     void returns409ForIllegalState() throws Exception {
         mockMvc.perform(get("/test/illegal-state").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
