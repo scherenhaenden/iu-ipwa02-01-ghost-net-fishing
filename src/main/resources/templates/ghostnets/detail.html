@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'detail')}">
+
+<div th:fragment="pageContent">
+    <h2>Ghost Net Detail</h2>
+
+    <div th:if="${ghostNet == null}">
+        <p>Ghost net not found.</p>
+        <a th:href="@{/ui/ghostnets}">Back to list</a>
+    </div>
+
+    <div th:if="${ghostNet != null}">
+        <table class="table">
+            <tr><th>ID</th><td th:text="${ghostNet.id}"></td></tr>
+            <tr><th>Location</th><td th:text="${ghostNet.location}"></td></tr>
+            <tr><th>Size</th><td th:text="${ghostNet.size}"></td></tr>
+            <tr><th>Status</th><td th:text="${ghostNet.status}"></td></tr>
+            <tr><th>Created At</th><td th:text="${#temporals.format(ghostNet.createdAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
+            <tr><th>Recovering Person</th>
+                <td th:text="${ghostNet.recoveringPersonName != null ? ghostNet.recoveringPersonName : 'anonymous'}"></td></tr>
+        </table>
+
+        <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Back</a>
+    </div>
+</div>
+
+</body>
+</html>

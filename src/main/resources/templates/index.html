@@ -1,26 +1,26 @@
-&lt;!DOCTYPE html&gt;
-&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
-&lt;head&gt;
-    &lt;title&gt;Ghost Net Fishing&lt;/title&gt;
-    &lt;meta charset="UTF-8"/&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Willkommen zur Ghost Net Fishing App&lt;/h1&gt;
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ghost Net Fishing</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+    <h1>Willkommen zur Ghost Net Fishing App</h1>
 
-    &lt;h2&gt;Technologie Stack&lt;/h2&gt;
-    &lt;table border="1" style="width: 400px;"&gt;
-        &lt;tr&gt;&lt;th&gt;Technologie&lt;/th&gt;&lt;/tr&gt;
-        &lt;tr th:each="tech : ${techStack}"&gt;
-            &lt;td th:text="${tech}"&gt;&lt;/td&gt;
-        &lt;/tr&gt;
-    &lt;/table&gt;
+    <h2>Technologie Stack</h2>
+    <table border="1" style="width: 400px;">
+        <tr><th>Technologie</th></tr>
+        <tr th:each="tech : ${techStack}">
+            <td th:text="${tech}"></td>
+        </tr>
+    </table>
 
-    &lt;br/&gt;
-    &lt;button onclick="alert('Test!');"&gt;Test Button&lt;/button&gt;
-    &lt;br/&gt;&lt;br/&gt;
-    &lt;a th:href="@{/welcome}"&gt;Zu Welcome gehen&lt;/a&gt;
+    <br/>
+    <button onclick="alert('Test!');">Test Button</button>
+    <br/><br/>
+    <a th:href="@{/welcome}">Zu Welcome gehen</a>
 
-    &lt;hr/&gt;
-    &lt;p&gt;&lt;em&gt;Spring Boot 3.3 App&lt;/em&gt;&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+    <hr/>
+    <p><em>Spring Boot 3.3 App</em></p>
+</body>
+</html>

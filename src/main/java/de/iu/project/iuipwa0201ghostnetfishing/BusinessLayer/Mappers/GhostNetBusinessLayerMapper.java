@@ -10,6 +10,7 @@ import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.PersonDataLa
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,7 +51,12 @@ public class GhostNetBusinessLayerMapper {
         model.setLocation(entity.getLocation());
         model.setSize(entity.getSize());
         model.setStatus(NetStatusBusinessLayerEnum.valueOf(entity.getStatus().name()));
-        model.setCreatedAt(entity.getCreatedAt().toInstant());
+        // Defensive: createdAt may be null in some edge cases; avoid NPE
+        if (entity.getCreatedAt() != null) {
+            model.setCreatedAt(entity.getCreatedAt().toInstant());
+        } else {
+            model.setCreatedAt(Instant.now());
+        }
         model.setRecoveringPerson(
                 personMapper.toBusiness(entity.getPerson())
         );

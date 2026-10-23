@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLayerService {
@@ -49,9 +50,18 @@ public class AbandonedNetBusinessLayerService implements IAbandonedNetBusinessLa
         // 1. Convert the business enum to the data layer enum
         NetStatusDataLayerEnum dataLayerStatus = NetStatusDataLayerEnum.valueOf(status.name());
         // 2. Retrieve the entities
-        List<AbandonedNetDataLayerModel> entities = repository.findByStatus(dataLayerStatus);
+        // Use the repository method that returns results ordered newest-first
+        List<AbandonedNetDataLayerModel> entities = repository.findByStatusOrderByCreatedAtDesc(dataLayerStatus);
         // 3. Map to business models
         return mapper.toBusinessModelList(entities);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AbandonedNetBusinessLayerModel findById(Long id) {
+        Optional<AbandonedNetDataLayerModel> opt = repository.findById(id);
+        return opt.map(mapper::toBusinessModel)
+                .orElse(null); // Return null if not found, instead of throwing an exception
     }
 
     @Override
