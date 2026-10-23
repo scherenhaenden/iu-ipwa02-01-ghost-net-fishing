@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400">
+  <rect width="100%" height="100%" fill="#000"/>
+  <text x="50%" y="40%" font-family="Arial, Helvetica, sans-serif" font-size="36" fill="#fff" text-anchor="middle">High Contrast</text>
+  <rect x="60" y="220" width="680" height="120" rx="8" fill="#000" stroke="#fff" stroke-width="2"/>
+  <text x="100" y="260" font-family="Arial" font-size="18" fill="#fff">Example content — high contrast mode with large, readable text.</text>
+</svg>

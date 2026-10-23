@@ -8,7 +8,6 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Mappers.PersonBusin
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.GhostNetDataLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Models.NetStatusDataLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.DatabaseLayer.Repositories.GhostNetDataLayerModelRepository;
-import de.iu.project.iuipwa0201ghostnetfishing.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -70,14 +69,6 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
     @Transactional
     public void deleteById(Long id) {
         repository.deleteById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public GhostNetBusinessLayerModel findByIdOrThrow(Long id) {
-        GhostNetDataLayerModel entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("GhostNet with id " + id + " not found"));
-        return mapper.toBusinessModel(entity);
     }
 
     @Override
@@ -150,7 +141,7 @@ public class GhostNetBusinessLayerService implements IGhostNetBusinessLayerServi
 
         // Allow marking as missing from REPORTED or RECOVERY_PENDING status
         if (entity.getStatus() == NetStatusDataLayerEnum.REPORTED ||
-            entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
+                entity.getStatus() == NetStatusDataLayerEnum.RECOVERY_PENDING) {
             entity.setStatus(NetStatusDataLayerEnum.MISSING);
             repository.save(entity);
             return OperationResult.OK;
