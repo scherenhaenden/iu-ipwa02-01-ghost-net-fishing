@@ -19,5 +19,8 @@ public interface IAbandonedNetBusinessLayerService {
      */
     AbandonedNetBusinessLayerModel findById(Long id);
 
+    /**
+     * Deletes an entity by its ID.
+     */
     void deleteById(Long id);
 }
