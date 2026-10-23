@@ -13,6 +13,15 @@ root = ET.parse(XML).getroot()
 
 # helpers
 def get_counter(elem, t='INSTRUCTION') -> Tuple[int,int]:
+    """Retrieve the missed and covered counts from a counter element.
+    
+    Args:
+        elem: The XML element containing counter information.
+        t: The type of counter to retrieve (default is 'INSTRUCTION').
+    
+    Returns:
+        A tuple containing the missed and covered counts.
+    """
     for c in elem.findall('counter'):
         if c.attrib.get('type') == t:
             missed = int(c.attrib.get('missed', '0'))
