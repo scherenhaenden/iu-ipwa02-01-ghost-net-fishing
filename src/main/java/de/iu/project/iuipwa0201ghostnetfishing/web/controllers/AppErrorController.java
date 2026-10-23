@@ -1,6 +1,5 @@
 package de.iu.project.iuipwa0201ghostnetfishing.web.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -14,12 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 public class AppErrorController implements ErrorController {
 
-    @Autowired
-    private ErrorAttributes errorAttributes;
+    private final ErrorAttributes errorAttributes;
+
+    // Constructor-based injection is preferred over field injection.
+    public AppErrorController(ErrorAttributes errorAttributes) {
+        this.errorAttributes = Objects.requireNonNull(errorAttributes, "errorAttributes must not be null");
+    }
 
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request, Model model) {
@@ -58,4 +62,3 @@ public class AppErrorController implements ErrorController {
         return out;
     }
 }
-

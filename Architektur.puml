@@ -1,0 +1,75 @@
+@startuml
+title Architecture Overview of Spring Boot Application with MVC Components
+
+actor User
+
+rectangle "Presentation Layer (UI + REST)" as Presentation {
+  component "UiGhostNetController" as Ui
+  component "GhostNetRestController" as Rest
+  component "AbandonedNetController" as AbandonedRest
+  component "HomeController" as Home
+  component "ApiExceptionHandler" as ExceptionHandler
+  component "AppErrorController" as ErrorController
+}
+
+rectangle "Business Layer (Service / Domain)" as Logic {
+  component "GhostNetBusinessLayerService" as GhostService
+  component "AbandonedNetBusinessLayerService" as AbandonedService
+  component "GhostNetDomainService" as DomainService
+  component "GhostNetBusinessLayerModel" as GhostModel
+  component "AbandonedNetBusinessLayerModel" as AbandonedModel
+  component "PersonBusinessLayerModel" as PersonModel
+  component "GhostNetBusinessLayerMapper" as GhostMapper
+  component "AbandonedNetBusinessLayerMapper" as AbandonedMapper
+  component "PersonBusinessLayerMapper" as PersonMapper
+}
+
+rectangle "Data Layer (Repository / JPA)" as Data {
+  component "GhostNetDataLayerModelRepository" as GhostRepo
+  component "AbandonedNetDataLayerModelRepository" as AbandonedRepo
+  component "PersonDataLayerModelRepository" as PersonRepo
+  component "GhostNetDataLayerModel (Entity)" as GhostEntity
+  component "AbandonedNetDataLayerModel (Entity)" as AbandonedEntity
+  component "PersonDataLayerModel (Entity)" as PersonEntity
+}
+
+database "Database (H2)" as DB
+
+User --> Ui : HTTP Request (Thymeleaf)
+User --> Rest : REST Request (JSON)
+User --> AbandonedRest : REST Request (JSON)
+
+Ui --> GhostService : Business Logic Call
+Rest --> GhostService : API Method Call
+AbandonedRest --> AbandonedService : API Method Call
+
+GhostService --> DomainService : Domain Operations
+AbandonedService --> DomainService : Domain Operations
+
+GhostService --> GhostMapper : Mapping
+AbandonedService --> AbandonedMapper : Mapping
+GhostMapper --> PersonMapper : Mapping
+AbandonedMapper --> PersonMapper : Mapping
+
+GhostService --> GhostRepo : CRUD Operations
+AbandonedService --> AbandonedRepo : CRUD Operations
+DomainService --> GhostRepo : CRUD Operations
+DomainService --> AbandonedRepo : CRUD Operations
+
+GhostRepo --> GhostEntity
+AbandonedRepo --> AbandonedEntity
+PersonRepo --> PersonEntity
+
+GhostEntity --> DB : JPA / Hibernate
+AbandonedEntity --> DB : JPA / Hibernate
+PersonEntity --> DB : JPA / Hibernate
+
+GhostService --> Ui : View Model / DTO
+GhostService --> Rest : JSON Response
+AbandonedService --> AbandonedRest : JSON Response
+
+ExceptionHandler --> Ui : Error Handling
+ExceptionHandler --> Rest : Error Handling
+ExceptionHandler --> AbandonedRest : Error Handling
+
+@enduml

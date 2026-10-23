@@ -1,0 +1,615 @@
+@startuml Class Diagram
+skinparam backgroundColor #FEFEFE
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundCorner 5
+skinparam classBorderColor #555555
+skinparam classBorderThickness 2
+
+package "Data Layer" {
+    enum NetStatusDataLayerEnum {
+        REPORTED
+        RECOVERY_PENDING
+        RECOVERED
+        MISSING
+    }
+
+    class PersonDataLayerModel {
+        --attributes--
+        - id : Long
+        - name : String
+        - phoneNumber : String
+        --methods--
+        + PersonDataLayerModel()
+        + PersonDataLayerModel(Long, String, String)
+        + getId() : Long
+        + setId(Long) : void
+        + getName() : String
+        + setName(String) : void
+        + getPhoneNumber() : String
+        + setPhoneNumber(String) : void
+        + toString() : String
+    }
+
+    class GhostNetDataLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - createdAt : Date
+        - status : NetStatusDataLayerEnum
+        - person : PersonDataLayerModel
+        --methods--
+        + GhostNetDataLayerModel()
+        + GhostNetDataLayerModel(...)
+        + getId() : Long
+        + setId(Long) : void
+        + getLocation() : String
+        + setLocation(String) : void
+        + getSize() : Double
+        + setSize(Double) : void
+        + getCreatedAt() : Date
+        + setCreatedAt(Date) : void
+        + getStatus() : NetStatusDataLayerEnum
+        + setStatus(NetStatusDataLayerEnum) : void
+        + getPerson() : PersonDataLayerModel
+        + setPerson(PersonDataLayerModel) : void
+        + toString() : String
+        + onPrePersist() : void
+    }
+
+    class AbandonedNetDataLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - createdAt : Date
+        - status : NetStatusDataLayerEnum
+        - person : PersonDataLayerModel
+        --methods--
+        + AbandonedNetDataLayerModel()
+        + AbandonedNetDataLayerModel(...)
+        + getId() : Long
+        + setId(Long) : void
+        + getLocation() : String
+        + setLocation(String) : void
+        + getSize() : Double
+        + setSize(Double) : void
+        + getCreatedAt() : Date
+        + setCreatedAt(Date) : void
+        + getStatus() : NetStatusDataLayerEnum
+        + setStatus(NetStatusDataLayerEnum) : void
+        + getPerson() : PersonDataLayerModel
+        + setPerson(PersonDataLayerModel) : void
+        + toString() : String
+    }
+
+    interface JpaRepository<T, ID> {
+        + save(S) : S
+        + findById(ID) : Optional<T>
+        + findAll() : List<T>
+        + deleteById(ID) : void
+        + existsById(ID) : boolean
+    }
+
+    class GhostNetDataLayerModelRepository {
+        + findAllByOrderByCreatedAtDesc() : List<GhostNetDataLayerModel>
+        + findByStatus(NetStatusDataLayerEnum) : List<GhostNetDataLayerModel>
+        + findByStatusOrderByCreatedAtDesc(NetStatusDataLayerEnum) : List<GhostNetDataLayerModel>
+    }
+
+    class AbandonedNetDataLayerModelRepository {
+        + findAllByOrderByCreatedAtDesc() : List<AbandonedNetDataLayerModel>
+        + findByStatus(NetStatusDataLayerEnum) : List<AbandonedNetDataLayerModel>
+        + findByStatusOrderByCreatedAtDesc(NetStatusDataLayerEnum) : List<AbandonedNetDataLayerModel>
+    }
+
+    class PersonDataLayerModelRepository {
+        + findByPhoneNumber(String) : Optional<PersonDataLayerModel>
+        + findByNameContainingIgnoreCase(String) : List<PersonDataLayerModel>
+    }
+
+    GhostNetDataLayerModelRepository ..|> JpaRepository
+    AbandonedNetDataLayerModelRepository ..|> JpaRepository
+    PersonDataLayerModelRepository ..|> JpaRepository
+
+    GhostNetDataLayerModel --> PersonDataLayerModel
+    AbandonedNetDataLayerModel --> PersonDataLayerModel
+}
+
+package "Business Layer" {
+    enum NetStatusBusinessLayerEnum {
+        REPORTED
+        RECOVERY_PENDING
+        RECOVERED
+        MISSING
+    }
+
+    enum OperationResult {
+        OK
+        NOT_FOUND
+        CONFLICT
+        BAD_REQUEST
+    }
+
+    class PersonBusinessLayerModel {
+        --attributes--
+        - id : Long
+        - name : String
+        - phoneNumber : String
+        --methods--
+        + PersonBusinessLayerModel()
+        + PersonBusinessLayerModel(Long, String, String)
+        + getId() : Long
+        + setId(Long) : void
+        + getName() : String
+        + setName(String) : void
+        + getPhoneNumber() : String
+        + setPhoneNumber(String) : void
+        + isAnonymous() : boolean
+        + toString() : String
+        + equals(Object) : boolean
+        + hashCode() : int
+    }
+
+    class GhostNetBusinessLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - status : NetStatusBusinessLayerEnum
+        - recoveringPerson : PersonBusinessLayerModel
+        - createdAt : Instant
+        --methods--
+        + GhostNetBusinessLayerModel()
+        + GhostNetBusinessLayerModel(...)
+        + canBeAssigned() : boolean
+        + assignTo(PersonBusinessLayerModel) : void
+        + markAsRecovered() : void
+        + getId() : Long
+        + setId(Long) : void
+        + getLocation() : String
+        + setLocation(String) : void
+        + getSize() : Double
+        + setSize(Double) : void
+        + getStatus() : NetStatusBusinessLayerEnum
+        + setStatus(NetStatusBusinessLayerEnum) : void
+        + getRecoveringPerson() : PersonBusinessLayerModel
+        + setRecoveringPerson(PersonBusinessLayerModel) : void
+        + getCreatedAt() : Instant
+        + setCreatedAt(Instant) : void
+    }
+
+    class AbandonedNetBusinessLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - status : NetStatusBusinessLayerEnum
+        - person : PersonBusinessLayerModel
+        - createdAt : Instant
+        --methods--
+        + AbandonedNetBusinessLayerModel()
+        + canBeAssigned() : boolean
+        + assignTo(PersonBusinessLayerModel) : void
+        + getId() : Long
+        + setId(Long) : void
+        + getLocation() : String
+        + setLocation(String) : void
+        + getSize() : Double
+        + setSize(Double) : void
+        + getStatus() : NetStatusBusinessLayerEnum
+        + setStatus(NetStatusBusinessLayerEnum) : void
+        + getPerson() : PersonBusinessLayerModel
+        + setPerson(PersonBusinessLayerModel) : void
+        + getCreatedAt() : Instant
+        + setCreatedAt(Instant) : void
+    }
+
+    interface IAbandonedNetBusinessLayerService {
+        + getAllNetsNewestFirst() : List<AbandonedNetBusinessLayerModel>
+        + findByStatus(NetStatusBusinessLayerEnum) : List<AbandonedNetBusinessLayerModel>
+        + save(AbandonedNetBusinessLayerModel) : AbandonedNetBusinessLayerModel
+        + findById(Long) : AbandonedNetBusinessLayerModel
+        + deleteById(Long) : void
+    }
+
+    interface IGhostNetBusinessLayerService {
+        + findAll() : List<GhostNetBusinessLayerModel>
+        + findByStatus(NetStatusBusinessLayerEnum) : List<GhostNetBusinessLayerModel>
+        + save(GhostNetBusinessLayerModel) : GhostNetBusinessLayerModel
+        + deleteById(Long) : void
+        + findById(Long) : Optional<GhostNetBusinessLayerModel>
+        + reserve(Long, PersonBusinessLayerModel) : OperationResult
+        + recover(Long) : OperationResult
+        + markMissing(Long) : OperationResult
+    }
+
+    class GhostNetBusinessLayerService {
+        --attributes--
+        - repository : GhostNetDataLayerModelRepository
+        - mapper : GhostNetBusinessLayerMapper
+        - personMapper : PersonBusinessLayerMapper
+        --methods--
+        + GhostNetBusinessLayerService(...)
+        + findAll() : List<GhostNetBusinessLayerModel>
+        + save(GhostNetBusinessLayerModel) : GhostNetBusinessLayerModel
+        + findByStatus(NetStatusBusinessLayerEnum) : List<GhostNetBusinessLayerModel>
+        + deleteById(Long) : void
+        + findById(Long) : Optional<GhostNetBusinessLayerModel>
+        + reserve(Long, PersonBusinessLayerModel) : OperationResult
+        + recover(Long) : OperationResult
+        + markMissing(Long) : OperationResult
+    }
+
+    class GhostNetDomainService {
+        --attributes--
+        - repository : GhostNetDataLayerModelRepository
+        - mapper : GhostNetBusinessLayerMapper
+        - personMapper : PersonBusinessLayerMapper
+        --methods--
+        + GhostNetDomainService(...)
+        + save(GhostNetBusinessLayerModel) : GhostNetBusinessLayerModel
+        + findById(Long) : Optional<GhostNetBusinessLayerModel>
+        + findAll(Optional<NetStatusBusinessLayerEnum>) : List<GhostNetBusinessLayerModel>
+        + assignPerson(Long, PersonBusinessLayerModel) : OperationResult
+        + markRecovered(Long) : OperationResult
+        + markAsMissing(Long) : OperationResult
+        + deleteById(Long) : OperationResult
+    }
+
+    class AbandonedNetBusinessLayerService {
+        --attributes--
+        - repository : AbandonedNetDataLayerModelRepository
+        - mapper : AbandonedNetBusinessLayerMapper
+        --methods--
+        + AbandonedNetBusinessLayerService(...)
+        + getAllNetsNewestFirst() : List<AbandonedNetBusinessLayerModel>
+        + save(AbandonedNetBusinessLayerModel) : AbandonedNetBusinessLayerModel
+        + findByStatus(NetStatusBusinessLayerEnum) : List<AbandonedNetBusinessLayerModel>
+        + findById(Long) : AbandonedNetBusinessLayerModel
+        + deleteById(Long) : void
+    }
+
+    class GhostNetBusinessLayerMapper {
+        --attributes--
+        - personMapper : PersonBusinessLayerMapper
+        --methods--
+        + GhostNetBusinessLayerMapper(PersonBusinessLayerMapper)
+        + toBusinessModel(GhostNetDataLayerModel) : GhostNetBusinessLayerModel
+        + toBusinessModelList(List<GhostNetDataLayerModel>) : List<GhostNetBusinessLayerModel>
+        + toEntity(GhostNetBusinessLayerModel) : GhostNetDataLayerModel
+    }
+
+    class PersonBusinessLayerMapper {
+        --methods--
+        + toBusiness(PersonDataLayerModel) : PersonBusinessLayerModel
+        + toBusinessList(List<PersonDataLayerModel>) : List<PersonBusinessLayerModel>
+        + toEntityList(List<PersonBusinessLayerModel>) : List<PersonDataLayerModel>
+        + toEntity(PersonBusinessLayerModel) : PersonDataLayerModel
+    }
+
+    class AbandonedNetBusinessLayerMapper {
+        --attributes--
+        - personMapper : PersonBusinessLayerMapper
+        --methods--
+        + AbandonedNetBusinessLayerMapper(PersonBusinessLayerMapper)
+        + toBusinessModel(AbandonedNetDataLayerModel) : AbandonedNetBusinessLayerModel
+        + toBusinessModelList(List<AbandonedNetDataLayerModel>) : List<AbandonedNetBusinessLayerModel>
+        + toEntity(AbandonedNetBusinessLayerModel) : AbandonedNetDataLayerModel
+    }
+
+    GhostNetBusinessLayerService ..|> IGhostNetBusinessLayerService
+    AbandonedNetBusinessLayerService ..|> IAbandonedNetBusinessLayerService
+
+    GhostNetBusinessLayerModel --> PersonBusinessLayerModel
+    AbandonedNetBusinessLayerModel --> PersonBusinessLayerModel
+
+    GhostNetBusinessLayerService --> GhostNetDataLayerModelRepository
+    GhostNetBusinessLayerService --> GhostNetBusinessLayerMapper
+    GhostNetBusinessLayerService --> PersonBusinessLayerMapper
+
+    GhostNetDomainService --> GhostNetDataLayerModelRepository
+    GhostNetDomainService --> GhostNetBusinessLayerMapper
+    GhostNetDomainService --> PersonBusinessLayerMapper
+
+    AbandonedNetBusinessLayerService --> AbandonedNetDataLayerModelRepository
+    AbandonedNetBusinessLayerService --> AbandonedNetBusinessLayerMapper
+
+    GhostNetBusinessLayerMapper --> PersonBusinessLayerMapper
+    AbandonedNetBusinessLayerMapper --> PersonBusinessLayerMapper
+}
+
+package "Web Layer" {
+    class AbandonedNetController {
+        --attributes--
+        - service : IAbandonedNetBusinessLayerService
+        - mapper : AbandonedNetWebLayerMapper
+        --methods--
+        + AbandonedNetController(...)
+        + create(CreateAbandonedNetRequest, UriComponentsBuilder) : ResponseEntity<AbandonedNetWebLayerModel>
+        + list(String) : ResponseEntity<List<AbandonedNetWebLayerModel>>
+        + getById(Long) : ResponseEntity<AbandonedNetWebLayerModel>
+    }
+
+    class ApiExceptionHandler {
+        --methods--
+        + notFound(ResourceNotFoundException) : ResponseEntity<Map<String, Object>>
+        + badRequest(MethodArgumentNotValidException) : ResponseEntity<Map<String, Object>>
+        + badRequest(IllegalArgumentException) : Map<String, String>
+        + conflict(IllegalStateException) : Map<String, String>
+    }
+
+    class AppErrorController {
+        --attributes--
+        - errorAttributes : ErrorAttributes
+        --methods--
+        + AppErrorController(ErrorAttributes)
+        + handleError(HttpServletRequest, Model) : String
+        + attributesFlat(HttpServletRequest) : Map<String, String>
+    }
+
+    class GhostNetRestController {
+        --attributes--
+        - service : IGhostNetBusinessLayerService
+        - webMapper : GhostNetWebLayerMapper
+        - webToBusinessMapper : GhostNetWebToBusinessMapper
+        - personWebToBusinessMapper : PersonWebToBusinessMapper
+        - domainService : GhostNetDomainService
+        --methods--
+        + GhostNetRestController(...)
+        + findAll(String) : List<GhostNetWebLayerModel>
+        + findByStatus(String) : List<GhostNetWebLayerModel>
+        + findOne(Long) : ResponseEntity<GhostNetWebLayerModel>
+        + create(CreateGhostNetRequest, UriComponentsBuilder) : ResponseEntity<GhostNetWebLayerModel>
+        + reserve(Long, ReserveRequest) : ResponseEntity<?>
+        + recover(Long, RecoverRequest) : ResponseEntity<?>
+        + markAsMissing(Long) : ResponseEntity<?>
+    }
+
+    class HomeController {
+        --methods--
+        + home() : String
+    }
+
+    class UiGhostNetController {
+        --attributes--
+        - service : IGhostNetBusinessLayerService
+        --methods--
+        + UiGhostNetController(IGhostNetBusinessLayerService)
+        + list(String, Model) : String
+        + createForm(Model) : String
+        + reserveForm(Long, Model, RedirectAttributes) : String
+        + recoverForm(Long, Model, RedirectAttributes) : String
+        + create(GhostNetForm, BindingResult, RedirectAttributes, Model) : String
+        + detail(Long, Model, RedirectAttributes) : String
+        + reserve(Long, ReserveForm, BindingResult, RedirectAttributes, Model) : String
+        + recover(Long, RecoverForm, BindingResult, RedirectAttributes, Model) : String
+        + missingForm(Long, Model, RedirectAttributes) : String
+        + reportMissing(Long, MissingForm, BindingResult, RedirectAttributes, Model) : String
+    }
+
+    class AbandonedNetWebLayerMapper {
+        --methods--
+        + toWebModel(AbandonedNetBusinessLayerModel) : AbandonedNetWebLayerModel
+        + toWebModelList(List<AbandonedNetBusinessLayerModel>) : List<AbandonedNetWebLayerModel>
+    }
+
+    class GhostNetWebLayerMapper {
+        --methods--
+        + toWebModel(GhostNetBusinessLayerModel) : GhostNetWebLayerModel
+        + toWebModelList(List<GhostNetBusinessLayerModel>) : List<GhostNetWebLayerModel>
+    }
+
+    class GhostNetWebToBusinessMapper {
+        --methods--
+        + toBusinessModel(CreateGhostNetRequest) : GhostNetBusinessLayerModel
+    }
+
+    class PersonWebLayerMapper {
+        --methods--
+        + toWebModel(PersonBusinessLayerModel) : PersonWebLayerModel
+        + toWebModelList(List<PersonBusinessLayerModel>) : List<PersonWebLayerModel>
+    }
+
+    class PersonWebToBusinessMapper {
+        --methods--
+        + toBusinessModel(String) : PersonBusinessLayerModel
+    }
+
+    class AbandonedNetWebLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - status : String
+        - createdAt : Instant
+        - personName : String
+        --methods--
+        + AbandonedNetWebLayerModel(Long, String, Double, String, Instant, String)
+    }
+
+    class CreateAbandonedNetRequest {
+        --attributes--
+        - location : String
+        - size : Double
+        - personName : String
+        --methods--
+        + CreateAbandonedNetRequest(String, Double, String)
+        + location() : String
+        + size() : Double
+        + personName() : String
+    }
+
+    class CreateGhostNetRequest {
+        --attributes--
+        - location : String
+        - size : Double
+        - personName : String
+        --methods--
+        + CreateGhostNetRequest(String, Double, String)
+        + location() : String
+        + size() : Double
+        + personName() : String
+    }
+
+    class GhostNetForm {
+        --attributes--
+        - location : String
+        - size : Double
+        - personName : String
+        --methods--
+        + getLocation() : String
+        + setLocation(String) : void
+        + getSize() : Double
+        + setSize(Double) : void
+        + getPersonName() : String
+        + setPersonName(String) : void
+    }
+
+    class GhostNetViewModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - status : NetStatusBusinessLayerEnum
+        - createdAt : Instant
+        - personName : String
+        --methods--
+        + GhostNetViewModel(Long, String, Double, NetStatusBusinessLayerEnum, Instant, String)
+    }
+
+    class GhostNetWebLayerModel {
+        --attributes--
+        - id : Long
+        - location : String
+        - size : Double
+        - status : String
+        - createdAt : Instant
+        - personName : String
+        --methods--
+        + GhostNetWebLayerModel(Long, String, Double, String, Instant, String)
+    }
+
+    class MissingForm {
+        --attributes--
+        - notes : String
+        --methods--
+        + getNotes() : String
+        + setNotes(String) : void
+        + getTrimmedNotes() : String
+    }
+
+    class PersonWebLayerModel {
+        --attributes--
+        - id : Long
+        - name : String
+        - phoneNumber : String
+        --methods--
+        + PersonWebLayerModel(Long, String, String)
+    }
+
+    class RecoverForm {
+        --attributes--
+        - notes : String
+        --methods--
+        + getNotes() : String
+        + setNotes(String) : void
+        + getTrimmedNotes() : String
+    }
+
+    class RecoverRequest {
+        --attributes--
+        - notes : String
+        --methods--
+        + RecoverRequest(String)
+        + notes() : String
+    }
+
+    class ReserveForm {
+        --attributes--
+        - personName : String
+        --methods--
+        + getPersonName() : String
+        + setPersonName(String) : void
+        + getTrimmedPersonName() : String
+    }
+
+    class ReserveRequest {
+        --attributes--
+        - personName : String
+        --methods--
+        + ReserveRequest(String)
+        + personName() : String
+    }
+
+    AbandonedNetController --> IAbandonedNetBusinessLayerService
+    AbandonedNetController --> AbandonedNetWebLayerMapper
+
+    GhostNetRestController --> IGhostNetBusinessLayerService
+    GhostNetRestController --> GhostNetWebLayerMapper
+    GhostNetRestController --> GhostNetWebToBusinessMapper
+    GhostNetRestController --> PersonWebToBusinessMapper
+    GhostNetRestController --> GhostNetDomainService
+
+    UiGhostNetController --> IGhostNetBusinessLayerService
+
+    AbandonedNetWebLayerMapper ..> AbandonedNetBusinessLayerModel
+    GhostNetWebLayerMapper ..> GhostNetBusinessLayerModel
+    GhostNetWebToBusinessMapper ..> CreateGhostNetRequest
+    PersonWebLayerMapper ..> PersonBusinessLayerModel
+    PersonWebToBusinessMapper ..> PersonBusinessLayerModel
+}
+
+package "Config" {
+    class I18nConfig {
+        --methods--
+        + messageSource() : MessageSource
+        + localeResolver() : LocaleResolver
+        + localeChangeInterceptor() : LocaleChangeInterceptor
+        + addInterceptors(InterceptorRegistry) : void
+    }
+
+    class WebConfig {
+        --methods--
+        + addResourceHandlers(ResourceHandlerRegistry) : void
+    }
+}
+
+package "Exceptions" {
+    class ResourceNotFoundException {
+        --methods--
+        + ResourceNotFoundException(String)
+    }
+}
+
+package "Main" {
+    class GhostNetFishingApplication {
+        --methods--
+        + {static} main(String[]) : void
+    }
+}
+
+' Cross-layer relationships
+GhostNetBusinessLayerMapper ..> GhostNetDataLayerModel
+PersonBusinessLayerMapper ..> PersonDataLayerModel
+AbandonedNetBusinessLayerMapper ..> AbandonedNetDataLayerModel
+
+AbandonedNetWebLayerMapper ..> AbandonedNetBusinessLayerModel
+GhostNetWebLayerMapper ..> GhostNetBusinessLayerModel
+GhostNetWebToBusinessMapper ..> GhostNetBusinessLayerModel
+PersonWebLayerMapper ..> PersonBusinessLayerModel
+PersonWebToBusinessMapper ..> PersonBusinessLayerModel
+
+' Services use repositories
+GhostNetBusinessLayerService --> GhostNetDataLayerModelRepository
+AbandonedNetBusinessLayerService --> AbandonedNetDataLayerModelRepository
+
+' Mappers use other mappers
+GhostNetBusinessLayerMapper --> PersonBusinessLayerMapper
+AbandonedNetBusinessLayerMapper --> PersonBusinessLayerMapper
+
+' Enums equivalence
+NetStatusDataLayerEnum .. NetStatusBusinessLayerEnum : <<equivalent>>
+
+@enduml

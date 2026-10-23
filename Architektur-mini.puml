@@ -1,0 +1,33 @@
+@startuml
+title Architekturübersicht von Spring Boot mit MVC-Komponenten (eigene Darstellung)
+
+actor Benutzer
+
+rectangle "Präsentationsschicht (UI + REST)" as Presentation {
+  component "UiGhostNetController" as Ui
+  component "GhostNetRestController" as Rest
+}
+
+rectangle "Geschäftslogik (Service / Domain)" as Logic {
+  component "GhostNetBusinessLayerService" as Service
+  component "GhostNetBusinessLayerModel" as Model
+}
+
+rectangle "Datenhaltung (Repository / JPA)" as Data {
+  component "GhostNetDataLayerModelRepository" as Repo
+  component "GhostNetDataLayerModel (Entity)" as Entity
+}
+
+database "Datenbank (H2 / MySQL)" as DB
+
+Benutzer --> Ui : HTTP Request (Thymeleaf)
+Benutzer --> Rest : REST Request (JSON)
+Ui --> Service : Aufruf Geschäftslogik
+Rest --> Service : API Methodenaufruf
+Service --> Repo : CRUD Operationen
+Repo --> Entity
+Entity --> DB : JPA / Hibernate
+
+Service --> Ui : View Model / DTO
+Service --> Rest : JSON Response
+@enduml

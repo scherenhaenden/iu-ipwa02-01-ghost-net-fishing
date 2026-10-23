@@ -14,6 +14,8 @@ public class GhostNetForm {
 
     private String personName;
 
+    private String notes; // Field for recovery notes
+
     public GhostNetForm() {
     }
 
@@ -39,5 +41,13 @@ public class GhostNetForm {
 
     public void setPersonName(String personName) {
         this.personName = personName;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

@@ -4,7 +4,11 @@ import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.GhostNetBusi
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.NetStatusBusinessLayerEnum;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Models.PersonBusinessLayerModel;
 import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.IGhostNetBusinessLayerService;
+import de.iu.project.iuipwa0201ghostnetfishing.BusinessLayer.Services.OperationResult;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetForm;
+import de.iu.project.iuipwa0201ghostnetfishing.web.Models.ReserveForm;
+import de.iu.project.iuipwa0201ghostnetfishing.web.Models.RecoverForm;
+import de.iu.project.iuipwa0201ghostnetfishing.web.Models.MissingForm;
 import de.iu.project.iuipwa0201ghostnetfishing.web.Models.GhostNetViewModel;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,10 +22,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Controller for handling UI requests related to GhostNet management.
+ * Provides endpoints for listing, creating, reserving, recovering, and marking ghost nets as missing.
+ * This controller interacts with the business layer service to perform operations and renders Thymeleaf templates.
+ */
 @Controller
 @RequestMapping("/ui/ghostnets")
 public class UiGhostNetController {
+
+    private static final Logger log = LoggerFactory.getLogger(UiGhostNetController.class);
 
     private final IGhostNetBusinessLayerService service;
 
@@ -29,14 +42,28 @@ public class UiGhostNetController {
         this.service = service;
     }
 
+    /**
+     * Converts a GhostNet business model to a view model for display.
+     *
+     * @param b the GhostNet business model
+     * @return the corresponding GhostNetViewModel, or null if input is null
+     */
     private GhostNetViewModel toViewModel(GhostNetBusinessLayerModel b) {
         if (b == null) return null;
         String personName = (b.getRecoveringPerson() != null) ? b.getRecoveringPerson().getName() : null;
         return new GhostNetViewModel(b.getId(), b.getLocation(), b.getSize(), b.getStatus(), b.getCreatedAt(), personName);
     }
 
+    /**
+     * Displays the list of ghost nets, optionally filtered by status.
+     *
+     * @param status the status filter (optional, case-insensitive)
+     * @param model the model to add attributes to
+     * @return the view name "ghostnets/list"
+     */
     @GetMapping({"", "/"})
     public String list(@RequestParam(name = "status", required = false) String status, Model model) {
+        log.debug("UI list requested with status param: '{}'", status);
         List<GhostNetViewModel> ghostNets;
         if (status == null || status.isBlank()) {
             ghostNets = service.findAll().stream().map(this::toViewModel).collect(Collectors.toList());
@@ -48,17 +75,32 @@ public class UiGhostNetController {
                 ghostNets = Collections.emptyList();
             }
         }
+        log.info("UI list: status='{}' -> returned {} ghostNets", status, ghostNets.size());
         model.addAttribute("ghostNets", ghostNets);
         model.addAttribute("selectedStatus", status == null ? "" : status);
         return "ghostnets/list";
     }
 
+    /**
+     * Displays the form for creating a new ghost net.
+     *
+     * @param model the model to add attributes to
+     * @return the view name "ghostnets/form-create"
+     */
     @GetMapping("/new")
     public String createForm(Model model) {
         model.addAttribute("ghostNetForm", new GhostNetForm());
         return "ghostnets/form-create";
     }
 
+    /**
+     * Displays the form for reserving a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-reserve" or redirect to list if not found
+     */
     @GetMapping("/{id}/reserve")
     public String reserveForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -66,11 +108,25 @@ public class UiGhostNetController {
             ra.addFlashAttribute("error", "Ghost net nicht gefunden.");
             return "redirect:/ui/ghostnets";
         }
-        model.addAttribute("ghostNet", toViewModel(opt.get()));
-        model.addAttribute("ghostNetForm", new GhostNetForm());
+        // Diagnostic log: confirm we loaded the ghost net for the reserve page
+        GhostNetBusinessLayerModel g = opt.get();
+        String assigned = g.getRecoveringPerson() != null ? g.getRecoveringPerson().getName() : null;
+        log.info("GET reserve page: id={}, status={}, assigned={}", id, g.getStatus(), assigned);
+
+        model.addAttribute("ghostNet", toViewModel(g));
+        // Use a small dedicated form-object for reservation to avoid unrelated validation rules
+        model.addAttribute("reserveForm", new ReserveForm());
         return "ghostnets/form-reserve";
     }
 
+    /**
+     * Displays the form for recovering a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-recover" or redirect to list if not found
+     */
     @GetMapping("/{id}/recover")
     public String recoverForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -79,10 +135,19 @@ public class UiGhostNetController {
             return "redirect:/ui/ghostnets";
         }
         model.addAttribute("ghostNet", toViewModel(opt.get()));
-        model.addAttribute("ghostNetForm", new GhostNetForm());
+        model.addAttribute("recoverForm", new RecoverForm());
         return "ghostnets/form-recover";
     }
 
+    /**
+     * Handles the creation of a new ghost net.
+     *
+     * @param form the form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to list or the form view if validation fails
+     */
     @PostMapping
     public String create(@Valid @ModelAttribute("ghostNetForm") GhostNetForm form,
                          BindingResult bindingResult,
@@ -109,6 +174,14 @@ public class UiGhostNetController {
         return "redirect:/ui/ghostnets";
     }
 
+    /**
+     * Displays the detail view of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/detail" or redirect to list if not found
+     */
     @GetMapping("/{id}")
     public String detail(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
@@ -121,4 +194,256 @@ public class UiGhostNetController {
     }
 
     // TODO: Implement POST endpoints for create/reserve/recover when API is ready
+
+    /**
+     * Handles the reservation of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param form the reservation form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
+    @PostMapping("/{id}/reserve")
+    public String reserve(@PathVariable("id") Long id,
+                          @Valid @ModelAttribute("reserveForm") ReserveForm form,
+                          BindingResult bindingResult,
+                          RedirectAttributes ra,
+                          Model model) {
+        Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
+
+        if (opt.isEmpty()) {
+            ra.addFlashAttribute("error", "Ghost net not found.");
+            return "redirect:/ui/ghostnets";
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Re-render form with validation errors
+            model.addAttribute("ghostNet", toViewModel(opt.get()));
+            model.addAttribute("reserveForm", form);
+            return "ghostnets/form-reserve";
+        }
+
+        // Build person model with trimmed name
+        PersonBusinessLayerModel p = new PersonBusinessLayerModel();
+        p.setName(form.getTrimmedPersonName());
+
+        log.info("UI Reserve POST received: id={}, personName={}", id, form.getPersonName());
+
+        OperationResult result = service.reserve(id, p);
+
+        log.info("service.reserve returned: {} for id={}, personName={}", result, id, form.getPersonName());
+        if (result == null) {
+            // fallback: treat as error
+            ra.addFlashAttribute("error", "Unable to reserve the net (internal)." );
+            return "redirect:/ui/ghostnets";
+        }
+
+        switch (result) {
+            case OK -> {
+                var updated = service.findById(id).orElse(null);
+                ra.addFlashAttribute("ok", "Net reserved successfully.");
+                if (updated != null) {
+                    return "redirect:/ui/ghostnets/" + updated.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case NOT_FOUND -> {
+                ra.addFlashAttribute("error", "Ghost net not found.");
+                return "redirect:/ui/ghostnets";
+            }
+            case CONFLICT -> {
+                var current = service.findById(id).orElse(null);
+                String status = current != null && current.getStatus() != null ? current.getStatus().name() : "N/A";
+                ra.addFlashAttribute("error", "This net can no longer be reserved (status: " + status + ")");
+                if (current != null) {
+                    return "redirect:/ui/ghostnets/" + current.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case BAD_REQUEST -> {
+                // treat as validation-like error and re-render form
+                model.addAttribute("ghostNet", toViewModel(opt.get()));
+                bindingResult.reject("badRequest", "Invalid reservation request.");
+                model.addAttribute("reserveForm", form);
+                return "ghostnets/form-reserve";
+            }
+            default -> {
+                ra.addFlashAttribute("error", "Unexpected result.");
+                return "redirect:/ui/ghostnets";
+            }
+        }
+    }
+
+    /**
+     * Handles the recovery of a ghost net.
+     *
+     * @param id the ID of the ghost net
+     * @param form the recovery form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
+    @PostMapping("/{id}/recover")
+    public String recover(@PathVariable("id") Long id,
+                          @Valid @ModelAttribute("recoverForm") RecoverForm form,
+                          BindingResult bindingResult,
+                          RedirectAttributes ra,
+                          Model model) {
+        Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
+
+        if (opt.isEmpty()) {
+            ra.addFlashAttribute("error", "Ghost net not found.");
+            return "redirect:/ui/ghostnets";
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Re-render form with validation errors
+            model.addAttribute("ghostNet", toViewModel(opt.get()));
+            model.addAttribute("recoverForm", form);
+            return "ghostnets/form-recover";
+        }
+
+        log.info("UI Recover POST received: id={}, notes={}", id, form.getNotes());
+
+        OperationResult result = service.recover(id);
+
+        log.info("service.recover returned: {} for id={}", result, id);
+        if (result == null) {
+            ra.addFlashAttribute("error", "Unable to mark net as recovered (internal).");
+            return "redirect:/ui/ghostnets";
+        }
+
+        switch (result) {
+            case OK -> {
+                var updated = service.findById(id).orElse(null);
+                ra.addFlashAttribute("ok", "Net marked as recovered successfully.");
+                if (updated != null) {
+                    return "redirect:/ui/ghostnets/" + updated.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case NOT_FOUND -> {
+                ra.addFlashAttribute("error", "Ghost net not found.");
+                return "redirect:/ui/ghostnets";
+            }
+            case CONFLICT -> {
+                var current = service.findById(id).orElse(null);
+                String status = current != null && current.getStatus() != null ? current.getStatus().name() : "N/A";
+                ra.addFlashAttribute("error", "This net cannot be marked as recovered (status: " + status + ")");
+                if (current != null) {
+                    return "redirect:/ui/ghostnets/" + current.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case BAD_REQUEST -> {
+                model.addAttribute("ghostNet", toViewModel(opt.get()));
+                bindingResult.reject("badRequest", "Invalid recover request.");
+                model.addAttribute("recoverForm", form);
+                return "ghostnets/form-recover";
+            }
+            default -> {
+                ra.addFlashAttribute("error", "Unexpected result.");
+                return "redirect:/ui/ghostnets";
+            }
+        }
+    }
+
+    /**
+     * Displays the form for marking a ghost net as missing.
+     *
+     * @param id the ID of the ghost net
+     * @param model the model to add attributes to
+     * @param ra redirect attributes for error messages
+     * @return the view name "ghostnets/form-missing" or redirect to list if not found
+     */
+    @GetMapping("/{id}/missing")
+    public String missingForm(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
+        Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
+        if (opt.isEmpty()) {
+            ra.addFlashAttribute("error", "Ghost net nicht gefunden.");
+            return "redirect:/ui/ghostnets";
+        }
+        model.addAttribute("ghostNet", toViewModel(opt.get()));
+        model.addAttribute("missingForm", new MissingForm());
+        return "ghostnets/form-missing";
+    }
+
+    /**
+     * Handles marking a ghost net as missing.
+     *
+     * @param id the ID of the ghost net
+     * @param form the missing form data
+     * @param bindingResult validation results
+     * @param ra redirect attributes for messages
+     * @param model the model to add attributes to
+     * @return redirect to detail or list, or the form view if validation fails
+     */
+    @PostMapping("/{id}/missing")
+    public String reportMissing(@PathVariable("id") Long id,
+                          @Valid @ModelAttribute("missingForm") MissingForm form,
+                          BindingResult bindingResult,
+                          RedirectAttributes ra,
+                          Model model) {
+        Optional<GhostNetBusinessLayerModel> opt = service.findById(id);
+
+        if (opt.isEmpty()) {
+            ra.addFlashAttribute("error", "Ghost net not found.");
+            return "redirect:/ui/ghostnets";
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Re-render form with validation errors
+            model.addAttribute("ghostNet", toViewModel(opt.get()));
+            model.addAttribute("missingForm", form);
+            return "ghostnets/form-missing";
+        }
+
+        log.info("UI Missing POST received: id={}, notes={}", id, form.getNotes());
+
+        OperationResult result = service.markMissing(id);
+
+        log.info("service.markMissing returned: {} for id={}", result, id);
+        if (result == null) {
+            ra.addFlashAttribute("error", "Unable to mark net as missing (internal).");
+            return "redirect:/ui/ghostnets";
+        }
+
+        switch (result) {
+            case OK -> {
+                var updated = service.findById(id).orElse(null);
+                ra.addFlashAttribute("ok", "Net marked as missing successfully.");
+                if (updated != null) {
+                    return "redirect:/ui/ghostnets/" + updated.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case NOT_FOUND -> {
+                ra.addFlashAttribute("error", "Ghost net not found.");
+                return "redirect:/ui/ghostnets";
+            }
+            case CONFLICT -> {
+                var current = service.findById(id).orElse(null);
+                String status = current != null && current.getStatus() != null ? current.getStatus().name() : "N/A";
+                ra.addFlashAttribute("error", "This net cannot be marked as missing (status: " + status + ")");
+                if (current != null) {
+                    return "redirect:/ui/ghostnets/" + current.getId();
+                }
+                return "redirect:/ui/ghostnets";
+            }
+            case BAD_REQUEST -> {
+                model.addAttribute("ghostNet", toViewModel(opt.get()));
+                bindingResult.reject("badRequest", "Invalid missing report.");
+                model.addAttribute("missingForm", form);
+                return "ghostnets/form-missing";
+            }
+            default -> {
+                ra.addFlashAttribute("error", "Unexpected result.");
+                return "redirect:/ui/ghostnets";
+            }
+        }
+    }
+
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<body th:replace="~{fragments/_layout :: layout(~{this :: pageContent}, 'list')}">
+
+<div th:fragment="pageContent">
+    <h2>Mark as Missing</h2>
+
+    <div class="ghostnet-details" th:if="${ghostNet != null}">
+        <p><strong>ID:</strong> <span th:text="${ghostNet.id}"></span></p>
+        <p><strong>Location:</strong> <span th:text="${ghostNet.location}"></span></p>
+        <p><strong>Size:</strong> <span th:text="${ghostNet.size}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${ghostNet.status}"></span></p>
+    </div>
+    <div th:if="${ghostNet == null}">
+        <p>Ghost Net not found (view only).</p>
+    </div>
+
+    <form th:action="@{/ui/ghostnets/{id}/missing(id=${ghostNet.id})}" method="post" th:object="${missingForm}">
+        <div class="form-row">
+            <label for="notes">Notes</label>
+            <textarea id="notes" th:field="*{notes}" rows="3" placeholder="Optional notes about why this net is missing"></textarea>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Mark as Missing</button>
+            <a class="btn btn-ghost" th:href="@{/ui/ghostnets}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
